@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - CoinQuest</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        body { background: #0f172a; color: #ffffff; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { color: #3b82f6; margin-bottom: 30px; text-align: center; font-size: 28px; }
+        .section { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .section h3 { color: #3b82f6; margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .section h3 i { font-size: 20px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; color: #94a3b8; font-size: 13px; margin-bottom: 4px; font-weight: 500; }
+        input, textarea, select { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; font-size: 14px; transition: border 0.3s; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #3b82f6; }
+        textarea { min-height: 80px; resize: vertical; }
+        .btn { padding: 10px 24px; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s; margin-top: 4px; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+        .btn-danger { background: linear-gradient(135deg, #dc2626, #ea580c); }
+        .btn-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .setting-item { background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .setting-item .label { color: #94a3b8; font-size: 13px; }
+        .setting-item .value { color: #fbbf24; font-size: 13px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .badge-enabled { background: #22c55e; color: white; }
+        .badge-disabled { background: #ef4444; color: white; }
+        .badge-pending { background: #f59e0b; color: black; }
+        .badge-approved { background: #22c55e; color: white; }
+        .badge-cancelled { background: #ef4444; color: white; }
+        .badge-processing { background: #3b82f6; color: white; }
+        .hidden { display: none; }
+        .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .toggle-label input[type="checkbox"] { width: auto; accent-color: #3b82f6; }
+        .secret-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .secret-modal .modal-content { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; }
+        .secret-modal input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; margin: 15px 0; font-size: 16px; }
+        .secret-modal .error { color: #ef4444; display: none; margin-top: 8px; }
+        .rate-display { font-size: 28px; color: #fbbf24; text-align: center; padding: 12px; background: rgba(251,191,36,0.05); border-radius: 10px; margin: 8px 0; }
+        .info-box { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); border-radius: 10px; padding: 10px 14px; margin-top: 8px; font-size: 13px; color: #94a3b8; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: rgba(255,255,255,0.03); padding: 14px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box .number { font-size: 24px; font-weight: bold; color: #fbbf24; }
+        .stat-box .label { font-size: 12px; color: #94a3b8; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-box input { flex: 1; min-width: 150px; }
+        .search-box .btn { margin-top: 0; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #94a3b8; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: #e2e8f0; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+        .status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 12px; }
+        .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+        .action-btns .btn { padding: 4px 10px; font-size: 11px; }
+        .tab-nav { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; background: #1e293b; padding: 6px; border-radius: 12px; }
+        .tab-nav .tab-btn { padding: 10px 20px; border: none; background: transparent; color: #94a3b8; cursor: pointer; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.3s; }
+        .tab-nav .tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+        .tab-nav .tab-btn.active { background: #3b82f6; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .edit-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .edit-inline input { width: auto; flex: 1; min-width: 100px; }
+        @media (max-width: 600px) { .setting-item { flex-direction: column; align-items: stretch; } .setting-item .value { max-width: 100%; white-space: normal; } .tab-nav .tab-btn { padding: 8px 12px; font-size: 12px; } }
+    </style>
+</head>
+<body>
+    <!-- Secret Key Modal -->
+    <div class="secret-modal" id="accessModal">
+        <div class="modal-content">
+            <h2 style="color:#3b82f6;">🔐 Admin Access</h2>
+            <p style="color:#94a3b8;">Enter admin secret key to access panel</p>
+            <input type="password" id="secretKey" placeholder="Enter secret key">
+            <button class="btn btn-primary" onclick="verifyAccess()" style="width:100%;">Access Panel</button>
+            <p class="error" id="accessError">Invalid secret key!</p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="container hidden" id="adminPanel">
+        <h1>⚡ Admin Panel</h1>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('users', this)"><i class="fas fa-users"></i> Users</button>
+            <button class="tab-btn" onclick="switchTab('tasks', this)"><i class="fas fa-tasks"></i> Tasks</button>
+            <button class="tab-btn" onclick="switchTab('withdraw', this)"><i class="fas fa-credit-card"></i> Withdraw</button>
+            <button class="tab-btn" onclick="switchTab('offers', this)"><i class="fas fa-gift"></i> Offers</button>
+            <button class="tab-btn" onclick="switchTab('weekly', this)"><i class="fas fa-calendar-week"></i> Weekly Bonus</button>
+            <button class="tab-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
+        </div>
+
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div class="tab-content active" id="tabDashboard">
+            <div class="section">
+                <h3><i class="fas fa-chart-line"></i> Overview</h3>
+                <div class="stats-row" id="dashboardStats">
+                    <div class="stat-box"><div class="number" id="totalUsers">0</div><div class="label">Total Users</div></div>
+                    <div class="stat-box"><div class="number" id="totalCoins">0</div><div class="label">Total Coins</div></div>
+                    <div class="stat-box"><div class="number" id="totalWithdraw">$0</div><div class="label">Total Withdraw</div></div>
+                    <div class="stat-box"><div class="number" id="pendingWithdraw">0</div><div class="label">Pending Withdraw</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== USERS TAB ===== -->
+        <div class="tab-content" id="tabUsers">
+            <div class="section">
+                <h3><i class="fas fa-users"></i> Users Management</h3>
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="Search by username or ID..." oninput="filterUsers()">
+                    <button class="btn btn-primary" onclick="refreshUsers()"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Coins</th>
+                                <th>USD</th>
+                                <th>Tasks</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TASKS TAB ===== -->
+        <div class="tab-content" id="tabTasks">
+            <div class="section">
+                <h3><i class="fas fa-tasks"></i> Task Settings</h3>
+                <div class="setting-item">
+                    <div><span class="label">📢 Telegram Channel</span><div class="value" id="telegramLinkDisplay">-</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="editSetting('telegram')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="setting-item">
+                    <div><span class="label">🐦 Twitter Page</span><div class="value" id="twitterLinkDisplay">-</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="editSetting('twitter')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="setting-item">
+                    <div><span class="label">📝 Survey Link</span><div class="value" id="surveyLinkDisplay">-</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="editSetting('survey')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="setting-item">
+                    <div><span class="label">📺 Video Ad Code</span><div class="value" id="videoAdDisplay">-</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="editSetting('video')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="setting-item">
+                    <div><span class="label">📅 Daily Check-in Ad Code</span><div class="value" id="dailyCheckinAdDisplay">-</div></div>
+                    <button class="btn btn-primary btn-sm" onclick="editSetting('dailyCheckin')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== WITHDRAW TAB ===== -->
+        <div class="tab-content" id="tabWithdraw">
+            <div class="section">
+                <h3><i class="fas fa-credit-card"></i> Withdraw Requests</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>User</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="withdrawTableBody">
+                            <tr><td colspan="6" style="text-align:center; color:#94a3b8;">Loading requests...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== OFFERS TAB ===== -->
+        <div class="tab-content" id="tabOffers">
+            <div class="section">
+                <h3><i class="fas fa-gift"></i> Energy Offers</h3>
+                <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; margin-bottom:16px;">
+                    <div class="form-group"><label>User ID (leave empty for all users)</label><input type="text" id="offerUserId" placeholder="Leave empty for all users"></div>
+                    <div class="form-group"><label>Energy Amount</label><input type="number" id="offerEnergy" value="20" min="1"></div>
+                    <div class="form-group"><label>Price (Coins)</label><input type="number" id="offerPrice" value="50" min="1"></div>
+                    <div class="form-group"><label>Limit (times user can buy, 0 = unlimited)</label><input type="number" id="offerLimit" value="1" min="0"></div>
+                    <button class="btn btn-success" onclick="addOffer()"><i class="fas fa-plus"></i> Add Offer</button>
+                </div>
+                <div id="offerList"><div style="text-align:center; color:#94a3b8;">Loading offers...</div></div>
+            </div>
+        </div>
+
+        <!-- ===== WEEKLY BONUS TAB ===== -->
+        <div class="tab-content" id="tabWeekly">
+            <div class="section">
+                <h3><i class="fas fa-calendar-week"></i> Weekly Bonus Settings</h3>
+                <div class="info-box">Each day has different reward amount. Users must watch ad to claim.</div>
+                <div id="weeklyRewardSettings">
+                    <div class="setting-item" data-day="0"><span class="label">Sunday</span><input type="number" class="weekly-reward-input" value="10" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="1"><span class="label">Monday</span><input type="number" class="weekly-reward-input" value="15" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="2"><span class="label">Tuesday</span><input type="number" class="weekly-reward-input" value="20" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="3"><span class="label">Wednesday</span><input type="number" class="weekly-reward-input" value="25" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="4"><span class="label">Thursday</span><input type="number" class="weekly-reward-input" value="30" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="5"><span class="label">Friday</span><input type="number" class="weekly-reward-input" value="40" min="1" style="width:100px;"></div>
+                    <div class="setting-item" data-day="6"><span class="label">Saturday</span><input type="number" class="weekly-reward-input" value="50" min="1" style="width:100px;"></div>
+                </div>
+                <button class="btn btn-success" onclick="saveWeeklyRewards()"><i class="fas fa-save"></i> Save Weekly Rewards</button>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS TAB ===== -->
+        <div class="tab-content" id="tabSettings">
+            <div class="section">
+                <h3><i class="fas fa-cog"></i> General Settings</h3>
+                <div class="form-group"><label>Conversion Rate (1 USD = ? Coins)</label><input type="number" id="conversionRateInput" value="1000" min="1"></div>
+                <div class="rate-display" id="rateDisplay">1 USD = 1000 Coins</div>
+                <button class="btn btn-success" onclick="updateConversionRate()"><i class="fas fa-save"></i> Save Rate</button>
+            </div>
+
+            <div class="section">
+                <h3><i class="fas fa-credit-card"></i> Withdraw Settings</h3>
+                <div class="form-group"><label>Minimum Withdraw Amount (USD)</label><input type="number" id="minWithdrawInput" value="10" min="1" step="0.5"></div>
+                <div class="form-group"><label>Withdraw Method</label>
+                    <select id="withdrawMethod">
+                        <option value="bank">Bank Transfer</option><option value="bkash">bKash</option><option value="nagad">Nagad</option>
+                        <option value="rocket">Rocket</option><option value="paypal">PayPal</option><option value="crypto">Cryptocurrency</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Withdraw Details (Instructions)</label><textarea id="withdrawDetails" placeholder="Add withdrawal instructions...">Bank Transfer</textarea></div>
+                <button class="btn btn-success" onclick="updateWithdrawSettings()"><i class="fas fa-save"></i> Save Withdraw Settings</button>
+            </div>
+
+            <div class="section">
+                <h3><i class="fas fa-user-shield"></i> Admin Settings</h3>
+                <div class="form-group"><label>Change Admin Secret Key</label>
+                    <input type="text" id="adminSecretInput" value="admin123456" placeholder="New secret key">
+                </div>
+                <button class="btn btn-warning" onclick="updateAdminSecret()"><i class="fas fa-key"></i> Change Secret Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Setting Modal -->
+    <div class="section hidden" id="editSection" style="margin-top:20px; border:2px solid #3b82f6;">
+        <h3 id="editTitle">Edit Setting</h3>
+        <div class="form-group"><label id="editLabel">Value</label><textarea id="editInput" placeholder="Enter value..."></textarea></div>
+        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editEnabled" checked> Enabled</label></div>
+        <button class="btn btn-success" onclick="saveSetting()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn btn-danger" onclick="cancelEdit()"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAqCNHhu9oaBDea85tAH-iHucHczZnR7nY",
+            authDomain: "tolaka-exc-reverb-b1afd.firebaseapp.com",
+            databaseURL: "https://tolaka-exc-reverb-b1afd-default-rtdb.firebaseio.com",
+            projectId: "tolaka-exc-reverb-b1afd",
+            storageBucket: "tolaka-exc-reverb-b1afd.appspot.com",
+            messagingSenderId: "25114300036",
+            appId: "1:25114300036:android:579e5c869a075113603cd1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let ADMIN_SECRET = "admin123456";
+        let currentEditKey = null;
+        let taskSettings = {};
+        let currentRate = 1000;
+        let allUsers = [];
+
+        // ==================== ACCESS ====================
+        function verifyAccess() {
+            const key = document.getElementById('secretKey').value;
+            if (key === ADMIN_SECRET) {
+                document.getElementById('accessModal').style.display = 'none';
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadAllData();
+            } else {
+                document.getElementById('accessError').style.display = 'block';
+            }
+        }
+
+        // ==================== TAB SYSTEM ====================
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+            if (tab === 'dashboard') loadDashboard();
+            if (tab === 'users') loadUsers();
+            if (tab === 'withdraw') loadWithdrawRequests();
+            if (tab === 'offers') loadOffers();
+        }
+
+        // ==================== LOAD ALL DATA ====================
+        function loadAllData() {
+            loadSettings();
+            loadConversionRate();
+            loadWithdrawSettings();
+            loadWeeklyRewards();
+            loadDashboard();
+            loadUsers();
+            loadWithdrawRequests();
+            loadOffers();
+            loadAdminSecret();
+        }
+
+        // ==================== ADMIN SECRET ====================
+        function loadAdminSecret() {
+            const ref = database.ref('adminSecret');
+            ref.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    ADMIN_SECRET = snapshot.val();
+                    document.getElementById('adminSecretInput').value = ADMIN_SECRET;
+                }
+            });
+        }
+
+        function updateAdminSecret() {
+            const newSecret = document.getElementById('adminSecretInput').value.trim();
+            if (!newSecret || newSecret.length < 4) {
+                alert('Secret key must be at least 4 characters!');
+                return;
+            }
+            database.ref('adminSecret').set(newSecret).then(() => {
+                ADMIN_SECRET = newSecret;
+                alert('✅ Admin secret key updated successfully!');
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== DASHBOARD ====================
+        function loadDashboard() {
+            database.ref('users').once('value', (snapshot) => {
+                let totalUsers = 0, totalCoins = 0, totalWithdraw = 0, pendingWithdraw = 0;
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const data = child.val();
+                        totalUsers++;
+                        totalCoins += data.balance || 0;
+                    });
+                }
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('totalCoins').textContent = totalCoins.toLocaleString();
+            });
+            database.ref('withdrawRequests').once('value', (snapshot) => {
+                let total = 0, pending = 0;
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const data = child.val();
+                        total += data.amount || 0;
+                        if (data.status === 'pending') pending++;
+                    });
+                }
+                document.getElementById('totalWithdraw').textContent = '$' + total.toFixed(2);
+                document.getElementById('pendingWithdraw').textContent = pending;
+            });
+        }
+
+        // ==================== USERS ====================
+        function loadUsers() {
+            database.ref('users').orderByChild('balance').limitToLast(50).on('value', (snapshot) => {
+                const container = document.getElementById('usersTableBody');
+                allUsers = [];
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No users found</td></tr>';
+                    return;
+                }
+                snapshot.forEach((child) => {
+                    allUsers.push({ id: child.key, ...child.val() });
+                });
+                allUsers.reverse();
+                renderUsers(allUsers);
+            });
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('usersTableBody');
+            if (users.length === 0) {
+                container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No users found</td></tr>';
+                return;
+            }
+            container.innerHTML = users.map(user => `
+                <tr>
+                    <td><div style="display:flex; align-items:center; gap:10px;">
+                        <div class="user-avatar">${(user.username || 'U').charAt(0).toUpperCase()}</div>
+                        <div><div style="font-weight:500;">${user.username || 'User'}</div>
+                        <div style="font-size:11px; color:#6b7280;">${user.id ? user.id.substring(0,10) : ''}</div></div>
+                    </div></td>
+                    <td style="color:#fbbf24; font-weight:bold;">${user.balance || 0}</td>
+                    <td style="color:#22c55e;">$${((user.balance || 0) / (currentRate || 1000)).toFixed(2)}</td>
+                    <td>${user.completedTasks || 0}</td>
+                    <td style="font-size:12px; color:#94a3b8;">${user.lastLogin || 'Never'}</td>
+                    <td>${user.isBanned ? '<span class="badge badge-disabled">Banned</span>' : '<span class="badge badge-enabled">Active</span>'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-primary btn-sm" onclick="editUser('${user.id}')"><i class="fas fa-edit"></i></button>
+                            ${user.isBanned ? `<button class="btn btn-success btn-sm" onclick="unbanUser('${user.id}')"><i class="fas fa-check"></i></button>` :
+                            `<button class="btn btn-danger btn-sm" onclick="banUser('${user.id}')"><i class="fas fa-ban"></i></button>`}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                (u.username || '').toLowerCase().includes(search) || 
+                (u.id || '').toLowerCase().includes(search)
+            );
+            renderUsers(filtered);
+        }
+
+        function refreshUsers() { loadUsers(); }
+
+        function editUser(userId) {
+            const newCoins = prompt('Enter new coins balance:');
+            if (newCoins === null) return;
+            const coins = parseInt(newCoins);
+            if (isNaN(coins) || coins < 0) { alert('Please enter a valid number'); return; }
+            
+            const newUsd = prompt('Enter new USD balance:');
+            if (newUsd === null) return;
+            const usd = parseFloat(newUsd);
+            if (isNaN(usd) || usd < 0) { alert('Please enter a valid number'); return; }
+
+            database.ref('users/' + userId).update({
+                balance: coins,
+                usdBalance: usd
+            }).then(() => {
+                alert('✅ User updated successfully!');
+                loadUsers();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function banUser(userId) {
+            const reason = prompt('Enter ban reason:');
+            if (reason === null) return;
+            if (!reason.trim()) { alert('Please enter a reason'); return; }
+            
+            database.ref('users/' + userId).update({
+                isBanned: true,
+                banReason: reason,
+                banTime: new Date().toISOString()
+            }).then(() => {
+                alert('✅ User banned successfully!');
+                loadUsers();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function unbanUser(userId) {
+            if (!confirm('Are you sure you want to unban this user?')) return;
+            database.ref('users/' + userId).update({
+                isBanned: false,
+                banReason: null
+            }).then(() => {
+                alert('✅ User unbanned successfully!');
+                loadUsers();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== TASK SETTINGS ====================
+        function loadSettings() {
+            const settingsRef = database.ref('taskSettings');
+            settingsRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    taskSettings = snapshot.val();
+                } else {
+                    taskSettings = {
+                        telegram: { link: 'https://t.me/yourchannel', enabled: true },
+                        twitter: { link: 'https://twitter.com/yourpage', enabled: true },
+                        survey: { link: 'https://your-survey-link.com', enabled: true },
+                        video: { adCode: '<div style="padding:20px; background:#1a1f3a; border-radius:12px;"><p style="color:#94a3b8;">📺 Video Ad</p></div>', enabled: true },
+                        dailyCheckin: { adCode: '<div style="padding:20px; background:#1a1f3a; border-radius:12px;"><p style="color:#94a3b8;">📅 Daily Check-in</p></div>', enabled: true }
+                    };
+                    settingsRef.set(taskSettings);
+                }
+                updateDisplay();
+            });
+        }
+
+        function updateDisplay() {
+            document.getElementById('telegramLinkDisplay').textContent = taskSettings.telegram?.link || 'Not set';
+            document.getElementById('twitterLinkDisplay').textContent = taskSettings.twitter?.link || 'Not set';
+            document.getElementById('surveyLinkDisplay').textContent = taskSettings.survey?.link || 'Not set';
+            document.getElementById('videoAdDisplay').textContent = taskSettings.video?.adCode ? '✅ Set' : '❌ Not set';
+            document.getElementById('dailyCheckinAdDisplay').textContent = taskSettings.dailyCheckin?.adCode ? '✅ Set' : '❌ Not set';
+        }
+
+        function editSetting(key) {
+            currentEditKey = key;
+            const section = document.getElementById('editSection');
+            section.classList.remove('hidden');
+            
+            const titles = {
+                telegram: 'Edit Telegram Channel Link',
+                twitter: 'Edit Twitter Page Link',
+                survey: 'Edit Survey Link',
+                video: 'Edit Video Ad Code',
+                dailyCheckin: 'Edit Daily Check-in Ad Code'
+            };
+            const labels = {
+                telegram: 'Telegram Channel URL',
+                twitter: 'Twitter Page URL',
+                survey: 'Survey Link URL',
+                video: 'Video Ad HTML Code',
+                dailyCheckin: 'Daily Check-in Ad HTML Code'
+            };
+
+            document.getElementById('editTitle').textContent = titles[key] || 'Edit Setting';
+            document.getElementById('editLabel').textContent = labels[key] || 'Value';
+            
+            const data = taskSettings[key] || {};
+            document.getElementById('editInput').value = data.link || data.adCode || '';
+            document.getElementById('editEnabled').checked = data.enabled !== false;
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveSetting() {
+            if (!currentEditKey) return;
+            const value = document.getElementById('editInput').value;
+            const enabled = document.getElementById('editEnabled').checked;
+            
+            const updateData = {};
+            if (currentEditKey === 'video' || currentEditKey === 'dailyCheckin') {
+                updateData[currentEditKey] = { adCode: value, enabled: enabled };
+            } else {
+                updateData[currentEditKey] = { link: value, enabled: enabled };
+            }
+            
+            database.ref('taskSettings').update(updateData).then(() => {
+                alert('✅ Setting saved successfully!');
+                cancelEdit();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function cancelEdit() {
+            document.getElementById('editSection').classList.add('hidden');
+            currentEditKey = null;
+        }
+
+        // ==================== CONVERSION RATE ====================
+        function loadConversionRate() {
+            const rateRef = database.ref('conversionRate');
+            rateRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    currentRate = snapshot.val();
+                } else {
+                    currentRate = 1000;
+                    rateRef.set(1000);
+                }
+                document.getElementById('conversionRateInput').value = currentRate;
+                document.getElementById('rateDisplay').textContent = `1 USD = ${currentRate} Coins`;
+            });
+        }
+
+        function updateConversionRate() {
+            const newRate = parseInt(document.getElementById('conversionRateInput').value);
+            if (!newRate || newRate < 1) { alert('Please enter a valid rate (minimum 1)'); return; }
+            database.ref('conversionRate').set(newRate).then(() => {
+                alert('✅ Conversion rate updated successfully!');
+                currentRate = newRate;
+                document.getElementById('rateDisplay').textContent = `1 USD = ${newRate} Coins`;
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== WITHDRAW ====================
+        function loadWithdrawSettings() {
+            const ref = database.ref('withdrawSettings');
+            ref.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('minWithdrawInput').value = data.minAmount || 10;
+                    document.getElementById('withdrawMethod').value = data.method || 'bank';
+                    document.getElementById('withdrawDetails').value = data.details || 'Bank Transfer';
+                }
+            });
+        }
+
+        function updateWithdrawSettings() {
+            const minAmount = parseFloat(document.getElementById('minWithdrawInput').value);
+            const method = document.getElementById('withdrawMethod').value;
+            const details = document.getElementById('withdrawDetails').value;
+            if (!minAmount || minAmount < 0.5) { alert('Please enter a valid minimum amount (minimum 0.5)'); return; }
+            
+            database.ref('withdrawSettings').update({
+                minAmount: minAmount,
+                method: method,
+                details: details,
+                updatedAt: Date.now()
+            }).then(() => {
+                alert('✅ Withdraw settings updated successfully!');
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function loadWithdrawRequests() {
+            database.ref('withdrawRequests').orderByChild('requestedAt').limitToLast(30).on('value', (snapshot) => {
+                const container = document.getElementById('withdrawTableBody');
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No withdraw requests</td></tr>';
+                    return;
+                }
+                const requests = [];
+                snapshot.forEach((child) => {
+                    requests.push({ id: child.key, ...child.val() });
+                });
+                requests.reverse();
+                
+                container.innerHTML = requests.map(req => `
+                    <tr>
+                        <td>${req.username || 'User'}</td>
+                        <td style="color:#fbbf24; font-weight:bold;">$${req.amount.toFixed(2)}</td>
+                        <td style="font-size:12px;">${req.method || 'Bank'}</td>
+                        <td><span class="badge badge-${req.status || 'pending'}">${req.status || 'Pending'}</span></td>
+                        <td style="font-size:12px; color:#94a3b8;">${req.requestedAt ? new Date(req.requestedAt).toLocaleDateString() : '-'}</td>
+                        <td>
+                            <div class="action-btns">
+                                ${req.status === 'pending' ? `
+                                    <button class="btn btn-success btn-sm" onclick="updateWithdrawStatus('${req.id}', 'approved')"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-warning btn-sm" onclick="updateWithdrawStatus('${req.id}', 'processing')"><i class="fas fa-spinner"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="cancelWithdraw('${req.id}')"><i class="fas fa-times"></i></button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            });
+        }
+
+        function updateWithdrawStatus(requestId, status) {
+            const reason = status === 'cancelled' ? prompt('Enter cancellation reason:') : null;
+            if (status === 'cancelled' && !reason) return;
+            
+            const updateData = { status: status };
+            if (reason) updateData.cancelReason = reason;
+            
+            database.ref('withdrawRequests/' + requestId).update(updateData).then(() => {
+                alert(`✅ Withdraw ${status}!`);
+                loadWithdrawRequests();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function cancelWithdraw(requestId) {
+            const reason = prompt('Enter cancellation reason:');
+            if (reason === null) return;
+            if (!reason.trim()) { alert('Please enter a reason'); return; }
+            updateWithdrawStatus(requestId, 'cancelled');
+        }
+
+        // ==================== OFFERS ====================
+        function loadOffers() {
+            database.ref('energyOffers').on('value', (snapshot) => {
+                const container = document.getElementById('offerList');
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8;">No offers created yet</div>';
+                    return;
+                }
+                let html = '';
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    html += `
+                        <div class="setting-item">
+                            <div>
+                                <span class="label">⚡ +${data.energy} Energy</span>
+                                <span style="color:#fbbf24; margin:0 8px;">${data.price} 🪙</span>
+                                <span style="color:#94a3b8; font-size:12px;">${data.userId ? 'User: '+data.userId.substring(0,8)+'...' : 'All Users'}</span>
+                                <span style="color:#94a3b8; font-size:12px;">Limit: ${data.limit || '∞'}</span>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="deleteOffer('${child.key}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function addOffer() {
+            const userId = document.getElementById('offerUserId').value.trim() || '';
+            const energy = parseInt(document.getElementById('offerEnergy').value);
+            const price = parseInt(document.getElementById('offerPrice').value);
+            const limit = parseInt(document.getElementById('offerLimit').value) || 0;
+            if (!energy || !price || energy < 1 || price < 1) { alert('Please enter valid values'); return; }
+            
+            database.ref('energyOffers').push({
+                userId: userId,
+                energy: energy,
+                price: price,
+                limit: limit,
+                createdAt: Date.now()
+            }).then(() => {
+                alert('✅ Offer added successfully!');
+                document.getElementById('offerUserId').value = '';
+                document.getElementById('offerEnergy').value = '20';
+                document.getElementById('offerPrice').value = '50';
+                document.getElementById('offerLimit').value = '1';
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function deleteOffer(offerId) {
+            if (!confirm('Delete this offer?')) return;
+            database.ref('energyOffers/' + offerId).remove().then(() => {
+                alert('✅ Offer deleted!');
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== WEEKLY BONUS ====================
+        function loadWeeklyRewards() {
+            database.ref('weeklyRewards').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.querySelectorAll('.weekly-reward-input').forEach(input => {
+                        const day = parseInt(input.closest('.setting-item').dataset.day);
+                        input.value = data[day] || [10,15,20,25,30,40,50][day];
+                    });
+                }
+            });
+        }
+
+        function saveWeeklyRewards() {
+            const rewards = {};
+            document.querySelectorAll('.weekly-reward-input').forEach(input => {
+                const day = parseInt(input.closest('.setting-item').dataset.day);
+                rewards[day] = parseInt(input.value) || 10;
+            });
+            database.ref('weeklyRewards').set(rewards).then(() => {
+                alert('✅ Weekly rewards saved successfully!');
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show modal by default
+            document.getElementById('accessModal').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
