@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Admin Panel - CoinQuest</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
@@ -72,6 +72,12 @@
         .edit-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .edit-inline input { width: auto; flex: 1; min-width: 100px; }
         @media (max-width: 600px) { .setting-item { flex-direction: column; align-items: stretch; } .setting-item .value { max-width: 100%; white-space: normal; } .tab-nav .tab-btn { padding: 8px 12px; font-size: 12px; } }
+        
+        .task-item { background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .task-item .task-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .task-item .task-title { font-weight: bold; color: #fbbf24; }
+        .task-item .task-meta { font-size: 12px; color: #94a3b8; }
+        .task-item .task-actions { display: flex; gap: 4px; }
     </style>
 </head>
 <body>
@@ -93,11 +99,13 @@
         <!-- Tab Navigation -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('users', this)"><i class="fas fa-users"></i> Users</button>
             <button class="tab-btn" onclick="switchTab('tasks', this)"><i class="fas fa-tasks"></i> Tasks</button>
+            <button class="tab-btn" onclick="switchTab('video', this)"><i class="fas fa-video"></i> Video</button>
+            <button class="tab-btn" onclick="switchTab('energy', this)"><i class="fas fa-bolt"></i> Energy</button>
+            <button class="tab-btn" onclick="switchTab('users', this)"><i class="fas fa-users"></i> Users</button>
             <button class="tab-btn" onclick="switchTab('withdraw', this)"><i class="fas fa-credit-card"></i> Withdraw</button>
             <button class="tab-btn" onclick="switchTab('offers', this)"><i class="fas fa-gift"></i> Offers</button>
-            <button class="tab-btn" onclick="switchTab('weekly', this)"><i class="fas fa-calendar-week"></i> Weekly Bonus</button>
+            <button class="tab-btn" onclick="switchTab('weekly', this)"><i class="fas fa-calendar-week"></i> Weekly</button>
             <button class="tab-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
         </div>
 
@@ -111,6 +119,69 @@
                     <div class="stat-box"><div class="number" id="totalWithdraw">$0</div><div class="label">Total Withdraw</div></div>
                     <div class="stat-box"><div class="number" id="pendingWithdraw">0</div><div class="label">Pending Withdraw</div></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ===== TASKS TAB ===== -->
+        <div class="tab-content" id="tabTasks">
+            <div class="section">
+                <h3><i class="fas fa-tasks"></i> Task Management</h3>
+                <div class="info-box">Add or remove tasks. Users will see tasks in the Tasks tab.</div>
+                
+                <!-- Add Task -->
+                <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; margin-bottom:16px;">
+                    <h5 style="color:#94a3b8; margin-bottom:12px; font-size:14px;">➕ Add New Task</h5>
+                    <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" placeholder="e.g. Join Telegram Channel"></div>
+                    <div class="form-group"><label>Description</label><input type="text" id="taskDesc" placeholder="e.g. Join our Telegram channel"></div>
+                    <div class="form-group"><label>Reward (Coins)</label><input type="number" id="taskReward" value="10" min="1"></div>
+                    <div class="form-group">
+                        <label>Task Type</label>
+                        <select id="taskType">
+                            <option value="link">Link (URL)</option>
+                            <option value="ad">Ad (Rewarded)</option>
+                            <option value="simple">Simple (Button Click)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="taskLinkGroup"><label>Link URL</label><input type="url" id="taskLink" placeholder="https://t.me/yourchannel"></div>
+                    <div class="form-group" id="taskAdCodeGroup" style="display:none;"><label>Ad Code (HTML)</label><textarea id="taskAdCode" placeholder="Add your ad HTML code here..."></textarea></div>
+                    <div class="form-group"><label>Max Progress (Steps)</label><input type="number" id="taskMaxProgress" value="1" min="1"></div>
+                    <div class="form-group"><label>Category</label>
+                        <select id="taskCategory">
+                            <option value="social">Social</option>
+                            <option value="video">Video</option>
+                            <option value="special">Special</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
+                </div>
+
+                <!-- Task List -->
+                <h5 style="color:#94a3b8; margin-bottom:12px; font-size:14px;">📋 Existing Tasks</h5>
+                <div id="taskList"><div style="text-align:center; color:#94a3b8; padding:20px;">Loading tasks...</div></div>
+            </div>
+        </div>
+
+        <!-- ===== VIDEO TAB ===== -->
+        <div class="tab-content" id="tabVideo">
+            <div class="section">
+                <h3><i class="fas fa-video"></i> Waz Video Settings</h3>
+                <div class="info-box">Users watch videos to earn coins. Admin can control reward & daily limit.</div>
+                <div class="form-group"><label>Reward per Video (Coins)</label><input type="number" id="videoReward" value="10" min="1"></div>
+                <div class="form-group"><label>Daily Video Limit</label><input type="number" id="videoDailyLimit" value="5" min="1"></div>
+                <button class="btn btn-success" onclick="updateVideoSettings()"><i class="fas fa-save"></i> Save Video Settings</button>
+            </div>
+        </div>
+
+        <!-- ===== ENERGY TAB ===== -->
+        <div class="tab-content" id="tabEnergy">
+            <div class="section">
+                <h3><i class="fas fa-bolt"></i> Energy Settings</h3>
+                <div class="info-box">Users can watch videos to get energy instantly. Recharge time is how long it takes to get 1 energy.</div>
+                <div class="form-group"><label>Energy per Video (Watching Ad)</label><input type="number" id="energyVideoReward" value="20" min="1"></div>
+                <div class="form-group"><label>Recharge Time per Energy (Seconds)</label><input type="number" id="energyRechargeTime" value="3600" min="60"></div>
+                <div class="info-box">⚡ 3600 seconds = 1 hour. 1800 = 30 minutes. 600 = 10 minutes.</div>
+                <button class="btn btn-success" onclick="updateEnergySettings()"><i class="fas fa-save"></i> Save Energy Settings</button>
             </div>
         </div>
 
@@ -139,33 +210,6 @@
                             <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Loading users...</td></tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== TASKS TAB ===== -->
-        <div class="tab-content" id="tabTasks">
-            <div class="section">
-                <h3><i class="fas fa-tasks"></i> Task Settings</h3>
-                <div class="setting-item">
-                    <div><span class="label">📢 Telegram Channel</span><div class="value" id="telegramLinkDisplay">-</div></div>
-                    <button class="btn btn-primary btn-sm" onclick="editSetting('telegram')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="setting-item">
-                    <div><span class="label">🐦 Twitter Page</span><div class="value" id="twitterLinkDisplay">-</div></div>
-                    <button class="btn btn-primary btn-sm" onclick="editSetting('twitter')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="setting-item">
-                    <div><span class="label">📝 Survey Link</span><div class="value" id="surveyLinkDisplay">-</div></div>
-                    <button class="btn btn-primary btn-sm" onclick="editSetting('survey')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="setting-item">
-                    <div><span class="label">📺 Video Ad Code</span><div class="value" id="videoAdDisplay">-</div></div>
-                    <button class="btn btn-primary btn-sm" onclick="editSetting('video')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="setting-item">
-                    <div><span class="label">📅 Daily Check-in Ad Code</span><div class="value" id="dailyCheckinAdDisplay">-</div></div>
-                    <button class="btn btn-primary btn-sm" onclick="editSetting('dailyCheckin')"><i class="fas fa-edit"></i> Edit</button>
                 </div>
             </div>
         </div>
@@ -304,6 +348,7 @@
             if (tab === 'users') loadUsers();
             if (tab === 'withdraw') loadWithdrawRequests();
             if (tab === 'offers') loadOffers();
+            if (tab === 'tasks') loadTasks();
         }
 
         // ==================== LOAD ALL DATA ====================
@@ -312,10 +357,13 @@
             loadConversionRate();
             loadWithdrawSettings();
             loadWeeklyRewards();
+            loadVideoSettings();
+            loadEnergySettings();
             loadDashboard();
             loadUsers();
             loadWithdrawRequests();
             loadOffers();
+            loadTasks();
             loadAdminSecret();
         }
 
@@ -345,7 +393,7 @@
         // ==================== DASHBOARD ====================
         function loadDashboard() {
             database.ref('users').once('value', (snapshot) => {
-                let totalUsers = 0, totalCoins = 0, totalWithdraw = 0, pendingWithdraw = 0;
+                let totalUsers = 0, totalCoins = 0;
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         const data = child.val();
@@ -470,6 +518,153 @@
             }).then(() => {
                 alert('✅ User unbanned successfully!');
                 loadUsers();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== TASKS ====================
+        function loadTasks() {
+            database.ref('tasks').on('value', (snapshot) => {
+                const container = document.getElementById('taskList');
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">No tasks created yet</div>';
+                    return;
+                }
+                let html = '';
+                snapshot.forEach((child) => {
+                    const task = child.val();
+                    const id = child.key;
+                    const typeIcon = task.type === 'link' ? '🔗' : task.type === 'ad' ? '📺' : '📝';
+                    html += `
+                        <div class="task-item">
+                            <div class="task-header">
+                                <div>
+                                    <span class="task-title">${typeIcon} ${task.title}</span>
+                                    <span style="font-size:12px; color:#22c55e; margin-left:10px;">+${task.reward} 🪙</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTask('${id}')"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="task-meta">${task.description || ''} | Category: ${task.category || 'General'} | Progress: ${task.progress || 0}/${task.maxProgress || 1}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const reward = parseInt(document.getElementById('taskReward').value);
+            const type = document.getElementById('taskType').value;
+            const link = document.getElementById('taskLink').value.trim();
+            const adCode = document.getElementById('taskAdCode').value.trim();
+            const maxProgress = parseInt(document.getElementById('taskMaxProgress').value) || 1;
+            const category = document.getElementById('taskCategory').value;
+
+            if (!title) { alert('Please enter a task title!'); return; }
+            if (!reward || reward < 1) { alert('Please enter a valid reward!'); return; }
+
+            const taskData = {
+                title: title,
+                description: desc || '',
+                reward: reward,
+                type: type,
+                category: category,
+                maxProgress: maxProgress,
+                progress: 0,
+                participants: 0,
+                createdAt: Date.now()
+            };
+
+            if (type === 'link') {
+                if (!link) { alert('Please enter a link URL!'); return; }
+                taskData.link = link;
+                taskData.actionText = 'Go →';
+            } else if (type === 'ad') {
+                taskData.adCode = adCode || '<div style="padding:12px;background:#0a0e27;border-radius:8px;color:#94a3b8;">📺 Ad not configured</div>';
+                taskData.actionText = 'Watch Ad';
+            } else {
+                taskData.actionText = 'Complete';
+            }
+
+            database.ref('tasks').push(taskData).then(() => {
+                alert('✅ Task added successfully!');
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDesc').value = '';
+                document.getElementById('taskReward').value = '10';
+                document.getElementById('taskLink').value = '';
+                document.getElementById('taskAdCode').value = '';
+                document.getElementById('taskMaxProgress').value = '1';
+                loadTasks();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        function deleteTask(taskId) {
+            if (!confirm('Delete this task?')) return;
+            database.ref('tasks/' + taskId).remove().then(() => {
+                alert('✅ Task deleted!');
+                loadTasks();
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // Show/hide link/ad field based on type
+        document.getElementById('taskType').addEventListener('change', function() {
+            const type = this.value;
+            document.getElementById('taskLinkGroup').style.display = type === 'link' ? 'block' : 'none';
+            document.getElementById('taskAdCodeGroup').style.display = type === 'ad' ? 'block' : 'none';
+        });
+
+        // ==================== VIDEO SETTINGS ====================
+        function loadVideoSettings() {
+            database.ref('videoSettings').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('videoReward').value = data.reward || 10;
+                    document.getElementById('videoDailyLimit').value = data.dailyLimit || 5;
+                }
+            });
+        }
+
+        function updateVideoSettings() {
+            const reward = parseInt(document.getElementById('videoReward').value);
+            const dailyLimit = parseInt(document.getElementById('videoDailyLimit').value);
+            if (!reward || reward < 1) { alert('Please enter a valid reward!'); return; }
+            if (!dailyLimit || dailyLimit < 1) { alert('Please enter a valid daily limit!'); return; }
+
+            database.ref('videoSettings').update({
+                reward: reward,
+                dailyLimit: dailyLimit,
+                updatedAt: Date.now()
+            }).then(() => {
+                alert('✅ Video settings saved successfully!');
+            }).catch(err => alert('Error: ' + err.message));
+        }
+
+        // ==================== ENERGY SETTINGS ====================
+        function loadEnergySettings() {
+            database.ref('energySettings').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('energyVideoReward').value = data.videoReward || 20;
+                    document.getElementById('energyRechargeTime').value = data.rechargeTime || 3600;
+                }
+            });
+        }
+
+        function updateEnergySettings() {
+            const videoReward = parseInt(document.getElementById('energyVideoReward').value);
+            const rechargeTime = parseInt(document.getElementById('energyRechargeTime').value);
+            if (!videoReward || videoReward < 1) { alert('Please enter a valid video reward!'); return; }
+            if (!rechargeTime || rechargeTime < 60) { alert('Please enter a valid recharge time (minimum 60 seconds)!'); return; }
+
+            database.ref('energySettings').update({
+                videoReward: videoReward,
+                rechargeTime: rechargeTime,
+                updatedAt: Date.now()
+            }).then(() => {
+                alert('✅ Energy settings saved successfully!');
             }).catch(err => alert('Error: ' + err.message));
         }
 
@@ -743,7 +938,6 @@
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Show modal by default
             document.getElementById('accessModal').style.display = 'flex';
         });
     </script>
