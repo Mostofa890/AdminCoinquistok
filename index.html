@@ -241,19 +241,16 @@
                     <button onclick="saveWeeklySettings()">Save Weekly Rewards</button>
                 </div>
 
-                <!-- 100 LEVELS CONFIG (1-100, 20 XP increment) -->
-                <div class="settings-card" style="grid-column: span 1;">
+                <!-- FIXED 100 LEVELS CONFIG (1-100, ALL INDIVIDUAL XP CAN BE SET HERE) -->
+                <div class="settings-card" style="grid-column: span 2; max-height: 600px; overflow-y: auto; border: 1px solid #fbbf24;">
                     <h5>🏅 Level Config (1 to 100)</h5>
-                    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">System automatically sets 20 XP per level up to 100.</p>
+                    <p style="font-size:12px;color:#94a3b8;margin-bottom:15px;">Set custom XP for each individual level (1-100).</p>
                     
-                    <label>Level 1 XP</label><input type="number" id="setL1" value="0">
-                    <label>Level 2 XP</label><input type="number" id="setL2" value="20">
-                    <label>Level 3 XP</label><input type="number" id="setL3" value="40">
-                    <label>Level 4 XP</label><input type="number" id="setL4" value="60">
-                    <label>Level 5 XP</label><input type="number" id="setL5" value="80">
-                    
-                    <button onclick="saveLevelSettings()" style="margin-top:15px;">Generate & Save 100 Levels</button>
-                    <p style="font-size:10px;color:#64748b;margin-top:5px;">This will set standard XP (20 increments) up to Level 100.</p>
+                    <!-- Level Inputs Container -->
+                    <div id="allLevelsContainer" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;"></div>
+
+                    <button onclick="autoGenerateLevels()" style="background:#f59e0b; margin-bottom:10px;">⚡ Auto Generate (20 XP / Step)</button>
+                    <button onclick="saveAllLevels()" style="background:#3b82f6;">💾 Save All 100 Levels to DB</button>
                 </div>
 
                 <!-- SPEED BOOST -->
@@ -689,12 +686,6 @@
                 });
             }
 
-            db.ref('levelConfig/levels/1/requiredPoints').once('value', s => document.getElementById('setL1').value = s.val() || 0);
-            db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 20);
-            db.ref('levelConfig/levels/3/requiredPoints').once('value', s => document.getElementById('setL3').value = s.val() || 40);
-            db.ref('levelConfig/levels/4/requiredPoints').once('value', s => document.getElementById('setL4').value = s.val() || 60);
-            db.ref('levelConfig/levels/5/requiredPoints').once('value', s => document.getElementById('setL5').value = s.val() || 80);
-
             db.ref('speedBoostConfig/duration').once('value', s => document.getElementById('setBoostDuration').value = s.val() || 3);
             db.ref('speedBoostConfig/cooldown').once('value', s => document.getElementById('setBoostCooldown').value = s.val() || 60);
 
@@ -705,6 +696,50 @@
                 db.ref('referralConfig/tier' + i + '/bonus').once('value', s => {
                     document.getElementById('setRef' + i + 'Bonus').value = s.val() || [50,150,300,500,1000][i-1];
                 });
+            }
+
+            // FIXED: Load ALL 100 Levels' XP Inputs from Database
+            const container = document.getElementById('allLevelsContainer');
+            container.innerHTML = ''; // Clear existing
+            
+            for (let i = 1; i <= 100; i++) {
+                let inputId = 'lvl_xp_' + i;
+                
+                // Create a wrapper
+                let wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '5px';
+                wrapper.style.background = '#0f172a';
+                wrapper.style.padding = '4px 8px';
+                wrapper.style.borderRadius = '6px';
+                wrapper.style.border = '1px solid #334155';
+                
+                let label = document.createElement('label');
+                label.style.fontSize = '11px';
+                label.style.minWidth = '30px';
+                label.style.color = '#94a3b8';
+                label.textContent = 'Lv' + i;
+                
+                let input = document.createElement('input');
+                input.type = 'number';
+                input.id = inputId;
+                input.style.width = '50px';
+                input.style.padding = '4px';
+                input.style.fontSize = '12px';
+                input.style.background = 'transparent';
+                input.style.border = 'none';
+                input.style.color = '#fff';
+                input.style.outline = 'none';
+
+                // Fetch XP from Database
+                db.ref('levelConfig/levels/' + i + '/requiredPoints').once('value', s => {
+                    input.value = s.val() !== null ? s.val() : (i - 1) * 20;
+                });
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(input);
+                container.appendChild(wrapper);
             }
         }
 
@@ -738,21 +773,47 @@
             alert('Weekly rewards updated!');
         }
 
-        function saveLevelSettings() {
-            let levels = {};
-            for (let i = 1; i <= 100; i++) {
-                let xp = (i - 1) * 20; // Level 1 = 0, Level 2 = 20, Level 100 = 1980
-                levels[i] = { 
-                    name: 'Level ' + i, 
-                    emoji: i <= 20 ? '🥉' : (i <= 40 ? '🥈' : (i <= 60 ? '🥇' : (i <= 80 ? '💎' : '👑'))), // Auto assigned emojis based on Tier
-                    bonus: i <= 20 ? 2 : (i <= 40 ? 5 : (i <= 60 ? 10 : (i <= 80 ? 20 : 30))),
-                    requiredPoints: xp 
-                };
-            }
-            db.ref('levelConfig/levels').update(levels).then(() => {
-                alert('Successfully generated and saved 100 levels with 20 XP each!');
-                loadSettingsInputs(); // Refresh UI
+        function autoGenerateLevels() {
+            if(!confirm("This will overwrite existing Level XP inputs. Proceed?")) return;
+            
+            const container = document.getElementById('allLevelsContainer');
+            let inputs = container.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach((input, index) => {
+                let levelNum = index + 1;
+                input.value = (levelNum - 1) * 20; // 0, 20, 40...
             });
+            alert("Auto generation completed! Click 'Save All 100 Levels' to update database.");
+        }
+
+        function saveAllLevels() {
+            let levels = {};
+            const container = document.getElementById('allLevelsContainer');
+            let inputs = container.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach((input, index) => {
+                let levelNum = index + 1;
+                let xp = parseInt(input.value) || 0;
+                
+                let tierEmoji = '🪙';
+                let tierBonus = 0;
+                if(levelNum <= 20) { tierEmoji = '🥉'; tierBonus = 2; }
+                else if(levelNum <= 40) { tierEmoji = '🥈'; tierBonus = 5; }
+                else if(levelNum <= 60) { tierEmoji = '🥇'; tierBonus = 10; }
+                else if(levelNum <= 80) { tierEmoji = '💎'; tierBonus = 20; }
+                else { tierEmoji = '👑'; tierBonus = 30; }
+
+                levels[levelNum] = {
+                    name: 'Level ' + levelNum,
+                    emoji: tierEmoji,
+                    bonus: tierBonus,
+                    requiredPoints: xp
+                };
+            });
+
+            db.ref('levelConfig/levels').update(levels).then(() => {
+                alert('Successfully saved all 100 levels with your custom XP settings!');
+            }).catch(err => alert('Error saving levels: ' + err.message));
         }
 
         function saveBoostSettings() {
