@@ -51,8 +51,6 @@
         .badge.pending { background: #f59e0b; color: #fff; }
         .badge.approved { background: #10b981; color: #fff; }
         .badge.cancelled { background: #ef4444; color: #fff; }
-        .badge.online { background: #10b981; color: #fff; }
-        .badge.offline { background: #64748b; color: #fff; }
 
         .action-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; margin: 0 5px; transition: 0.2s; }
         .action-btn:hover { color: #fff; }
@@ -205,6 +203,54 @@
                     <label>Level 4 XP</label><input type="number" id="setL4" value="600">
                     <label>Level 5 XP</label><input type="number" id="setL5" value="1000">
                     <button onclick="saveLevelSettings()">Save Level Config</button>
+                </div>
+
+                <!-- NEW SETTINGS: SPEED BOOST -->
+                <div class="settings-card">
+                    <h5>⚡ Speed Boost Settings</h5>
+                    <label>Boost Duration (Seconds)</label>
+                    <input type="number" id="setBoostDuration" value="3" placeholder="e.g. 3">
+                    <label>Cooldown Time (Minutes)</label>
+                    <input type="number" id="setBoostCooldown" value="60" placeholder="e.g. 60">
+                    <button onclick="saveBoostSettings()">Save Boost Settings</button>
+                    <p style="font-size:11px;color:#94a3b8;margin-top:10px;">*Note: User panel needs to fetch these values dynamically.</p>
+                </div>
+
+                <!-- NEW SETTINGS: REFERRAL TIERS -->
+                <div class="settings-card" style="grid-column: span 1;">
+                    <h5>👥 Referral Tiers & Bonuses</h5>
+                    
+                    <label style="margin-top:15px;color:#fbbf24;">🥉 Bronze Tier</label>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;"><label>Needed</label><input type="number" id="setRef1Count" value="10"></div>
+                        <div style="flex:1;"><label>Bonus</label><input type="number" id="setRef1Bonus" value="50"></div>
+                    </div>
+
+                    <label style="margin-top:10px;color:#94a3b8;">🥈 Silver Tier</label>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;"><label>Needed</label><input type="number" id="setRef2Count" value="25"></div>
+                        <div style="flex:1;"><label>Bonus</label><input type="number" id="setRef2Bonus" value="150"></div>
+                    </div>
+
+                    <label style="margin-top:10px;color:#fbbf24;">🥇 Gold Tier</label>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;"><label>Needed</label><input type="number" id="setRef3Count" value="50"></div>
+                        <div style="flex:1;"><label>Bonus</label><input type="number" id="setRef3Bonus" value="300"></div>
+                    </div>
+
+                    <label style="margin-top:10px;color:#38bdf8;">💎 Platinum Tier</label>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;"><label>Needed</label><input type="number" id="setRef4Count" value="100"></div>
+                        <div style="flex:1;"><label>Bonus</label><input type="number" id="setRef4Bonus" value="500"></div>
+                    </div>
+
+                    <label style="margin-top:10px;color:#a78bfa;">👑 Diamond Tier</label>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1;"><label>Needed</label><input type="number" id="setRef5Count" value="200"></div>
+                        <div style="flex:1;"><label>Bonus</label><input type="number" id="setRef5Bonus" value="1000"></div>
+                    </div>
+
+                    <button onclick="saveReferralSettings()" style="margin-top:20px;">Save Referral Tiers</button>
                 </div>
 
             </div>
@@ -492,6 +538,21 @@
             db.ref('levelConfig/levels/3/requiredPoints').once('value', s => document.getElementById('setL3').value = s.val() || 300);
             db.ref('levelConfig/levels/4/requiredPoints').once('value', s => document.getElementById('setL4').value = s.val() || 600);
             db.ref('levelConfig/levels/5/requiredPoints').once('value', s => document.getElementById('setL5').value = s.val() || 1000);
+
+            // Boost Settings (New)
+            db.ref('speedBoostConfig/duration').once('value', s => document.getElementById('setBoostDuration').value = s.val() || 3);
+            db.ref('speedBoostConfig/cooldown').once('value', s => document.getElementById('setBoostCooldown').value = s.val() || 60);
+
+            // Referral Tiers (New)
+            const tierMap = {1:'Bronze',2:'Silver',3:'Gold',4:'Platinum',5:'Diamond'};
+            for(let i=1; i<=5; i++) {
+                db.ref('referralConfig/tier' + i + '/count').once('value', s => {
+                    document.getElementById('setRef' + i + 'Count').value = s.val() || [10,25,50,100,200][i-1];
+                });
+                db.ref('referralConfig/tier' + i + '/bonus').once('value', s => {
+                    document.getElementById('setRef' + i + 'Bonus').value = s.val() || [50,150,300,500,1000][i-1];
+                });
+            }
         }
 
         function saveGeneralSettings() {
@@ -527,7 +588,31 @@
                 5: { name: 'Diamond', emoji: '👑', bonus: 30, requiredPoints: parseInt(document.getElementById('setL5').value) || 1000 }
             };
             db.ref('levelConfig/levels').update(levels);
-            alert('Level config saved! (Use "All" tab in user panel to see changes)');
+            alert('Level config saved!');
+        }
+
+        // NEW FUNCTION: Save Speed Boost
+        function saveBoostSettings() {
+            let duration = parseInt(document.getElementById('setBoostDuration').value) || 3;
+            let cooldown = parseInt(document.getElementById('setBoostCooldown').value) || 60;
+            db.ref('speedBoostConfig').update({ duration: duration, cooldown: cooldown });
+            alert('Speed Boost settings saved!');
+        }
+
+        // NEW FUNCTION: Save Referral Tiers
+        function saveReferralSettings() {
+            let updates = {
+                perReferralCoins: 50 // You can add an input for this later if needed
+            };
+            for(let i=1; i<=5; i++) {
+                let countKey = 'tier' + i;
+                updates[countKey] = {
+                    count: parseInt(document.getElementById('setRef' + i + 'Count').value) || 0,
+                    bonus: parseInt(document.getElementById('setRef' + i + 'Bonus').value) || 0
+                };
+            }
+            db.ref('referralConfig').update(updates);
+            alert('Referral Tier settings saved!');
         }
 
         // ================= INIT =================
