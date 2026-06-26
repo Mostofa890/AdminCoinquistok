@@ -77,6 +77,7 @@
         .settings-card { background: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #334155; }
         .settings-card label { display: block; margin: 10px 0 5px 0; color: #94a3b8; font-size: 13px; }
         .settings-card input { width: 100%; padding: 8px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; }
+        .settings-card textarea { width: 100%; padding: 8px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; resize: vertical; }
         .settings-card button { margin-top: 15px; background: #3b82f6; border: none; padding: 8px 15px; border-radius: 6px; color: #fff; cursor: pointer; width: 100%; }
 
         /* Scrollbar */
@@ -97,6 +98,7 @@
         <div class="nav-item" onclick="switchTab('users', this)"><i class="fas fa-users"></i> Users</div>
         <div class="nav-item" onclick="switchTab('tasks', this)"><i class="fas fa-tasks"></i> Tasks</div>
         <div class="nav-item" onclick="switchTab('withdraw', this)"><i class="fas fa-money-bill-wave"></i> Withdraw</div>
+        <div class="nav-item" onclick="switchTab('offers', this)"><i class="fas fa-bullhorn"></i> Offers & Notify</div>
         <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</div>
     </div>
 
@@ -122,12 +124,12 @@
         <!-- SECTION: USERS -->
         <div id="tabUsers" class="hidden">
             <div class="section-header">
-                <h4>👥 All Users</h4>
+                <h4>👥 All Users (Username & ID Collected)</h4>
                 <button onclick="refreshUsers()"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>ID</th><th>Username</th><th>Coins</th><th>USD</th><th>Status</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>User ID</th><th>Username</th><th>Coins</th><th>USD</th><th>Status</th><th>Actions</th></tr></thead>
                     <tbody id="usersTableBody"></tbody>
                 </table>
             </div>
@@ -156,6 +158,48 @@
                 <table>
                     <thead><tr><th>User</th><th>Amount (USD)</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody id="withdrawTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: OFFERS & NOTIFICATIONS (NEW) -->
+        <div id="tabOffers" class="hidden">
+            <div class="section-header">
+                <h4>📢 Send Offers & Notifications</h4>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h5>📧 Send to Specific User</h5>
+                    <label>User ID (From Users Tab)</label>
+                    <input type="text" id="offerUserId" placeholder="Paste User ID here">
+                    <label>Offer / Message Title</label>
+                    <input type="text" id="offerTitle" placeholder="e.g. Special Bonus!">
+                    <label>Message Details</label>
+                    <textarea id="offerMessage" rows="3" placeholder="Write your message here..."></textarea>
+                    <label>Reward Coins (Optional)</label>
+                    <input type="number" id="offerReward" value="0">
+                    <button onclick="sendOfferToUser()">Send to User</button>
+                </div>
+
+                <div class="settings-card">
+                    <h5>📢 Broadcast to All Users</h5>
+                    <label>Broadcast Title</label>
+                    <input type="text" id="broadcastTitle" placeholder="e.g. Global Update!">
+                    <label>Broadcast Message</label>
+                    <textarea id="broadcastMessage" rows="3" placeholder="Write message for everyone..."></textarea>
+                    <label>Reward Coins (Optional)</label>
+                    <input type="number" id="broadcastReward" value="0">
+                    <button onclick="sendBroadcast()" style="background:#10b981;">Broadcast to All</button>
+                </div>
+            </div>
+            
+            <div class="section-header" style="margin-top:20px;">
+                <h4>📜 Offer History</h4>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Target User</th><th>Title</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody id="offersTableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -197,37 +241,19 @@
                     <button onclick="saveWeeklySettings()">Save Weekly Rewards</button>
                 </div>
 
-                <!-- PERFECT LEVEL SYSTEM (5 TIERS x 20 LEVELS = 100 LEVELS) -->
-                <div class="settings-card" style="grid-column: span 2; max-height: 600px; overflow-y: auto;">
-                    <h5>🏅 Level Config (5 Tiers x 20 Levels)</h5>
-                    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">Set XP for 100 individual levels. (Bronze: 1-20, Silver: 21-40, Gold: 41-60, Platinum: 61-80, Diamond: 81-100).</p>
-
-                    <div style="border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px;">
-                        <h6 style="color:#fbbf24; margin-bottom:10px;">🥉 Bronze Tier (Level 1 - 20)</h6>
-                        <div id="bronzeLevelsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-                    </div>
-
-                    <div style="border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px;">
-                        <h6 style="color:#94a3b8; margin-bottom:10px;">🥈 Silver Tier (Level 21 - 40)</h6>
-                        <div id="silverLevelsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-                    </div>
-
-                    <div style="border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px;">
-                        <h6 style="color:#fbbf24; margin-bottom:10px;">🥇 Gold Tier (Level 41 - 60)</h6>
-                        <div id="goldLevelsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-                    </div>
-
-                    <div style="border-bottom: 1px solid #334155; padding-bottom: 15px; margin-bottom: 15px;">
-                        <h6 style="color:#38bdf8; margin-bottom:10px;">💎 Platinum Tier (Level 61 - 80)</h6>
-                        <div id="platinumLevelsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-                    </div>
-
-                    <div style="padding-bottom: 15px; margin-bottom: 15px;">
-                        <h6 style="color:#a78bfa; margin-bottom:10px;">👑 Diamond Tier (Level 81 - 100)</h6>
-                        <div id="diamondLevelsContainer" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;"></div>
-                    </div>
-
-                    <button onclick="save100Levels()" style="margin-top:10px;">Save All 100 Levels</button>
+                <!-- 100 LEVELS CONFIG (1-100, 20 XP increment) -->
+                <div class="settings-card" style="grid-column: span 1;">
+                    <h5>🏅 Level Config (1 to 100)</h5>
+                    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">System automatically sets 20 XP per level up to 100.</p>
+                    
+                    <label>Level 1 XP</label><input type="number" id="setL1" value="0">
+                    <label>Level 2 XP</label><input type="number" id="setL2" value="20">
+                    <label>Level 3 XP</label><input type="number" id="setL3" value="40">
+                    <label>Level 4 XP</label><input type="number" id="setL4" value="60">
+                    <label>Level 5 XP</label><input type="number" id="setL5" value="80">
+                    
+                    <button onclick="saveLevelSettings()" style="margin-top:15px;">Generate & Save 100 Levels</button>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">This will set standard XP (20 increments) up to Level 100.</p>
                 </div>
 
                 <!-- SPEED BOOST -->
@@ -341,6 +367,7 @@
             if(tabId === 'users') loadUsers();
             if(tabId === 'tasks') loadTasks();
             if(tabId === 'withdraw') loadWithdraws();
+            if(tabId === 'offers') loadOffersHistory();
             if(tabId === 'settings') loadSettingsInputs();
         }
 
@@ -376,7 +403,7 @@
             });
         }
 
-        // ================= USERS =================
+        // ================= USERS (USERNAME & ID COLLECTED) =================
         function loadUsers() {
             db.ref('users').once('value', snap => {
                 let html = '';
@@ -386,8 +413,8 @@
                         let status = u.banned ? '<span class="badge" style="background:#ef4444;">Banned</span>' : '<span class="badge" style="background:#10b981;">Active</span>';
                         html += `
                             <tr>
-                                <td style="font-size:12px;color:#94a3b8;">${child.key.slice(0,8)}...</td>
-                                <td>${u.username || 'User'}</td>
+                                <td style="font-size:12px;color:#94a3b8;">${child.key.slice(0,12)}...</td>
+                                <td style="font-weight:bold;color:#fbbf24;">${u.username || 'User'}</td>
                                 <td>${u.balance || 0}</td>
                                 <td>$${(u.usdBalance || 0).toFixed(2)}</td>
                                 <td>${status}</td>
@@ -539,6 +566,114 @@
             db.ref('withdrawRequests/' + id).update({ status: status }).then(() => loadWithdraws());
         }
 
+        // ================= OFFERS & NOTIFICATIONS (NEW) =================
+        function loadOffersHistory() {
+            db.ref('offersHistory').once('value', snap => {
+                let html = '';
+                if(snap.exists()){
+                    let list = [];
+                    snap.forEach(child => { list.push({ id: child.key, ...child.val() }); });
+                    list.reverse().forEach(o => {
+                        html += `
+                            <tr>
+                                <td>${o.targetUserId || 'All Users'}</td>
+                                <td>${o.title}</td>
+                                <td><span class="badge" style="background:#3b82f6;">${o.status || 'Sent'}</span></td>
+                                <td style="font-size:12px;">${new Date(o.timestamp).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                    });
+                } else { html = `<tr><td colspan="4" style="text-align:center;color:#94a3b8;">No offers sent yet</td></tr>`; }
+                document.getElementById('offersTableBody').innerHTML = html;
+            });
+        }
+
+        function sendOfferToUser() {
+            let userId = document.getElementById('offerUserId').value.trim();
+            let title = document.getElementById('offerTitle').value.trim();
+            let message = document.getElementById('offerMessage').value.trim();
+            let reward = parseInt(document.getElementById('offerReward').value) || 0;
+
+            if(!userId || !title || !message) {
+                alert("Please fill in User ID, Title, and Message.");
+                return;
+            }
+
+            let offerData = {
+                title: title,
+                message: message,
+                reward: reward,
+                status: 'unread',
+                timestamp: Date.now(),
+                type: 'personal'
+            };
+
+            // Save to user's specific path
+            db.ref('users/' + userId + '/notifications').push(offerData).then(() => {
+                // Log to History
+                db.ref('offersHistory').push({
+                    ...offerData,
+                    targetUserId: userId,
+                    status: 'Sent'
+                });
+                alert('Offer sent successfully to user: ' + userId);
+                document.getElementById('offerUserId').value = '';
+                document.getElementById('offerTitle').value = '';
+                document.getElementById('offerMessage').value = '';
+                document.getElementById('offerReward').value = '0';
+                loadOffersHistory();
+            }).catch(err => alert('Error sending offer: ' + err.message));
+        }
+
+        function sendBroadcast() {
+            let title = document.getElementById('broadcastTitle').value.trim();
+            let message = document.getElementById('broadcastMessage').value.trim();
+            let reward = parseInt(document.getElementById('broadcastReward').value) || 0;
+
+            if(!title || !message) {
+                alert("Please fill in Title and Message.");
+                return;
+            }
+
+            if(!confirm("Are you sure you want to send this to ALL users? This may take some time.")) return;
+
+            // Fetch all users
+            db.ref('users').once('value', snap => {
+                let updates = {};
+                let broadcastData = {
+                    title: title,
+                    message: message,
+                    reward: reward,
+                    status: 'unread',
+                    timestamp: Date.now(),
+                    type: 'broadcast'
+                };
+
+                if(snap.exists()){
+                    snap.forEach(child => {
+                        let userId = child.key;
+                        updates['users/' + userId + '/notifications'] = broadcastData;
+                    });
+                    // Also save to history
+                    updates['offersHistory'] = {
+                        ...broadcastData,
+                        targetUserId: 'All Users',
+                        status: 'Broadcasted'
+                    };
+
+                    db.ref().update(updates).then(() => {
+                        alert('Broadcast sent to all users successfully!');
+                        document.getElementById('broadcastTitle').value = '';
+                        document.getElementById('broadcastMessage').value = '';
+                        document.getElementById('broadcastReward').value = '0';
+                        loadOffersHistory();
+                    }).catch(err => alert('Error broadcasting: ' + err.message));
+                } else {
+                    alert("No users found to broadcast to.");
+                }
+            });
+        }
+
         // ================= SETTINGS =================
         function loadSettingsInputs() {
             db.ref('conversionRate').once('value', s => document.getElementById('setConversionRate').value = s.val() || 1000);
@@ -554,16 +689,11 @@
                 });
             }
 
-            // Load all 100 Level Inputs
-            for (let i = 1; i <= 100; i++) {
-                let inputId = 'lvl_xp_' + i;
-                let element = document.getElementById(inputId);
-                if(element) {
-                    db.ref('levelConfig/levels/' + i + '/requiredPoints').once('value', s => {
-                        element.value = s.val() || ((i - 1) * 20);
-                    });
-                }
-            }
+            db.ref('levelConfig/levels/1/requiredPoints').once('value', s => document.getElementById('setL1').value = s.val() || 0);
+            db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 20);
+            db.ref('levelConfig/levels/3/requiredPoints').once('value', s => document.getElementById('setL3').value = s.val() || 40);
+            db.ref('levelConfig/levels/4/requiredPoints').once('value', s => document.getElementById('setL4').value = s.val() || 60);
+            db.ref('levelConfig/levels/5/requiredPoints').once('value', s => document.getElementById('setL5').value = s.val() || 80);
 
             db.ref('speedBoostConfig/duration').once('value', s => document.getElementById('setBoostDuration').value = s.val() || 3);
             db.ref('speedBoostConfig/cooldown').once('value', s => document.getElementById('setBoostCooldown').value = s.val() || 60);
@@ -608,30 +738,20 @@
             alert('Weekly rewards updated!');
         }
 
-        // NEW: Save all 100 individual levels' XP
-        function save100Levels() {
+        function saveLevelSettings() {
             let levels = {};
-            let tierEmojis = { 1:'🥉', 2:'🥈', 3:'🥇', 4:'💎', 5:'👑' };
-            let tierBonuses = { 1:2, 2:5, 3:10, 4:20, 5:30 };
-            
             for (let i = 1; i <= 100; i++) {
-                let inputId = 'lvl_xp_' + i;
-                let xpValue = parseInt(document.getElementById(inputId).value);
-                if (isNaN(xpValue)) xpValue = (i - 1) * 20; // Fallback if empty
-
-                // Determine tier (1-20: 1, 21-40: 2, etc)
-                let tierIndex = Math.floor((i - 1) / 20) + 1;
-                
+                let xp = (i - 1) * 20; // Level 1 = 0, Level 2 = 20, etc.
                 levels[i] = { 
                     name: 'Level ' + i, 
-                    emoji: tierEmojis[tierIndex] || '🪙', 
-                    bonus: tierBonuses[tierIndex] || 0,
-                    requiredPoints: xpValue 
+                    emoji: i <= 20 ? '🥉' : (i <= 40 ? '🥈' : (i <= 60 ? '🥇' : (i <= 80 ? '💎' : '👑'))), 
+                    bonus: i <= 20 ? 2 : (i <= 40 ? 5 : (i <= 60 ? 10 : (i <= 80 ? 20 : 30))),
+                    requiredPoints: xp 
                 };
             }
-            
             db.ref('levelConfig/levels').update(levels).then(() => {
-                alert('Successfully saved all 100 levels with your custom XP settings!');
+                alert('Successfully generated and saved 100 levels with 20 XP each!');
+                loadSettingsInputs();
             });
         }
 
@@ -658,35 +778,7 @@
         // ================= INIT =================
         document.addEventListener('DOMContentLoaded', () => {
             loadDashboardData();
-            
-            // Generate 100 Inputs dynamically on load
-            const containers = {
-                bronze: document.getElementById('bronzeLevelsContainer'),
-                silver: document.getElementById('silverLevelsContainer'),
-                gold: document.getElementById('goldLevelsContainer'),
-                platinum: document.getElementById('platinumLevelsContainer'),
-                diamond: document.getElementById('diamondLevelsContainer')
-            };
-
-            let inputHTML = '';
-            for (let i = 1; i <= 100; i++) {
-                let containerKey = '';
-                if (i <= 20) containerKey = 'bronze';
-                else if (i <= 40) containerKey = 'silver';
-                else if (i <= 60) containerKey = 'gold';
-                else if (i <= 80) containerKey = 'platinum';
-                else containerKey = 'diamond';
-
-                containers[containerKey].innerHTML += `
-                    <div style="display:flex; align-items:center; gap:5px;">
-                        <label style="font-size:12px; width:50px;">Lv ${i}</label>
-                        <input type="number" id="lvl_xp_${i}" value="${(i-1)*20}" style="flex:1;">
-                    </div>
-                `;
-            }
-
-            // Load DB values into these inputs after creation
-            setTimeout(loadSettingsInputs, 500);
+            loadOffersHistory();
         });
 
     </script>
