@@ -47,7 +47,7 @@
         .settings-box { background: #fff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .settings-box h3 { margin-bottom: 15px; }
         .settings-box label { display: block; font-weight: 600; margin-bottom: 6px; }
-        .settings-box input, .settings-box textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+        .settings-box input, .settings-box textarea, .settings-box select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
         .settings-box button { padding: 10px 24px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
         
         /* Task Management */
@@ -140,6 +140,15 @@
                     <button onclick="saveWithdrawSettings()">Save</button>
                 </div>
 
+                <!-- Payment Methods -->
+                <div class="settings-box">
+                    <h3>💳 Payment Methods</h3>
+                    <label>Add Payment Method</label>
+                    <input type="text" id="paymentMethodInput" placeholder="e.g. USDT, BTC, PayPal">
+                    <button onclick="addPaymentMethod()">Add</button>
+                    <div id="paymentMethodList" style="margin-top:10px;"></div>
+                </div>
+
                 <!-- Video Settings -->
                 <div class="settings-box">
                     <h3>📺 Video Settings</h3>
@@ -158,6 +167,16 @@
                     <label>Recharge Time (hours)</label>
                     <input type="number" id="rechargeHours" placeholder="e.g. 24">
                     <button onclick="saveEnergySettings()">Save</button>
+                </div>
+
+                <!-- Auto Conversion Settings -->
+                <div class="settings-box">
+                    <h3>🔄 Auto Conversion Settings</h3>
+                    <label>Conversion Rate (1 USD = ? Coins)</label>
+                    <input type="number" id="conversionRate" placeholder="e.g. 1000">
+                    <label>Conversion Interval (hours)</label>
+                    <input type="number" id="conversionInterval" placeholder="e.g. 24">
+                    <button onclick="saveConversionSettings()">Save</button>
                 </div>
 
                 <!-- Level Settings -->
@@ -232,6 +251,7 @@
                             <tr>
                                 <th>User</th>
                                 <th>Amount</th>
+                                <th>Method</th>
                                 <th>Status</th>
                                 <th>Requested At</th>
                                 <th>Actions</th>
@@ -292,6 +312,7 @@
                 loadAllUsers();
                 loadAllWithdraws();
                 loadTasks();
+                loadPaymentMethods();
                 showToast('✅ Logged in successfully!');
             } else {
                 showToast('❌ Invalid credentials!', 'error');
@@ -398,6 +419,13 @@
                 document.getElementById('rechargeHours').value = data.rechargeHours || 24;
             });
 
+            // Conversion settings
+            db.ref('conversionSettings').once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('conversionRate').value = data.rate || 1000;
+                document.getElementById('conversionInterval').value = data.interval || 24;
+            });
+
             // Level settings
             db.ref('levelSettings').once('value', (snap) => {
                 const data = snap.val() || {};
@@ -455,6 +483,18 @@
             });
         }
 
+        function saveConversionSettings() {
+            const rate = parseInt(document.getElementById('conversionRate').value);
+            const interval = parseInt(document.getElementById('conversionInterval').value);
+            if (isNaN(rate) || isNaN(interval) || rate < 0 || interval < 0) {
+                showToast('Please enter valid numbers!', 'error');
+                return;
+            }
+            db.ref('conversionSettings').set({ rate, interval }).then(() => {
+                showToast('✅ Conversion settings saved!');
+            });
+        }
+
         function saveLevelSettings() {
             const xpPerLevel = parseInt(document.getElementById('xpPerLevel').value);
             const levelBonusPercent = parseInt(document.getElementById('levelBonusPercent').value);
@@ -491,6 +531,50 @@
             db.ref('adCode').set(code).then(() => {
                 showToast('✅ Ad code saved!');
             });
+        }
+
+        // ==================== PAYMENT METHODS ====================
+        function loadPaymentMethods() {
+            db.ref('paymentMethods').on('value', (snapshot) => {
+                const methods = snapshot.val();
+                const container = document.getElementById('paymentMethodList');
+                container.innerHTML = '';
+                if (!methods) {
+                    container.innerHTML = '<p style="color:#64748b;">No payment methods added.</p>';
+                    return;
+                }
+                Object.keys(methods).forEach((id) => {
+                    const method = methods[id];
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;';
+                    div.innerHTML = `
+                        <span>${method}</span>
+                        <button class="delete-btn" onclick="deletePaymentMethod('${id}')">Delete</button>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function addPaymentMethod() {
+            const input = document.getElementById('paymentMethodInput');
+            const method = input.value.trim();
+            if (!method) {
+                showToast('Please enter a payment method!', 'error');
+                return;
+            }
+            db.ref('paymentMethods').push(method).then(() => {
+                showToast('✅ Payment method added!');
+                input.value = '';
+            });
+        }
+
+        function deletePaymentMethod(id) {
+            if (confirm('Delete this payment method?')) {
+                db.ref('paymentMethods/' + id).remove().then(() => {
+                    showToast('✅ Deleted!');
+                });
+            }
         }
 
         // ==================== TASKS ====================
@@ -549,7 +633,6 @@
         }
 
         function editTask(id) {
-            // For simplicity, you can implement a popup to edit task details
             showToast('Edit feature coming soon!', 'error');
         }
 
@@ -568,7 +651,7 @@
                 const tbody = document.getElementById('withdrawTableBody');
                 tbody.innerHTML = '';
                 if (!requests) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;">No withdraw requests</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;">No withdraw requests</td></tr>';
                     return;
                 }
                 Object.keys(requests).reverse().forEach((id) => {
@@ -577,6 +660,7 @@
                     row.innerHTML = `
                         <td>${req.username || 'User'}</td>
                         <td>$${req.amount.toFixed(2)}</td>
+                        <td>${req.method || 'N/A'}</td>
                         <td style="font-weight:bold;color:${req.status === 'pending' ? '#f59e0b' : req.status === 'approved' ? '#10b981' : '#ef4444'};">${req.status.toUpperCase()}</td>
                         <td>${req.requestedAt ? new Date(req.requestedAt).toLocaleString() : 'Unknown'}</td>
                         <td>
