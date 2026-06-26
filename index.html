@@ -180,7 +180,12 @@
                     <input type="number" id="setVideoReward" value="10">
                     <label>Daily Video Limit</label>
                     <input type="number" id="setVideoLimit" value="5">
-                    <button onclick="saveVideoSettings()">Save Video Settings</button>
+                    
+                    <!-- NEW: VIDEO REFILL THRESHOLD INPUT -->
+                    <label style="margin-top: 10px;">Videos to Refill (Threshold)</label>
+                    <input type="number" id="setVideoThreshold" value="5">
+
+                    <button onclick="saveVideoSettings()" style="margin-top: 20px;">Save Video Settings</button>
                 </div>
 
                 <div class="settings-card">
@@ -195,14 +200,19 @@
                     <button onclick="saveWeeklySettings()">Save Weekly Rewards</button>
                 </div>
 
-                <div class="settings-card">
-                    <h5>🏅 Level Config</h5>
-                    <label>Level 1 XP</label><input type="number" id="setL1" value="0">
-                    <label>Level 2 XP</label><input type="number" id="setL2" value="100">
-                    <label>Level 3 XP</label><input type="number" id="setL3" value="300">
-                    <label>Level 4 XP</label><input type="number" id="setL4" value="600">
-                    <label>Level 5 XP</label><input type="number" id="setL5" value="1000">
-                    <button onclick="saveLevelSettings()">Save Level Config</button>
+                <!-- NEW: Level Config (Auto Generates 1-100 with 20 XP each) -->
+                <div class="settings-card" style="grid-column: span 1;">
+                    <h5>🏅 Level Config (1 to 100)</h5>
+                    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">System automatically sets 20 XP per level up to 100.</p>
+                    
+                    <label>Level 1 XP (Start)</label><input type="number" id="setL1" value="0">
+                    <label>Level 2 XP</label><input type="number" id="setL2" value="20">
+                    <label>Level 3 XP</label><input type="number" id="setL3" value="40">
+                    <label>Level 4 XP</label><input type="number" id="setL4" value="60">
+                    <label>Level 5 XP</label><input type="number" id="setL5" value="80">
+                    
+                    <button onclick="saveLevelSettings()">Generate & Save 100 Levels</button>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">This will update the database with 100 levels (20 XP each).</p>
                 </div>
 
                 <!-- NEW SETTINGS: SPEED BOOST -->
@@ -213,7 +223,6 @@
                     <label>Cooldown Time (Minutes)</label>
                     <input type="number" id="setBoostCooldown" value="60" placeholder="e.g. 60">
                     <button onclick="saveBoostSettings()">Save Boost Settings</button>
-                    <p style="font-size:11px;color:#94a3b8;margin-top:10px;">*Note: User panel needs to fetch these values dynamically.</p>
                 </div>
 
                 <!-- NEW SETTINGS: REFERRAL TIERS -->
@@ -524,6 +533,8 @@
             // Video
             db.ref('videoSettings/reward').once('value', s => document.getElementById('setVideoReward').value = s.val() || 10);
             db.ref('videoSettings/dailyLimit').once('value', s => document.getElementById('setVideoLimit').value = s.val() || 5);
+            // NEW: Load Refill Threshold
+            db.ref('videoSettings/refillThreshold').once('value', s => document.getElementById('setVideoThreshold').value = s.val() || 5);
             
             // Weekly Rewards
             for(let i=1; i<=7; i++) {
@@ -532,19 +543,18 @@
                 });
             }
 
-            // Level Config
+            // Level Config (Load first 5 levels as preview)
             db.ref('levelConfig/levels/1/requiredPoints').once('value', s => document.getElementById('setL1').value = s.val() || 0);
-            db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 100);
-            db.ref('levelConfig/levels/3/requiredPoints').once('value', s => document.getElementById('setL3').value = s.val() || 300);
-            db.ref('levelConfig/levels/4/requiredPoints').once('value', s => document.getElementById('setL4').value = s.val() || 600);
-            db.ref('levelConfig/levels/5/requiredPoints').once('value', s => document.getElementById('setL5').value = s.val() || 1000);
+            db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 20);
+            db.ref('levelConfig/levels/3/requiredPoints').once('value', s => document.getElementById('setL3').value = s.val() || 40);
+            db.ref('levelConfig/levels/4/requiredPoints').once('value', s => document.getElementById('setL4').value = s.val() || 60);
+            db.ref('levelConfig/levels/5/requiredPoints').once('value', s => document.getElementById('setL5').value = s.val() || 80);
 
-            // Boost Settings (New)
+            // Boost Settings
             db.ref('speedBoostConfig/duration').once('value', s => document.getElementById('setBoostDuration').value = s.val() || 3);
             db.ref('speedBoostConfig/cooldown').once('value', s => document.getElementById('setBoostCooldown').value = s.val() || 60);
 
-            // Referral Tiers (New)
-            const tierMap = {1:'Bronze',2:'Silver',3:'Gold',4:'Platinum',5:'Diamond'};
+            // Referral Tiers
             for(let i=1; i<=5; i++) {
                 db.ref('referralConfig/tier' + i + '/count').once('value', s => {
                     document.getElementById('setRef' + i + 'Count').value = s.val() || [10,25,50,100,200][i-1];
@@ -566,8 +576,15 @@
         function saveVideoSettings() {
             let reward = parseInt(document.getElementById('setVideoReward').value) || 10;
             let limit = parseInt(document.getElementById('setVideoLimit').value) || 5;
-            db.ref('videoSettings').update({ reward: reward, dailyLimit: limit });
-            alert('Video settings saved!');
+            // NEW: Save Refill Threshold to DB
+            let threshold = parseInt(document.getElementById('setVideoThreshold').value) || 5;
+            
+            db.ref('videoSettings').update({ 
+                reward: reward, 
+                dailyLimit: limit,
+                refillThreshold: threshold 
+            });
+            alert('Video settings saved! (Refill Threshold: ' + threshold + ')');
         }
 
         function saveWeeklySettings() {
@@ -579,19 +596,24 @@
             alert('Weekly rewards updated!');
         }
 
+        // NEW: Generate & Save 100 Levels (20 XP each)
         function saveLevelSettings() {
-            let levels = {
-                1: { name: 'Bronze', emoji: '🥉', bonus: 2, requiredPoints: parseInt(document.getElementById('setL1').value) || 0 },
-                2: { name: 'Silver', emoji: '🥈', bonus: 5, requiredPoints: parseInt(document.getElementById('setL2').value) || 100 },
-                3: { name: 'Gold', emoji: '🥇', bonus: 10, requiredPoints: parseInt(document.getElementById('setL3').value) || 300 },
-                4: { name: 'Platinum', emoji: '💎', bonus: 20, requiredPoints: parseInt(document.getElementById('setL4').value) || 600 },
-                5: { name: 'Diamond', emoji: '👑', bonus: 30, requiredPoints: parseInt(document.getElementById('setL5').value) || 1000 }
-            };
-            db.ref('levelConfig/levels').update(levels);
-            alert('Level config saved!');
+            let levels = {};
+            for (let i = 1; i <= 100; i++) {
+                let xp = (i - 1) * 20; // Level 1 = 0, Level 2 = 20, Level 100 = 1980
+                levels[i] = { 
+                    name: 'Level ' + i, 
+                    emoji: i <= 10 ? '🥉' : (i <= 25 ? '🥈' : (i <= 50 ? '🥇' : (i <= 75 ? '💎' : '👑'))), // Auto assigned emojis
+                    bonus: i <= 10 ? 2 : (i <= 25 ? 5 : (i <= 50 ? 10 : (i <= 75 ? 20 : 30))),
+                    requiredPoints: xp 
+                };
+            }
+            db.ref('levelConfig/levels').update(levels).then(() => {
+                alert('Successfully generated and saved 100 levels with 20 XP each!');
+                loadSettingsInputs(); // Refresh UI
+            });
         }
 
-        // NEW FUNCTION: Save Speed Boost
         function saveBoostSettings() {
             let duration = parseInt(document.getElementById('setBoostDuration').value) || 3;
             let cooldown = parseInt(document.getElementById('setBoostCooldown').value) || 60;
@@ -599,10 +621,9 @@
             alert('Speed Boost settings saved!');
         }
 
-        // NEW FUNCTION: Save Referral Tiers
         function saveReferralSettings() {
             let updates = {
-                perReferralCoins: 50 // You can add an input for this later if needed
+                perReferralCoins: 50
             };
             for(let i=1; i<=5; i++) {
                 let countKey = 'tier' + i;
