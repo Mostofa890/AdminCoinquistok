@@ -2,329 +2,197 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Admin Panel - CoinQuest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinQuest - Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-        body { background: #0f172a; color: #ffffff; padding: 20px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        h1 { color: #3b82f6; margin-bottom: 30px; text-align: center; font-size: 28px; }
-        .section { background: #1e293b; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .section h3 { color: #3b82f6; margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
-        .section h3 i { font-size: 20px; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; color: #94a3b8; font-size: 13px; margin-bottom: 4px; font-weight: 500; }
-        input, textarea, select { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; font-size: 14px; transition: border 0.3s; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: #3b82f6; }
-        textarea { min-height: 80px; resize: vertical; }
-        .btn { padding: 10px 24px; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.3s; margin-top: 4px; }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); }
-        .btn-danger { background: linear-gradient(135deg, #dc2626, #ea580c); }
-        .btn-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
-        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .btn-sm { padding: 4px 12px; font-size: 12px; }
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .setting-item { background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .setting-item .label { color: #94a3b8; font-size: 13px; }
-        .setting-item .value { color: #fbbf24; font-size: 13px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .badge-enabled { background: #22c55e; color: white; }
-        .badge-disabled { background: #ef4444; color: white; }
-        .badge-pending { background: #f59e0b; color: black; }
-        .badge-approved { background: #22c55e; color: white; }
-        .badge-cancelled { background: #ef4444; color: white; }
-        .badge-processing { background: #3b82f6; color: white; }
-        .hidden { display: none; }
-        .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .toggle-label input[type="checkbox"] { width: auto; accent-color: #3b82f6; }
-        .secret-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .secret-modal .modal-content { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; }
-        .secret-modal input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; margin: 15px 0; font-size: 16px; }
-        .secret-modal .error { color: #ef4444; display: none; margin-top: 8px; }
-        .rate-display { font-size: 28px; color: #fbbf24; text-align: center; padding: 12px; background: rgba(251,191,36,0.05); border-radius: 10px; margin: 8px 0; }
-        .info-box { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.15); border-radius: 10px; padding: 10px 14px; margin-top: 8px; font-size: 13px; color: #94a3b8; }
-        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .stat-box { background: rgba(255,255,255,0.03); padding: 14px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-box .number { font-size: 24px; font-weight: bold; color: #fbbf24; }
-        .stat-box .label { font-size: 12px; color: #94a3b8; }
-        .search-box { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .search-box input { flex: 1; min-width: 150px; }
-        .search-box .btn { margin-top: 0; }
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
-        th { color: #94a3b8; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { color: #e2e8f0; }
-        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
-        .status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 12px; }
-        .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
-        .action-btns .btn { padding: 4px 10px; font-size: 11px; }
-        .tab-nav { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; background: #1e293b; padding: 6px; border-radius: 12px; }
-        .tab-nav .tab-btn { padding: 10px 20px; border: none; background: transparent; color: #94a3b8; cursor: pointer; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.3s; }
-        .tab-nav .tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
-        .tab-nav .tab-btn.active { background: #3b82f6; color: white; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; padding: 20px; color: #1e293b; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #3b82f6, #8b5cf6); padding: 20px; border-radius: 16px; color: #fff; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 24px; }
+        
+        /* Login */
+        .login-box { background: #fff; padding: 30px; border-radius: 16px; max-width: 400px; margin: 40px auto; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .login-box input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
+        .login-box button { width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 16px; }
+        
+        /* Dashboard */
+        .dashboard { display: none; }
+        .dashboard.show { display: block; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tabs button { padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .tabs button.active { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border-color: transparent; }
+        .tabs button:hover:not(.active) { background: #f1f5f9; }
+        
+        /* Tab Content */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .edit-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .edit-inline input { width: auto; flex: 1; min-width: 100px; }
-        @media (max-width: 600px) { .setting-item { flex-direction: column; align-items: stretch; } .setting-item .value { max-width: 100%; white-space: normal; } .tab-nav .tab-btn { padding: 8px 12px; font-size: 12px; } }
         
-        .task-item { background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .task-item .task-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .task-item .task-title { font-weight: bold; color: #fbbf24; }
-        .task-item .task-meta { font-size: 12px; color: #94a3b8; }
-        .task-item .task-actions { display: flex; gap: 4px; }
+        /* User Table */
+        .user-table { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .user-table table { width: 100%; border-collapse: collapse; }
+        .user-table th { background: #f1f5f9; padding: 14px; text-align: left; font-size: 12px; color: #64748b; }
+        .user-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .user-table .edit-btn { background: #3b82f6; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .user-table .ban-btn { background: #ef4444; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .user-table .unban-btn { background: #10b981; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .user-table .referral-list { font-size: 11px; color: #64748b; }
         
         /* Withdraw Table */
-        .withdraw-action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
-        .cancel-reason-text { font-size: 11px; color: #ef4444; }
-        .withdraw-status-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .withdraw-status-badge.pending { background: #f59e0b; color: black; }
-        .withdraw-status-badge.approved { background: #22c55e; color: white; }
-        .withdraw-status-badge.cancelled { background: #ef4444; color: white; }
-        .withdraw-status-badge.processing { background: #3b82f6; color: white; }
+        .withdraw-table { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .withdraw-table table { width: 100%; border-collapse: collapse; }
+        .withdraw-table th { background: #f1f5f9; padding: 14px; text-align: left; font-size: 12px; color: #64748b; }
+        .withdraw-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .withdraw-table .approve-btn { background: #10b981; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .withdraw-table .cancel-btn { background: #ef4444; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .withdraw-table .status-pending { color: #f59e0b; font-weight: bold; }
+        .withdraw-table .status-approved { color: #10b981; font-weight: bold; }
+        .withdraw-table .status-cancelled { color: #ef4444; font-weight: bold; }
+        
+        /* Settings Form */
+        .settings-box { background: #fff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .settings-box h3 { margin-bottom: 15px; }
+        .settings-box label { display: block; font-weight: 600; margin-bottom: 6px; }
+        .settings-box input, .settings-box textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+        .settings-box button { padding: 10px 24px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
+        
+        /* Edit Modal */
+        .edit-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .edit-modal.show { display: flex; }
+        .edit-content { background: #fff; padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; }
+        .edit-content input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+        .edit-content button { width: 100%; padding: 10px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 8px; }
+        .cancel-btn { background: #ef4444 !important; }
+        
+        /* Toast */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 700; z-index: 9999; display: none; font-size: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .toast.error { background: #ef4444; }
+        .toast.show { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <!-- Secret Key Modal -->
-    <div class="secret-modal" id="accessModal">
-        <div class="modal-content">
-            <h2 style="color:#3b82f6;">🔐 Admin Access</h2>
-            <p style="color:#94a3b8;">Enter admin secret key to access panel</p>
-            <input type="password" id="secretKey" placeholder="Enter secret key">
-            <button class="btn btn-primary" onclick="verifyAccess()" style="width:100%;">Access Panel</button>
-            <p class="error" id="accessError">Invalid secret key!</p>
-        </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div class="container hidden" id="adminPanel">
-        <h1>⚡ Admin Panel</h1>
-
-        <!-- Tab Navigation -->
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('tasks', this)"><i class="fas fa-tasks"></i> Tasks</button>
-            <button class="tab-btn" onclick="switchTab('video', this)"><i class="fas fa-video"></i> Video</button>
-            <button class="tab-btn" onclick="switchTab('energy', this)"><i class="fas fa-bolt"></i> Energy</button>
-            <button class="tab-btn" onclick="switchTab('users', this)"><i class="fas fa-users"></i> Users</button>
-            <button class="tab-btn" onclick="switchTab('withdraw', this)"><i class="fas fa-credit-card"></i> Withdraw</button>
-            <button class="tab-btn" onclick="switchTab('offers', this)"><i class="fas fa-gift"></i> Offers</button>
-            <button class="tab-btn" onclick="switchTab('weekly', this)"><i class="fas fa-calendar-week"></i> Weekly</button>
-            <button class="tab-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Settings</button>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔧 CoinQuest Admin Panel</h1>
+            <span style="font-size:14px;">Logged in as Admin</span>
         </div>
 
-        <!-- ===== DASHBOARD TAB ===== -->
-        <div class="tab-content active" id="tabDashboard">
-            <div class="section">
-                <h3><i class="fas fa-chart-line"></i> Overview</h3>
-                <div class="stats-row" id="dashboardStats">
-                    <div class="stat-box"><div class="number" id="totalUsers">0</div><div class="label">Total Users</div></div>
-                    <div class="stat-box"><div class="number" id="totalCoins">0</div><div class="label">Total Coins</div></div>
-                    <div class="stat-box"><div class="number" id="totalWithdraw">$0</div><div class="label">Total Withdraw</div></div>
-                    <div class="stat-box"><div class="number" id="pendingWithdraw">0</div><div class="label">Pending Withdraw</div></div>
-                </div>
+        <!-- Login -->
+        <div class="login-box" id="loginBox">
+            <h3>Admin Login</h3>
+            <input type="text" id="adminUsername" placeholder="Username">
+            <input type="password" id="adminPassword" placeholder="Password">
+            <button onclick="adminLogin()">Login</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="active" onclick="switchTab('users', this)">👥 Users</button>
+                <button onclick="switchTab('withdraw', this)">💳 Withdraws</button>
+                <button onclick="switchTab('settings', this)">⚙️ Settings</button>
             </div>
-        </div>
 
-        <!-- ===== TASKS TAB ===== -->
-        <div class="tab-content" id="tabTasks">
-            <div class="section">
-                <h3><i class="fas fa-tasks"></i> Task Management</h3>
-                <div class="info-box">Add or remove tasks. Users will see tasks in the Tasks tab.</div>
-                
-                <!-- Add Task -->
-                <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; margin-bottom:16px;">
-                    <h5 style="color:#94a3b8; margin-bottom:12px; font-size:14px;">➕ Add New Task</h5>
-                    <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" placeholder="e.g. Join Telegram Channel"></div>
-                    <div class="form-group"><label>Description</label><input type="text" id="taskDesc" placeholder="e.g. Join our Telegram channel"></div>
-                    <div class="form-group"><label>Reward (Coins)</label><input type="number" id="taskReward" value="10" min="1"></div>
-                    <div class="form-group">
-                        <label>Task Type</label>
-                        <select id="taskType">
-                            <option value="link">Link (URL)</option>
-                            <option value="ad">Ad (Rewarded)</option>
-                            <option value="simple">Simple (Button Click)</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="taskLinkGroup"><label>Link URL</label><input type="url" id="taskLink" placeholder="https://t.me/yourchannel"></div>
-                    <div class="form-group" id="taskAdCodeGroup" style="display:none;"><label>Ad Code (HTML)</label><textarea id="taskAdCode" placeholder="Add your ad HTML code here..."></textarea></div>
-                    <div class="form-group"><label>Max Progress (Steps)</label><input type="number" id="taskMaxProgress" value="1" min="1"></div>
-                    <div class="form-group"><label>Category</label>
-                        <select id="taskCategory">
-                            <option value="social">Social</option>
-                            <option value="video">Video</option>
-                            <option value="special">Special</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-success" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
-                </div>
-
-                <!-- Task List -->
-                <h5 style="color:#94a3b8; margin-bottom:12px; font-size:14px;">📋 Existing Tasks</h5>
-                <div id="taskList"><div style="text-align:center; color:#94a3b8; padding:20px;">Loading tasks...</div></div>
-            </div>
-        </div>
-
-        <!-- ===== VIDEO TAB ===== -->
-        <div class="tab-content" id="tabVideo">
-            <div class="section">
-                <h3><i class="fas fa-video"></i> Waz Video Settings</h3>
-                <div class="info-box">Users watch videos to earn coins. Admin can control reward & daily limit.</div>
-                <div class="form-group"><label>Reward per Video (Coins)</label><input type="number" id="videoReward" value="10" min="1"></div>
-                <div class="form-group"><label>Daily Video Limit</label><input type="number" id="videoDailyLimit" value="5" min="1"></div>
-                <button class="btn btn-success" onclick="updateVideoSettings()"><i class="fas fa-save"></i> Save Video Settings</button>
-            </div>
-        </div>
-
-        <!-- ===== ENERGY TAB ===== -->
-        <div class="tab-content" id="tabEnergy">
-            <div class="section">
-                <h3><i class="fas fa-bolt"></i> Energy Settings</h3>
-                <div class="info-box">Users can watch videos to get energy instantly. Recharge time is how long it takes to get 1 energy.</div>
-                <div class="form-group"><label>Energy per Video (Watching Ad)</label><input type="number" id="energyVideoReward" value="20" min="1"></div>
-                <div class="form-group"><label>Recharge Time per Energy (Seconds)</label><input type="number" id="energyRechargeTime" value="3600" min="60"></div>
-                <div class="info-box">⚡ 3600 seconds = 1 hour. 1800 = 30 minutes. 600 = 10 minutes.</div>
-                <button class="btn btn-success" onclick="updateEnergySettings()"><i class="fas fa-save"></i> Save Energy Settings</button>
-            </div>
-        </div>
-
-        <!-- ===== USERS TAB ===== -->
-        <div class="tab-content" id="tabUsers">
-            <div class="section">
-                <h3><i class="fas fa-users"></i> Users Management</h3>
-                <div class="search-box">
-                    <input type="text" id="userSearch" placeholder="Search by username or ID..." oninput="filterUsers()">
-                    <button class="btn btn-primary" onclick="refreshUsers()"><i class="fas fa-sync"></i> Refresh</button>
-                </div>
-                <div class="table-wrap">
+            <!-- Users Tab -->
+            <div class="tab-content active" id="tabUsers">
+                <h3 style="margin-bottom:15px;">👥 All Users</h3>
+                <div class="user-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>User</th>
+                                <th>Username</th>
+                                <th>Device ID</th>
+                                <th>IP</th>
                                 <th>Coins</th>
                                 <th>USD</th>
-                                <th>Tasks</th>
+                                <th>Referrals</th>
                                 <th>Last Login</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="usersTableBody">
-                            <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Loading users...</td></tr>
-                        </tbody>
+                        <tbody id="userTableBody"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- ===== WITHDRAW TAB (আপডেটেড) ===== -->
-        <div class="tab-content" id="tabWithdraw">
-            <div class="section">
-                <h3><i class="fas fa-credit-card"></i> Withdraw Requests</h3>
-                <div class="info-box">💡 Cancel a request to return money to user's balance with a reason.</div>
-                <div class="table-wrap">
+            <!-- Withdraw Tab -->
+            <div class="tab-content" id="tabWithdraw">
+                <h3 style="margin-bottom:15px;">💳 Withdraw Requests</h3>
+                <div class="withdraw-table">
                     <table>
                         <thead>
                             <tr>
                                 <th>User</th>
                                 <th>Amount</th>
-                                <th>Method</th>
                                 <th>Status</th>
-                                <th>Cancel Reason</th>
-                                <th>Date</th>
+                                <th>Requested At</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="withdrawTableBody">
-                            <tr><td colspan="7" style="text-align:center; color:#94a3b8;">Loading requests...</td></tr>
-                        </tbody>
+                        <tbody id="withdrawTableBody"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- ===== OFFERS TAB ===== -->
-        <div class="tab-content" id="tabOffers">
-            <div class="section">
-                <h3><i class="fas fa-gift"></i> Energy Offers</h3>
-                <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:12px; margin-bottom:16px;">
-                    <div class="form-group"><label>User ID (leave empty for all users)</label><input type="text" id="offerUserId" placeholder="Leave empty for all users"></div>
-                    <div class="form-group"><label>Energy Amount</label><input type="number" id="offerEnergy" value="20" min="1"></div>
-                    <div class="form-group"><label>Price (Coins)</label><input type="number" id="offerPrice" value="50" min="1"></div>
-                    <div class="form-group"><label>Limit (times user can buy, 0 = unlimited)</label><input type="number" id="offerLimit" value="1" min="0"></div>
-                    <button class="btn btn-success" onclick="addOffer()"><i class="fas fa-plus"></i> Add Offer</button>
+            <!-- Settings Tab -->
+            <div class="tab-content" id="tabSettings">
+                <h3 style="margin-bottom:15px;">⚙️ Settings</h3>
+                
+                <!-- Withdraw Settings -->
+                <div class="settings-box">
+                    <h3>💸 Withdraw Settings</h3>
+                    <label>Minimum Withdraw Amount (USD)</label>
+                    <input type="number" id="minWithdraw" placeholder="e.g. 10">
+                    <button onclick="saveWithdrawSettings()">Save</button>
                 </div>
-                <div id="offerList"><div style="text-align:center; color:#94a3b8;">Loading offers...</div></div>
-            </div>
-        </div>
 
-        <!-- ===== WEEKLY BONUS TAB ===== -->
-        <div class="tab-content" id="tabWeekly">
-            <div class="section">
-                <h3><i class="fas fa-calendar-week"></i> Weekly Bonus Settings</h3>
-                <div class="info-box">Each day has different reward amount. Users must watch ad to claim.</div>
-                <div id="weeklyRewardSettings">
-                    <div class="setting-item" data-day="0"><span class="label">Sunday</span><input type="number" class="weekly-reward-input" value="10" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="1"><span class="label">Monday</span><input type="number" class="weekly-reward-input" value="15" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="2"><span class="label">Tuesday</span><input type="number" class="weekly-reward-input" value="20" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="3"><span class="label">Wednesday</span><input type="number" class="weekly-reward-input" value="25" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="4"><span class="label">Thursday</span><input type="number" class="weekly-reward-input" value="30" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="5"><span class="label">Friday</span><input type="number" class="weekly-reward-input" value="40" min="1" style="width:100px;"></div>
-                    <div class="setting-item" data-day="6"><span class="label">Saturday</span><input type="number" class="weekly-reward-input" value="50" min="1" style="width:100px;"></div>
+                <!-- Video Settings -->
+                <div class="settings-box">
+                    <h3>📺 Video Settings</h3>
+                    <label>Daily Video Limit</label>
+                    <input type="number" id="videoLimit" placeholder="e.g. 5">
+                    <label>Coins per Video</label>
+                    <input type="number" id="videoReward" placeholder="e.g. 10">
+                    <button onclick="saveVideoSettings()">Save</button>
                 </div>
-                <button class="btn btn-success" onclick="saveWeeklyRewards()"><i class="fas fa-save"></i> Save Weekly Rewards</button>
-            </div>
-        </div>
 
-        <!-- ===== SETTINGS TAB ===== -->
-        <div class="tab-content" id="tabSettings">
-            <div class="section">
-                <h3><i class="fas fa-cog"></i> General Settings</h3>
-                <div class="form-group"><label>Conversion Rate (1 USD = ? Coins)</label><input type="number" id="conversionRateInput" value="1000" min="1"></div>
-                <div class="rate-display" id="rateDisplay">1 USD = 1000 Coins</div>
-                <button class="btn btn-success" onclick="updateConversionRate()"><i class="fas fa-save"></i> Save Rate</button>
-            </div>
-
-            <div class="section">
-                <h3><i class="fas fa-credit-card"></i> Withdraw Settings</h3>
-                <div class="form-group"><label>Minimum Withdraw Amount (USD)</label><input type="number" id="minWithdrawInput" value="10" min="1" step="0.5"></div>
-                <div class="form-group"><label>Withdraw Method</label>
-                    <select id="withdrawMethod">
-                        <option value="bank">Bank Transfer</option><option value="bkash">bKash</option><option value="nagad">Nagad</option>
-                        <option value="rocket">Rocket</option><option value="paypal">PayPal</option><option value="crypto">Cryptocurrency</option>
-                    </select>
+                <!-- Ad Code Settings -->
+                <div class="settings-box">
+                    <h3>📢 Ad Code</h3>
+                    <label>Enter Ad Code (Users will watch this ad to earn coins)</label>
+                    <textarea id="adCode" rows="4" placeholder="<script src='...'></script>"></textarea>
+                    <button onclick="saveAdCode()">Save Ad Code</button>
                 </div>
-                <div class="form-group"><label>Withdraw Details (Instructions)</label><textarea id="withdrawDetails" placeholder="Add withdrawal instructions...">Bank Transfer</textarea></div>
-                <button class="btn btn-success" onclick="updateWithdrawSettings()"><i class="fas fa-save"></i> Save Withdraw Settings</button>
-            </div>
-
-            <div class="section">
-                <h3><i class="fas fa-user-shield"></i> Admin Settings</h3>
-                <div class="form-group"><label>Change Admin Secret Key</label>
-                    <input type="text" id="adminSecretInput" value="admin123456" placeholder="New secret key">
-                </div>
-                <button class="btn btn-warning" onclick="updateAdminSecret()"><i class="fas fa-key"></i> Change Secret Key</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Setting Modal -->
-    <div class="section hidden" id="editSection" style="margin-top:20px; border:2px solid #3b82f6;">
-        <h3 id="editTitle">Edit Setting</h3>
-        <div class="form-group"><label id="editLabel">Value</label><textarea id="editInput" placeholder="Enter value..."></textarea></div>
-        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editEnabled" checked> Enabled</label></div>
-        <button class="btn btn-success" onclick="saveSetting()"><i class="fas fa-save"></i> Save</button>
-        <button class="btn btn-danger" onclick="cancelEdit()"><i class="fas fa-times"></i> Cancel</button>
+    <!-- Edit Modal -->
+    <div class="edit-modal" id="editModal">
+        <div class="edit-content">
+            <h3>Edit User Balance</h3>
+            <input type="hidden" id="editUserId">
+            <label>New Balance (Coins)</label>
+            <input type="number" id="editBalance">
+            <button onclick="saveEdit()">Save Changes</button>
+            <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+        </div>
     </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // ==================== FIREBASE ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAqCNHhu9oaBDea85tAH-iHucHczZnR7nY",
             authDomain: "tolaka-exc-reverb-b1afd.firebaseapp.com",
@@ -334,743 +202,232 @@
             messagingSenderId: "25114300036",
             appId: "1:25114300036:android:579e5c869a075113603cd1"
         };
-
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
-        let ADMIN_SECRET = "admin123456";
-        let currentEditKey = null;
-        let taskSettings = {};
-        let currentRate = 1000;
-        let allUsers = [];
+        // ==================== TOAST ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') toast.classList.add('error');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
 
-        // ==================== ACCESS ====================
-        function verifyAccess() {
-            const key = document.getElementById('secretKey').value;
-            if (key === ADMIN_SECRET) {
-                document.getElementById('accessModal').style.display = 'none';
-                document.getElementById('adminPanel').classList.remove('hidden');
-                loadAllData();
+        // ==================== ADMIN LOGIN ====================
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            if (username === 'admin' && password === 'admin123') {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('dashboard').classList.add('show');
+                loadAllUsers();
+                loadAllWithdraws();
+                loadSettings();
+                showToast('✅ Logged in successfully!');
             } else {
-                document.getElementById('accessError').style.display = 'block';
+                showToast('❌ Invalid credentials!', 'error');
             }
         }
 
-        // ==================== TAB SYSTEM ====================
-        function switchTab(tab, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-            if (tab === 'dashboard') loadDashboard();
-            if (tab === 'users') loadUsers();
-            if (tab === 'withdraw') loadWithdrawRequests();
-            if (tab === 'offers') loadOffers();
-            if (tab === 'tasks') loadTasks();
+        // ==================== TAB SWITCH ====================
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+            btn.classList.add('active');
+            
+            if (tabId === 'withdraw') loadAllWithdraws();
+            if (tabId === 'settings') loadSettings();
         }
 
-        // ==================== LOAD ALL DATA ====================
-        function loadAllData() {
-            loadSettings();
-            loadConversionRate();
-            loadWithdrawSettings();
-            loadWeeklyRewards();
-            loadVideoSettings();
-            loadEnergySettings();
-            loadDashboard();
-            loadUsers();
-            loadWithdrawRequests();
-            loadOffers();
-            loadTasks();
-            loadAdminSecret();
-        }
-
-        // ==================== ADMIN SECRET ====================
-        function loadAdminSecret() {
-            const ref = database.ref('adminSecret');
-            ref.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    ADMIN_SECRET = snapshot.val();
-                    document.getElementById('adminSecretInput').value = ADMIN_SECRET;
+        // ==================== LOAD USERS ====================
+        function loadAllUsers() {
+            db.ref('users').on('value', (snapshot) => {
+                const users = snapshot.val();
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = '';
+                if (!users) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#64748b;">No users found</td></tr>';
+                    return;
                 }
+                Object.keys(users).forEach((uid) => {
+                    const user = users[uid];
+                    const referrals = user.referrals ? Object.values(user.referrals).length : 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.username || 'Unknown'}</td>
+                        <td>${user.deviceId || 'N/A'}</td>
+                        <td>${user.ip || 'N/A'}</td>
+                        <td>${user.balance || 0}</td>
+                        <td>$${(user.usdBalance || 0).toFixed(2)}</td>
+                        <td class="referral-list">${referrals}</td>
+                        <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
+                        <td>
+                            <button class="edit-btn" onclick="openEditModal('${uid}', ${user.balance || 0})">Edit</button>
+                            ${user.isBanned ? 
+                                `<button class="unban-btn" onclick="toggleBan('${uid}', false)">Unban</button>` : 
+                                `<button class="ban-btn" onclick="toggleBan('${uid}', true)">Ban</button>`
+                            }
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
             });
         }
 
-        function updateAdminSecret() {
-            const newSecret = document.getElementById('adminSecretInput').value.trim();
-            if (!newSecret || newSecret.length < 4) {
-                alert('Secret key must be at least 4 characters!');
+        // ==================== EDIT USER BALANCE ====================
+        function openEditModal(uid, currentBalance) {
+            document.getElementById('editUserId').value = uid;
+            document.getElementById('editBalance').value = currentBalance;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function saveEdit() {
+            const uid = document.getElementById('editUserId').value;
+            const newBalance = parseInt(document.getElementById('editBalance').value);
+            if (isNaN(newBalance)) {
+                showToast('Please enter a valid number!', 'error');
                 return;
             }
-            database.ref('adminSecret').set(newSecret).then(() => {
-                ADMIN_SECRET = newSecret;
-                alert('✅ Admin secret key updated successfully!');
-            }).catch(err => alert('Error: ' + err.message));
+            db.ref('users/' + uid).update({ balance: newBalance }).then(() => {
+                showToast('✅ Balance updated successfully!');
+                closeEditModal();
+            }).catch((e) => showToast('Error: ' + e.message, 'error'));
         }
 
-        // ==================== DASHBOARD ====================
-        function loadDashboard() {
-            database.ref('users').once('value', (snapshot) => {
-                let totalUsers = 0, totalCoins = 0;
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const data = child.val();
-                        totalUsers++;
-                        totalCoins += data.balance || 0;
-                    });
-                }
-                document.getElementById('totalUsers').textContent = totalUsers;
-                document.getElementById('totalCoins').textContent = totalCoins.toLocaleString();
-            });
-            database.ref('withdrawRequests').once('value', (snapshot) => {
-                let total = 0, pending = 0;
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const data = child.val();
-                        total += data.amount || 0;
-                        if (data.status === 'pending') pending++;
-                    });
-                }
-                document.getElementById('totalWithdraw').textContent = '$' + total.toFixed(2);
-                document.getElementById('pendingWithdraw').textContent = pending;
+        // ==================== BAN / UNBAN ====================
+        function toggleBan(uid, ban) {
+            db.ref('users/' + uid).update({ isBanned: ban }).then(() => {
+                showToast(ban ? '✅ User banned!' : '✅ User unbanned!');
             });
         }
 
-        // ==================== USERS ====================
-        function loadUsers() {
-            database.ref('users').orderByChild('balance').limitToLast(50).on('value', (snapshot) => {
-                const container = document.getElementById('usersTableBody');
-                allUsers = [];
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No users found</td></tr>';
+        // ==================== WITHDRAW SYSTEM ====================
+        function loadAllWithdraws() {
+            db.ref('withdrawRequests').on('value', (snapshot) => {
+                const requests = snapshot.val();
+                const tbody = document.getElementById('withdrawTableBody');
+                tbody.innerHTML = '';
+                if (!requests) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;">No withdraw requests</td></tr>';
                     return;
                 }
-                snapshot.forEach((child) => {
-                    allUsers.push({ id: child.key, ...child.val() });
-                });
-                allUsers.reverse();
-                renderUsers(allUsers);
-            });
-        }
-
-        function renderUsers(users) {
-            const container = document.getElementById('usersTableBody');
-            if (users.length === 0) {
-                container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No users found</td></tr>';
-                return;
-            }
-            container.innerHTML = users.map(user => `
-                <tr>
-                    <td><div style="display:flex; align-items:center; gap:10px;">
-                        <div class="user-avatar">${(user.username || 'U').charAt(0).toUpperCase()}</div>
-                        <div><div style="font-weight:500;">${user.username || 'User'}</div>
-                        <div style="font-size:11px; color:#6b7280;">${user.id ? user.id.substring(0,10) : ''}</div></div>
-                    </div></td>
-                    <td style="color:#fbbf24; font-weight:bold;">${user.balance || 0}</td>
-                    <td style="color:#22c55e;">$${((user.balance || 0) / (currentRate || 1000)).toFixed(2)}</td>
-                    <td>${user.completedTasks || 0}</td>
-                    <td style="font-size:12px; color:#94a3b8;">${user.lastLogin || 'Never'}</td>
-                    <td>${user.isBanned ? '<span class="badge badge-disabled">Banned</span>' : '<span class="badge badge-enabled">Active</span>'}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn btn-primary btn-sm" onclick="editUser('${user.id}')"><i class="fas fa-edit"></i></button>
-                            ${user.isBanned ? `<button class="btn btn-success btn-sm" onclick="unbanUser('${user.id}')"><i class="fas fa-check"></i></button>` :
-                            `<button class="btn btn-danger btn-sm" onclick="banUser('${user.id}')"><i class="fas fa-ban"></i></button>`}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function filterUsers() {
-            const search = document.getElementById('userSearch').value.toLowerCase();
-            const filtered = allUsers.filter(u => 
-                (u.username || '').toLowerCase().includes(search) || 
-                (u.id || '').toLowerCase().includes(search)
-            );
-            renderUsers(filtered);
-        }
-
-        function refreshUsers() { loadUsers(); }
-
-        function editUser(userId) {
-            const newCoins = prompt('Enter new coins balance:');
-            if (newCoins === null) return;
-            const coins = parseInt(newCoins);
-            if (isNaN(coins) || coins < 0) { alert('Please enter a valid number'); return; }
-            
-            const newUsd = prompt('Enter new USD balance:');
-            if (newUsd === null) return;
-            const usd = parseFloat(newUsd);
-            if (isNaN(usd) || usd < 0) { alert('Please enter a valid number'); return; }
-
-            database.ref('users/' + userId).update({
-                balance: coins,
-                usdBalance: usd
-            }).then(() => {
-                alert('✅ User updated successfully!');
-                loadUsers();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        function banUser(userId) {
-            const reason = prompt('Enter ban reason:');
-            if (reason === null) return;
-            if (!reason.trim()) { alert('Please enter a reason'); return; }
-            
-            database.ref('users/' + userId).update({
-                isBanned: true,
-                banReason: reason,
-                banTime: new Date().toISOString()
-            }).then(() => {
-                alert('✅ User banned successfully!');
-                loadUsers();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        function unbanUser(userId) {
-            if (!confirm('Are you sure you want to unban this user?')) return;
-            database.ref('users/' + userId).update({
-                isBanned: false,
-                banReason: null
-            }).then(() => {
-                alert('✅ User unbanned successfully!');
-                loadUsers();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ==================== TASKS ====================
-        function loadTasks() {
-            database.ref('tasks').on('value', (snapshot) => {
-                const container = document.getElementById('taskList');
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">No tasks created yet</div>';
-                    return;
-                }
-                let html = '';
-                snapshot.forEach((child) => {
-                    const task = child.val();
-                    const id = child.key;
-                    const typeIcon = task.type === 'link' ? '🔗' : task.type === 'ad' ? '📺' : '📝';
-                    html += `
-                        <div class="task-item">
-                            <div class="task-header">
-                                <div>
-                                    <span class="task-title">${typeIcon} ${task.title}</span>
-                                    <span style="font-size:12px; color:#22c55e; margin-left:10px;">+${task.reward} 🪙</span>
-                                </div>
-                                <div class="task-actions">
-                                    <button class="btn btn-danger btn-sm" onclick="deleteTask('${id}')"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>
-                            <div class="task-meta">${task.description || ''} | Category: ${task.category || 'General'} | Progress: ${task.progress || 0}/${task.maxProgress || 1}</div>
-                        </div>
+                Object.keys(requests).reverse().forEach((id) => {
+                    const req = requests[id];
+                    const statusClass = req.status === 'pending' ? 'status-pending' : req.status === 'approved' ? 'status-approved' : 'status-cancelled';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${req.username || 'User'}</td>
+                        <td>$${req.amount.toFixed(2)}</td>
+                        <td class="${statusClass}">${req.status.toUpperCase()}</td>
+                        <td>${req.requestedAt ? new Date(req.requestedAt).toLocaleString() : 'Unknown'}</td>
+                        <td>
+                            ${req.status === 'pending' ? 
+                                `<button class="approve-btn" onclick="approveWithdraw('${id}', ${req.amount})">Approve</button>
+                                 <button class="cancel-btn" onclick="cancelWithdraw('${id}')">Cancel</button>` : 
+                                req.status === 'approved' ? 
+                                '<span style="color:#10b981;">✅ Approved</span>' :
+                                `<span style="color:#ef4444;">❌ Cancelled</span>`
+                            }
+                        </td>
                     `;
+                    tbody.appendChild(row);
                 });
-                container.innerHTML = html;
             });
         }
 
-        function addTask() {
-            const title = document.getElementById('taskTitle').value.trim();
-            const desc = document.getElementById('taskDesc').value.trim();
-            const reward = parseInt(document.getElementById('taskReward').value);
-            const type = document.getElementById('taskType').value;
-            const link = document.getElementById('taskLink').value.trim();
-            const adCode = document.getElementById('taskAdCode').value.trim();
-            const maxProgress = parseInt(document.getElementById('taskMaxProgress').value) || 1;
-            const category = document.getElementById('taskCategory').value;
-
-            if (!title) { alert('Please enter a task title!'); return; }
-            if (!reward || reward < 1) { alert('Please enter a valid reward!'); return; }
-
-            const taskData = {
-                title: title,
-                description: desc || '',
-                reward: reward,
-                type: type,
-                category: category,
-                maxProgress: maxProgress,
-                progress: 0,
-                participants: 0,
-                createdAt: Date.now()
-            };
-
-            if (type === 'link') {
-                if (!link) { alert('Please enter a link URL!'); return; }
-                taskData.link = link;
-                taskData.actionText = 'Go →';
-            } else if (type === 'ad') {
-                taskData.adCode = adCode || '<div style="padding:12px;background:#0a0e27;border-radius:8px;color:#94a3b8;">📺 Ad not configured</div>';
-                taskData.actionText = 'Watch Ad';
-            } else {
-                taskData.actionText = 'Complete';
-            }
-
-            database.ref('tasks').push(taskData).then(() => {
-                alert('✅ Task added successfully!');
-                document.getElementById('taskTitle').value = '';
-                document.getElementById('taskDesc').value = '';
-                document.getElementById('taskReward').value = '10';
-                document.getElementById('taskLink').value = '';
-                document.getElementById('taskAdCode').value = '';
-                document.getElementById('taskMaxProgress').value = '1';
-                loadTasks();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        function deleteTask(taskId) {
-            if (!confirm('Delete this task?')) return;
-            database.ref('tasks/' + taskId).remove().then(() => {
-                alert('✅ Task deleted!');
-                loadTasks();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // Show/hide link/ad field based on type
-        document.getElementById('taskType').addEventListener('change', function() {
-            const type = this.value;
-            document.getElementById('taskLinkGroup').style.display = type === 'link' ? 'block' : 'none';
-            document.getElementById('taskAdCodeGroup').style.display = type === 'ad' ? 'block' : 'none';
-        });
-
-        // ==================== VIDEO SETTINGS ====================
-        function loadVideoSettings() {
-            database.ref('videoSettings').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('videoReward').value = data.reward || 10;
-                    document.getElementById('videoDailyLimit').value = data.dailyLimit || 5;
-                }
+        function approveWithdraw(id, amount) {
+            if (!confirm('Approve this withdrawal?')) return;
+            db.ref('withdrawRequests/' + id).update({ status: 'approved' }).then(() => {
+                showToast('✅ Withdrawal approved!');
             });
         }
 
-        function updateVideoSettings() {
-            const reward = parseInt(document.getElementById('videoReward').value);
-            const dailyLimit = parseInt(document.getElementById('videoDailyLimit').value);
-            if (!reward || reward < 1) { alert('Please enter a valid reward!'); return; }
-            if (!dailyLimit || dailyLimit < 1) { alert('Please enter a valid daily limit!'); return; }
-
-            database.ref('videoSettings').update({
-                reward: reward,
-                dailyLimit: dailyLimit,
-                updatedAt: Date.now()
-            }).then(() => {
-                alert('✅ Video settings saved successfully!');
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ==================== ENERGY SETTINGS ====================
-        function loadEnergySettings() {
-            database.ref('energySettings').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('energyVideoReward').value = data.videoReward || 20;
-                    document.getElementById('energyRechargeTime').value = data.rechargeTime || 3600;
-                }
-            });
-        }
-
-        function updateEnergySettings() {
-            const videoReward = parseInt(document.getElementById('energyVideoReward').value);
-            const rechargeTime = parseInt(document.getElementById('energyRechargeTime').value);
-            if (!videoReward || videoReward < 1) { alert('Please enter a valid video reward!'); return; }
-            if (!rechargeTime || rechargeTime < 60) { alert('Please enter a valid recharge time (minimum 60 seconds)!'); return; }
-
-            database.ref('energySettings').update({
-                videoReward: videoReward,
-                rechargeTime: rechargeTime,
-                updatedAt: Date.now()
-            }).then(() => {
-                alert('✅ Energy settings saved successfully!');
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ==================== TASK SETTINGS ====================
-        function loadSettings() {
-            const settingsRef = database.ref('taskSettings');
-            settingsRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    taskSettings = snapshot.val();
-                } else {
-                    taskSettings = {
-                        telegram: { link: 'https://t.me/yourchannel', enabled: true },
-                        twitter: { link: 'https://twitter.com/yourpage', enabled: true },
-                        survey: { link: 'https://your-survey-link.com', enabled: true },
-                        video: { adCode: '<div style="padding:20px; background:#1a1f3a; border-radius:12px;"><p style="color:#94a3b8;">📺 Video Ad</p></div>', enabled: true },
-                        dailyCheckin: { adCode: '<div style="padding:20px; background:#1a1f3a; border-radius:12px;"><p style="color:#94a3b8;">📅 Daily Check-in</p></div>', enabled: true }
-                    };
-                    settingsRef.set(taskSettings);
-                }
-                updateDisplay();
-            });
-        }
-
-        function updateDisplay() {
-            document.getElementById('telegramLinkDisplay').textContent = taskSettings.telegram?.link || 'Not set';
-            document.getElementById('twitterLinkDisplay').textContent = taskSettings.twitter?.link || 'Not set';
-            document.getElementById('surveyLinkDisplay').textContent = taskSettings.survey?.link || 'Not set';
-            document.getElementById('videoAdDisplay').textContent = taskSettings.video?.adCode ? '✅ Set' : '❌ Not set';
-            document.getElementById('dailyCheckinAdDisplay').textContent = taskSettings.dailyCheckin?.adCode ? '✅ Set' : '❌ Not set';
-        }
-
-        function editSetting(key) {
-            currentEditKey = key;
-            const section = document.getElementById('editSection');
-            section.classList.remove('hidden');
-            
-            const titles = {
-                telegram: 'Edit Telegram Channel Link',
-                twitter: 'Edit Twitter Page Link',
-                survey: 'Edit Survey Link',
-                video: 'Edit Video Ad Code',
-                dailyCheckin: 'Edit Daily Check-in Ad Code'
-            };
-            const labels = {
-                telegram: 'Telegram Channel URL',
-                twitter: 'Twitter Page URL',
-                survey: 'Survey Link URL',
-                video: 'Video Ad HTML Code',
-                dailyCheckin: 'Daily Check-in Ad HTML Code'
-            };
-
-            document.getElementById('editTitle').textContent = titles[key] || 'Edit Setting';
-            document.getElementById('editLabel').textContent = labels[key] || 'Value';
-            
-            const data = taskSettings[key] || {};
-            document.getElementById('editInput').value = data.link || data.adCode || '';
-            document.getElementById('editEnabled').checked = data.enabled !== false;
-            section.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function saveSetting() {
-            if (!currentEditKey) return;
-            const value = document.getElementById('editInput').value;
-            const enabled = document.getElementById('editEnabled').checked;
-            
-            const updateData = {};
-            if (currentEditKey === 'video' || currentEditKey === 'dailyCheckin') {
-                updateData[currentEditKey] = { adCode: value, enabled: enabled };
-            } else {
-                updateData[currentEditKey] = { link: value, enabled: enabled };
-            }
-            
-            database.ref('taskSettings').update(updateData).then(() => {
-                alert('✅ Setting saved successfully!');
-                cancelEdit();
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        function cancelEdit() {
-            document.getElementById('editSection').classList.add('hidden');
-            currentEditKey = null;
-        }
-
-        // ==================== CONVERSION RATE ====================
-        function loadConversionRate() {
-            const rateRef = database.ref('conversionRate');
-            rateRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    currentRate = snapshot.val();
-                } else {
-                    currentRate = 1000;
-                    rateRef.set(1000);
-                }
-                document.getElementById('conversionRateInput').value = currentRate;
-                document.getElementById('rateDisplay').textContent = `1 USD = ${currentRate} Coins`;
-            });
-        }
-
-        function updateConversionRate() {
-            const newRate = parseInt(document.getElementById('conversionRateInput').value);
-            if (!newRate || newRate < 1) { alert('Please enter a valid rate (minimum 1)'); return; }
-            database.ref('conversionRate').set(newRate).then(() => {
-                alert('✅ Conversion rate updated successfully!');
-                currentRate = newRate;
-                document.getElementById('rateDisplay').textContent = `1 USD = ${newRate} Coins`;
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ==================== WITHDRAW ====================
-        function loadWithdrawSettings() {
-            const ref = database.ref('withdrawSettings');
-            ref.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.getElementById('minWithdrawInput').value = data.minAmount || 10;
-                    document.getElementById('withdrawMethod').value = data.method || 'bank';
-                    document.getElementById('withdrawDetails').value = data.details || 'Bank Transfer';
-                }
-            });
-        }
-
-        function updateWithdrawSettings() {
-            const minAmount = parseFloat(document.getElementById('minWithdrawInput').value);
-            const method = document.getElementById('withdrawMethod').value;
-            const details = document.getElementById('withdrawDetails').value;
-            if (!minAmount || minAmount < 0.5) { alert('Please enter a valid minimum amount (minimum 0.5)'); return; }
-            
-            database.ref('withdrawSettings').update({
-                minAmount: minAmount,
-                method: method,
-                details: details,
-                updatedAt: Date.now()
-            }).then(() => {
-                alert('✅ Withdraw settings updated successfully!');
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ===== WITHDRAW REQUESTS (আপডেটেড) =====
-        function loadWithdrawRequests() {
-            database.ref('withdrawRequests').orderByChild('requestedAt').limitToLast(30).on('value', (snapshot) => {
-                const container = document.getElementById('withdrawTableBody');
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No withdraw requests</td></tr>';
-                    return;
-                }
-                const requests = [];
-                snapshot.forEach((child) => {
-                    requests.push({ id: child.key, ...child.val() });
-                });
-                requests.reverse();
-                
-                container.innerHTML = requests.map(req => {
-                    // Cancel reason display
-                    let cancelReasonDisplay = '';
-                    if (req.status === 'cancelled' && req.cancelReason) {
-                        cancelReasonDisplay = `<span class="cancel-reason-text">⚠️ ${req.cancelReason}</span>`;
-                    } else if (req.status === 'cancelled') {
-                        cancelReasonDisplay = '<span class="cancel-reason-text">No reason provided</span>';
-                    } else {
-                        cancelReasonDisplay = '<span style="color:#6b7280;font-size:11px;">-</span>';
-                    }
-                    
-                    // Status badge
-                    let statusBadge = `<span class="withdraw-status-badge ${req.status || 'pending'}">${req.status || 'Pending'}</span>`;
-                    
-                    return `
-                        <tr>
-                            <td>${req.username || 'User'}</td>
-                            <td style="color:#fbbf24; font-weight:bold;">$${req.amount.toFixed(2)}</td>
-                            <td style="font-size:12px;">${req.method || 'Bank'}</td>
-                            <td>${statusBadge}</td>
-                            <td style="max-width:150px;">${cancelReasonDisplay}</td>
-                            <td style="font-size:12px; color:#94a3b8;">${req.requestedAt ? new Date(req.requestedAt).toLocaleDateString() : '-'}</td>
-                            <td>
-                                <div class="withdraw-action-btns">
-                                    ${req.status === 'pending' ? `
-                                        <button class="btn btn-success btn-sm" onclick="updateWithdrawStatus('${req.id}', 'approved')"><i class="fas fa-check"></i> Approve</button>
-                                        <button class="btn btn-warning btn-sm" onclick="updateWithdrawStatus('${req.id}', 'processing')"><i class="fas fa-spinner"></i> Process</button>
-                                        <button class="btn btn-danger btn-sm" onclick="cancelWithdraw('${req.id}')"><i class="fas fa-times"></i> Cancel</button>
-                                    ` : ''}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            });
-        }
-
-        function updateWithdrawStatus(requestId, status) {
-            const requestRef = database.ref('withdrawRequests/' + requestId);
-            
-            requestRef.once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const userId = data.userId;
-                    
-                    const updateData = { status: status };
-                    
-                    if (status === 'approved') {
-                        updateData.approvedAt = Date.now();
-                    } else if (status === 'processing') {
-                        updateData.processedAt = Date.now();
-                    }
-                    
-                    requestRef.update(updateData).then(() => {
-                        // Update user's withdraw history
-                        if (userId) {
-                            const userRef = database.ref('users/' + userId);
-                            userRef.once('value', (userSnapshot) => {
-                                if (userSnapshot.exists()) {
-                                    const userData = userSnapshot.val();
-                                    let history = userData.withdrawHistory || [];
-                                    
-                                    const existingIndex = history.findIndex(h => h.id === requestId);
-                                    if (existingIndex !== -1) {
-                                        history[existingIndex].status = status;
-                                        if (status === 'approved') {
-                                            history[existingIndex].approvedAt = Date.now();
-                                        } else if (status === 'processing') {
-                                            history[existingIndex].processedAt = Date.now();
-                                        }
-                                        userRef.update({ withdrawHistory: history });
-                                    }
-                                }
-                            });
-                        }
-                        
-                        alert(`✅ Withdraw ${status}!`);
-                        loadWithdrawRequests();
-                        loadDashboard();
-                    }).catch(err => alert('Error: ' + err.message));
-                }
-            });
-        }
-
-        // ===== CANCEL WITHDRAW (রিজন সহ + টাকা ফেরত) =====
-        function cancelWithdraw(requestId) {
-            const reason = prompt('Enter cancellation reason (e.g., "Insufficient balance", "Fraud detected", "User requested", "Bank issue"):');
+        function cancelWithdraw(id) {
+            const reason = prompt('Enter cancellation reason:');
             if (reason === null) return;
-            if (!reason.trim()) { 
-                alert('Please enter a reason for cancellation'); 
-                return; 
-            }
-            
-            const requestRef = database.ref('withdrawRequests/' + requestId);
-            requestRef.once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const userId = data.userId;
-                    const amount = data.amount;
-                    
-                    // 1. Update withdraw request
-                    requestRef.update({
-                        status: 'cancelled',
-                        cancelReason: reason,
-                        cancelledAt: Date.now()
+            db.ref('withdrawRequests/' + id).once('value', (snap) => {
+                const req = snap.val();
+                if (req && req.userId) {
+                    // Refund the amount to user
+                    db.ref('users/' + req.userId + '/usdBalance').transaction((current) => {
+                        return (current || 0) + req.amount;
                     }).then(() => {
-                        // 2. Return money to user's balance
-                        if (userId) {
-                            const userRef = database.ref('users/' + userId);
-                            userRef.transaction((current) => {
-                                if (current) {
-                                    current.usdBalance = (current.usdBalance || 0) + amount;
-                                }
-                                return current;
-                            }).then(() => {
-                                // 3. Update user's withdraw history
-                                userRef.once('value', (userSnapshot) => {
-                                    if (userSnapshot.exists()) {
-                                        const userData = userSnapshot.val();
-                                        let history = userData.withdrawHistory || [];
-                                        
-                                        const existingIndex = history.findIndex(h => h.id === requestId);
-                                        if (existingIndex !== -1) {
-                                            history[existingIndex].status = 'cancelled';
-                                            history[existingIndex].cancelReason = reason;
-                                            history[existingIndex].cancelledAt = Date.now();
-                                        } else {
-                                            history.push({
-                                                id: requestId,
-                                                amount: amount,
-                                                status: 'cancelled',
-                                                date: new Date().toISOString(),
-                                                cancelReason: reason,
-                                                cancelledAt: Date.now()
-                                            });
-                                        }
-                                        
-                                        userRef.update({ withdrawHistory: history });
-                                    }
-                                });
-                                
-                                alert(`✅ Withdrawal cancelled! $${amount.toFixed(2)} has been returned to user's balance.`);
-                                loadWithdrawRequests();
-                                loadDashboard();
-                            });
-                        } else {
-                            alert('✅ Withdrawal cancelled successfully!');
-                            loadWithdrawRequests();
-                        }
-                    }).catch(err => alert('Error: ' + err.message));
-                }
-            });
-        }
-
-        // ==================== OFFERS ====================
-        function loadOffers() {
-            database.ref('energyOffers').on('value', (snapshot) => {
-                const container = document.getElementById('offerList');
-                if (!snapshot.exists()) {
-                    container.innerHTML = '<div style="text-align:center; color:#94a3b8;">No offers created yet</div>';
-                    return;
-                }
-                let html = '';
-                snapshot.forEach((child) => {
-                    const data = child.val();
-                    html += `
-                        <div class="setting-item">
-                            <div>
-                                <span class="label">⚡ +${data.energy} Energy</span>
-                                <span style="color:#fbbf24; margin:0 8px;">${data.price} 🪙</span>
-                                <span style="color:#94a3b8; font-size:12px;">${data.userId ? 'User: '+data.userId.substring(0,8)+'...' : 'All Users'}</span>
-                                <span style="color:#94a3b8; font-size:12px;">Limit: ${data.limit || '∞'}</span>
-                            </div>
-                            <button class="btn btn-danger btn-sm" onclick="deleteOffer('${child.key}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        function addOffer() {
-            const userId = document.getElementById('offerUserId').value.trim() || '';
-            const energy = parseInt(document.getElementById('offerEnergy').value);
-            const price = parseInt(document.getElementById('offerPrice').value);
-            const limit = parseInt(document.getElementById('offerLimit').value) || 0;
-            if (!energy || !price || energy < 1 || price < 1) { alert('Please enter valid values'); return; }
-            
-            database.ref('energyOffers').push({
-                userId: userId,
-                energy: energy,
-                price: price,
-                limit: limit,
-                createdAt: Date.now()
-            }).then(() => {
-                alert('✅ Offer added successfully!');
-                document.getElementById('offerUserId').value = '';
-                document.getElementById('offerEnergy').value = '20';
-                document.getElementById('offerPrice').value = '50';
-                document.getElementById('offerLimit').value = '1';
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        function deleteOffer(offerId) {
-            if (!confirm('Delete this offer?')) return;
-            database.ref('energyOffers/' + offerId).remove().then(() => {
-                alert('✅ Offer deleted!');
-            }).catch(err => alert('Error: ' + err.message));
-        }
-
-        // ==================== WEEKLY BONUS ====================
-        function loadWeeklyRewards() {
-            database.ref('weeklyRewards').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    document.querySelectorAll('.weekly-reward-input').forEach(input => {
-                        const day = parseInt(input.closest('.setting-item').dataset.day);
-                        input.value = data[day] || [10,15,20,25,30,40,50][day];
+                        db.ref('withdrawRequests/' + id).update({ 
+                            status: 'cancelled', 
+                            cancelReason: reason 
+                        }).then(() => {
+                            showToast('❌ Withdrawal cancelled. Refunded $' + req.amount.toFixed(2));
+                        });
                     });
                 }
             });
         }
 
-        function saveWeeklyRewards() {
-            const rewards = {};
-            document.querySelectorAll('.weekly-reward-input').forEach(input => {
-                const day = parseInt(input.closest('.setting-item').dataset.day);
-                rewards[day] = parseInt(input.value) || 10;
+        // ==================== SETTINGS ====================
+        function loadSettings() {
+            // Withdraw settings
+            db.ref('withdrawSettings').once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('minWithdraw').value = data.minAmount || 10;
             });
-            database.ref('weeklyRewards').set(rewards).then(() => {
-                alert('✅ Weekly rewards saved successfully!');
-            }).catch(err => alert('Error: ' + err.message));
+
+            // Video settings
+            db.ref('videoSettings').once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('videoLimit').value = data.dailyLimit || 5;
+                document.getElementById('videoReward').value = data.reward || 10;
+            });
+
+            // Ad code
+            db.ref('adCode').once('value', (snap) => {
+                const code = snap.val() || '';
+                document.getElementById('adCode').value = code;
+            });
         }
 
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('accessModal').style.display = 'flex';
+        function saveWithdrawSettings() {
+            const minAmount = parseFloat(document.getElementById('minWithdraw').value);
+            if (isNaN(minAmount) || minAmount < 0) {
+                showToast('Please enter a valid amount!', 'error');
+                return;
+            }
+            db.ref('withdrawSettings').set({ minAmount }).then(() => {
+                showToast('✅ Withdraw settings saved!');
+            });
+        }
+
+        function saveVideoSettings() {
+            const dailyLimit = parseInt(document.getElementById('videoLimit').value);
+            const reward = parseInt(document.getElementById('videoReward').value);
+            if (isNaN(dailyLimit) || isNaN(reward) || dailyLimit < 0 || reward < 0) {
+                showToast('Please enter valid numbers!', 'error');
+                return;
+            }
+            db.ref('videoSettings').set({ dailyLimit, reward }).then(() => {
+                showToast('✅ Video settings saved!');
+            });
+        }
+
+        function saveAdCode() {
+            const code = document.getElementById('adCode').value.trim();
+            if (!code) {
+                showToast('Please enter an ad code!', 'error');
+                return;
+            }
+            db.ref('adCode').set(code).then(() => {
+                showToast('✅ Ad code saved!');
+            });
+        }
+
+        // ==================== START ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-login if already logged in (optional)
         });
     </script>
 </body>
