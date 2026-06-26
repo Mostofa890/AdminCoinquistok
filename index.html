@@ -42,7 +42,20 @@
         .user-table .edit-btn { background: #3b82f6; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .user-table .ban-btn { background: #ef4444; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .user-table .unban-btn { background: #10b981; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .user-table .referral-list { font-size: 11px; color: #64748b; }
+        
+        /* Settings Forms */
+        .settings-box { background: #fff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .settings-box h3 { margin-bottom: 15px; }
+        .settings-box label { display: block; font-weight: 600; margin-bottom: 6px; }
+        .settings-box input, .settings-box textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+        .settings-box button { padding: 10px 24px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
+        
+        /* Task Management */
+        .task-box { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .task-box .task-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .task-box .task-item:last-child { border-bottom: none; }
+        .task-box .delete-btn { background: #ef4444; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .task-box .edit-btn { background: #3b82f6; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         
         /* Withdraw Table */
         .withdraw-table { background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
@@ -51,16 +64,6 @@
         .withdraw-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
         .withdraw-table .approve-btn { background: #10b981; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .withdraw-table .cancel-btn { background: #ef4444; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .withdraw-table .status-pending { color: #f59e0b; font-weight: bold; }
-        .withdraw-table .status-approved { color: #10b981; font-weight: bold; }
-        .withdraw-table .status-cancelled { color: #ef4444; font-weight: bold; }
-        
-        /* Settings Form */
-        .settings-box { background: #fff; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .settings-box h3 { margin-bottom: 15px; }
-        .settings-box label { display: block; font-weight: 600; margin-bottom: 6px; }
-        .settings-box input, .settings-box textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
-        .settings-box button { padding: 10px 24px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
         
         /* Edit Modal */
         .edit-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -98,8 +101,9 @@
             <!-- Tabs -->
             <div class="tabs">
                 <button class="active" onclick="switchTab('users', this)">👥 Users</button>
-                <button onclick="switchTab('withdraw', this)">💳 Withdraws</button>
                 <button onclick="switchTab('settings', this)">⚙️ Settings</button>
+                <button onclick="switchTab('tasks', this)">📋 Tasks</button>
+                <button onclick="switchTab('withdraw', this)">💳 Withdraws</button>
             </div>
 
             <!-- Users Tab -->
@@ -120,25 +124,6 @@
                             </tr>
                         </thead>
                         <tbody id="userTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Withdraw Tab -->
-            <div class="tab-content" id="tabWithdraw">
-                <h3 style="margin-bottom:15px;">💳 Withdraw Requests</h3>
-                <div class="withdraw-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Requested At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="withdrawTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -165,12 +150,95 @@
                     <button onclick="saveVideoSettings()">Save</button>
                 </div>
 
+                <!-- Energy Settings -->
+                <div class="settings-box">
+                    <h3>⚡ Energy Settings</h3>
+                    <label>Max Energy</label>
+                    <input type="number" id="maxEnergy" placeholder="e.g. 500">
+                    <label>Recharge Time (hours)</label>
+                    <input type="number" id="rechargeHours" placeholder="e.g. 24">
+                    <button onclick="saveEnergySettings()">Save</button>
+                </div>
+
+                <!-- Level Settings -->
+                <div class="settings-box">
+                    <h3>🏆 Level Settings</h3>
+                    <label>XP per Level</label>
+                    <input type="number" id="xpPerLevel" placeholder="e.g. 100">
+                    <label>Bonus per Level (%)</label>
+                    <input type="number" id="levelBonusPercent" placeholder="e.g. 2">
+                    <button onclick="saveLevelSettings()">Save</button>
+                </div>
+
+                <!-- Weekly Bonus Settings -->
+                <div class="settings-box">
+                    <h3>📅 Weekly Bonus Settings</h3>
+                    <label>Day 1 Bonus</label>
+                    <input type="number" id="weeklyBonus0" placeholder="e.g. 10">
+                    <label>Day 2 Bonus</label>
+                    <input type="number" id="weeklyBonus1" placeholder="e.g. 15">
+                    <label>Day 3 Bonus</label>
+                    <input type="number" id="weeklyBonus2" placeholder="e.g. 20">
+                    <label>Day 4 Bonus</label>
+                    <input type="number" id="weeklyBonus3" placeholder="e.g. 25">
+                    <label>Day 5 Bonus</label>
+                    <input type="number" id="weeklyBonus4" placeholder="e.g. 30">
+                    <label>Day 6 Bonus</label>
+                    <input type="number" id="weeklyBonus5" placeholder="e.g. 40">
+                    <label>Day 7 Bonus</label>
+                    <input type="number" id="weeklyBonus6" placeholder="e.g. 50">
+                    <button onclick="saveWeeklyBonus()">Save</button>
+                </div>
+
                 <!-- Ad Code Settings -->
                 <div class="settings-box">
                     <h3>📢 Ad Code</h3>
                     <label>Enter Ad Code (Users will watch this ad to earn coins)</label>
                     <textarea id="adCode" rows="4" placeholder="<script src='...'></script>"></textarea>
                     <button onclick="saveAdCode()">Save Ad Code</button>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div class="tab-content" id="tabTasks">
+                <h3 style="margin-bottom:15px;">📋 Tasks Management</h3>
+                <div class="settings-box">
+                    <h3>Add New Task</h3>
+                    <label>Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="Enter task title">
+                    <label>Task Description</label>
+                    <input type="text" id="taskDesc" placeholder="Enter task description">
+                    <label>Reward (Coins)</label>
+                    <input type="number" id="taskReward" placeholder="e.g. 50">
+                    <label>Max Progress</label>
+                    <input type="number" id="taskMaxProgress" placeholder="e.g. 1">
+                    <label>Task Type (link or button)</label>
+                    <input type="text" id="taskType" placeholder="link or button">
+                    <label>Link (if type is link)</label>
+                    <input type="text" id="taskLink" placeholder="https://...">
+                    <button onclick="addTask()">Add Task</button>
+                </div>
+
+                <h3 style="margin-bottom:10px;">Existing Tasks</h3>
+                <div class="task-box" id="taskList"></div>
+            </div>
+
+            <!-- Withdraw Tab -->
+            <div class="tab-content" id="tabWithdraw">
+                <h3 style="margin-bottom:15px;">💳 Withdraw Requests</h3>
+                <div class="withdraw-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Requested At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -223,7 +291,7 @@
                 document.getElementById('dashboard').classList.add('show');
                 loadAllUsers();
                 loadAllWithdraws();
-                loadSettings();
+                loadTasks();
                 showToast('✅ Logged in successfully!');
             } else {
                 showToast('❌ Invalid credentials!', 'error');
@@ -237,8 +305,9 @@
             document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
             btn.classList.add('active');
             
-            if (tabId === 'withdraw') loadAllWithdraws();
             if (tabId === 'settings') loadSettings();
+            if (tabId === 'tasks') loadTasks();
+            if (tabId === 'withdraw') loadAllWithdraws();
         }
 
         // ==================== LOAD USERS ====================
@@ -261,7 +330,7 @@
                         <td>${user.ip || 'N/A'}</td>
                         <td>${user.balance || 0}</td>
                         <td>$${(user.usdBalance || 0).toFixed(2)}</td>
-                        <td class="referral-list">${referrals}</td>
+                        <td>${referrals}</td>
                         <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
                         <td>
                             <button class="edit-btn" onclick="openEditModal('${uid}', ${user.balance || 0})">Edit</button>
@@ -307,68 +376,6 @@
             });
         }
 
-        // ==================== WITHDRAW SYSTEM ====================
-        function loadAllWithdraws() {
-            db.ref('withdrawRequests').on('value', (snapshot) => {
-                const requests = snapshot.val();
-                const tbody = document.getElementById('withdrawTableBody');
-                tbody.innerHTML = '';
-                if (!requests) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;">No withdraw requests</td></tr>';
-                    return;
-                }
-                Object.keys(requests).reverse().forEach((id) => {
-                    const req = requests[id];
-                    const statusClass = req.status === 'pending' ? 'status-pending' : req.status === 'approved' ? 'status-approved' : 'status-cancelled';
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${req.username || 'User'}</td>
-                        <td>$${req.amount.toFixed(2)}</td>
-                        <td class="${statusClass}">${req.status.toUpperCase()}</td>
-                        <td>${req.requestedAt ? new Date(req.requestedAt).toLocaleString() : 'Unknown'}</td>
-                        <td>
-                            ${req.status === 'pending' ? 
-                                `<button class="approve-btn" onclick="approveWithdraw('${id}', ${req.amount})">Approve</button>
-                                 <button class="cancel-btn" onclick="cancelWithdraw('${id}')">Cancel</button>` : 
-                                req.status === 'approved' ? 
-                                '<span style="color:#10b981;">✅ Approved</span>' :
-                                `<span style="color:#ef4444;">❌ Cancelled</span>`
-                            }
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            });
-        }
-
-        function approveWithdraw(id, amount) {
-            if (!confirm('Approve this withdrawal?')) return;
-            db.ref('withdrawRequests/' + id).update({ status: 'approved' }).then(() => {
-                showToast('✅ Withdrawal approved!');
-            });
-        }
-
-        function cancelWithdraw(id) {
-            const reason = prompt('Enter cancellation reason:');
-            if (reason === null) return;
-            db.ref('withdrawRequests/' + id).once('value', (snap) => {
-                const req = snap.val();
-                if (req && req.userId) {
-                    // Refund the amount to user
-                    db.ref('users/' + req.userId + '/usdBalance').transaction((current) => {
-                        return (current || 0) + req.amount;
-                    }).then(() => {
-                        db.ref('withdrawRequests/' + id).update({ 
-                            status: 'cancelled', 
-                            cancelReason: reason 
-                        }).then(() => {
-                            showToast('❌ Withdrawal cancelled. Refunded $' + req.amount.toFixed(2));
-                        });
-                    });
-                }
-            });
-        }
-
         // ==================== SETTINGS ====================
         function loadSettings() {
             // Withdraw settings
@@ -382,6 +389,28 @@
                 const data = snap.val() || {};
                 document.getElementById('videoLimit').value = data.dailyLimit || 5;
                 document.getElementById('videoReward').value = data.reward || 10;
+            });
+
+            // Energy settings
+            db.ref('energySettings').once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('maxEnergy').value = data.maxEnergy || 500;
+                document.getElementById('rechargeHours').value = data.rechargeHours || 24;
+            });
+
+            // Level settings
+            db.ref('levelSettings').once('value', (snap) => {
+                const data = snap.val() || {};
+                document.getElementById('xpPerLevel').value = data.xpPerLevel || 100;
+                document.getElementById('levelBonusPercent').value = data.levelBonusPercent || 2;
+            });
+
+            // Weekly bonus settings
+            db.ref('weeklyRewards').once('value', (snap) => {
+                const data = snap.val() || {};
+                for (let i = 0; i < 7; i++) {
+                    document.getElementById('weeklyBonus' + i).value = data[i] || [10,15,20,25,30,40,50][i];
+                }
             });
 
             // Ad code
@@ -414,6 +443,45 @@
             });
         }
 
+        function saveEnergySettings() {
+            const maxEnergy = parseInt(document.getElementById('maxEnergy').value);
+            const rechargeHours = parseInt(document.getElementById('rechargeHours').value);
+            if (isNaN(maxEnergy) || isNaN(rechargeHours) || maxEnergy < 0 || rechargeHours < 0) {
+                showToast('Please enter valid numbers!', 'error');
+                return;
+            }
+            db.ref('energySettings').set({ maxEnergy, rechargeHours }).then(() => {
+                showToast('✅ Energy settings saved!');
+            });
+        }
+
+        function saveLevelSettings() {
+            const xpPerLevel = parseInt(document.getElementById('xpPerLevel').value);
+            const levelBonusPercent = parseInt(document.getElementById('levelBonusPercent').value);
+            if (isNaN(xpPerLevel) || isNaN(levelBonusPercent) || xpPerLevel < 0 || levelBonusPercent < 0) {
+                showToast('Please enter valid numbers!', 'error');
+                return;
+            }
+            db.ref('levelSettings').set({ xpPerLevel, levelBonusPercent }).then(() => {
+                showToast('✅ Level settings saved!');
+            });
+        }
+
+        function saveWeeklyBonus() {
+            const rewards = {};
+            for (let i = 0; i < 7; i++) {
+                const val = parseInt(document.getElementById('weeklyBonus' + i).value);
+                if (isNaN(val) || val < 0) {
+                    showToast('Please enter valid numbers for all days!', 'error');
+                    return;
+                }
+                rewards[i] = val;
+            }
+            db.ref('weeklyRewards').set(rewards).then(() => {
+                showToast('✅ Weekly bonus settings saved!');
+            });
+        }
+
         function saveAdCode() {
             const code = document.getElementById('adCode').value.trim();
             if (!code) {
@@ -422,6 +490,134 @@
             }
             db.ref('adCode').set(code).then(() => {
                 showToast('✅ Ad code saved!');
+            });
+        }
+
+        // ==================== TASKS ====================
+        function loadTasks() {
+            db.ref('tasks').on('value', (snapshot) => {
+                const tasks = snapshot.val();
+                const container = document.getElementById('taskList');
+                container.innerHTML = '';
+                if (!tasks) {
+                    container.innerHTML = '<p style="color:#64748b;">No tasks added yet.</p>';
+                    return;
+                }
+                Object.keys(tasks).forEach((id) => {
+                    const task = tasks[id];
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task-item';
+                    taskDiv.innerHTML = `
+                        <div>
+                            <strong>${task.title}</strong>
+                            <span style="color:#64748b;font-size:12px;"> - ${task.description || ''}</span>
+                            <span style="color:#10b981;font-size:12px;"> (+${task.reward || 0} coins)</span>
+                        </div>
+                        <div>
+                            <button class="edit-btn" onclick="editTask('${id}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteTask('${id}')">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(taskDiv);
+                });
+            });
+        }
+
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDesc').value.trim();
+            const reward = parseInt(document.getElementById('taskReward').value);
+            const maxProgress = parseInt(document.getElementById('taskMaxProgress').value);
+            const type = document.getElementById('taskType').value.trim();
+            const link = document.getElementById('taskLink').value.trim();
+
+            if (!title || isNaN(reward) || isNaN(maxProgress) || !type) {
+                showToast('Please fill all required fields!', 'error');
+                return;
+            }
+
+            const newTask = { title, description, reward, maxProgress, type, link };
+            db.ref('tasks').push(newTask).then(() => {
+                showToast('✅ Task added successfully!');
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDesc').value = '';
+                document.getElementById('taskReward').value = '';
+                document.getElementById('taskMaxProgress').value = '';
+                document.getElementById('taskType').value = '';
+                document.getElementById('taskLink').value = '';
+            });
+        }
+
+        function editTask(id) {
+            // For simplicity, you can implement a popup to edit task details
+            showToast('Edit feature coming soon!', 'error');
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                db.ref('tasks/' + id).remove().then(() => {
+                    showToast('✅ Task deleted!');
+                });
+            }
+        }
+
+        // ==================== WITHDRAW ====================
+        function loadAllWithdraws() {
+            db.ref('withdrawRequests').on('value', (snapshot) => {
+                const requests = snapshot.val();
+                const tbody = document.getElementById('withdrawTableBody');
+                tbody.innerHTML = '';
+                if (!requests) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;">No withdraw requests</td></tr>';
+                    return;
+                }
+                Object.keys(requests).reverse().forEach((id) => {
+                    const req = requests[id];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${req.username || 'User'}</td>
+                        <td>$${req.amount.toFixed(2)}</td>
+                        <td style="font-weight:bold;color:${req.status === 'pending' ? '#f59e0b' : req.status === 'approved' ? '#10b981' : '#ef4444'};">${req.status.toUpperCase()}</td>
+                        <td>${req.requestedAt ? new Date(req.requestedAt).toLocaleString() : 'Unknown'}</td>
+                        <td>
+                            ${req.status === 'pending' ? 
+                                `<button class="approve-btn" onclick="approveWithdraw('${id}', ${req.amount})">Approve</button>
+                                 <button class="cancel-btn" onclick="cancelWithdraw('${id}')">Cancel</button>` : 
+                                req.status === 'approved' ? 
+                                '<span style="color:#10b981;">✅ Approved</span>' :
+                                `<span style="color:#ef4444;">❌ Cancelled</span>`
+                            }
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+
+        function approveWithdraw(id, amount) {
+            if (!confirm('Approve this withdrawal?')) return;
+            db.ref('withdrawRequests/' + id).update({ status: 'approved' }).then(() => {
+                showToast('✅ Withdrawal approved!');
+            });
+        }
+
+        function cancelWithdraw(id) {
+            const reason = prompt('Enter cancellation reason:');
+            if (reason === null) return;
+            db.ref('withdrawRequests/' + id).once('value', (snap) => {
+                const req = snap.val();
+                if (req && req.userId) {
+                    db.ref('users/' + req.userId + '/usdBalance').transaction((current) => {
+                        return (current || 0) + req.amount;
+                    }).then(() => {
+                        db.ref('withdrawRequests/' + id).update({ 
+                            status: 'cancelled', 
+                            cancelReason: reason 
+                        }).then(() => {
+                            showToast('❌ Withdrawal cancelled. Refunded $' + req.amount.toFixed(2));
+                        });
+                    });
+                }
             });
         }
 
