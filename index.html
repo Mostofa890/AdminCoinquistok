@@ -229,7 +229,7 @@
                     <button onclick="saveVideoSettings()" style="margin-top: 20px;">Save Video Settings</button>
                 </div>
 
-                <!-- NEW: ADVANCED AIRDROP SETTINGS (Replaces Weekly Rewards) -->
+                <!-- NEW: ADVANCED AIRDROP SETTINGS (Timer Based) -->
                 <div class="settings-card" style="grid-column: span 1;">
                     <h5>📢 Live AirDrop Settings</h5>
                     <label>Total Pool Amount ($)</label>
@@ -244,11 +244,8 @@
                     <label style="margin-top: 10px; color: #fbbf24;">⏰ Drop Start Time</label>
                     <input type="datetime-local" id="setAirdropStart">
                     
-                    <label style="margin-top: 5px; color: #fbbf24;">⏰ Drop End Time</label>
-                    <input type="datetime-local" id="setAirdropEnd">
-                    
                     <button onclick="saveAirdropSettings()" style="margin-top: 20px;">Save AirDrop Settings</button>
-                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Users will see a live countdown and claim button based on these times.</p>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Users will see a live 5-minute countdown and claim button based on this start time.</p>
                 </div>
 
                 <!-- 100 LEVELS CONFIG (1-100, 200 XP increment) -->
@@ -689,27 +686,19 @@
             db.ref('videoSettings/dailyLimit').once('value', s => document.getElementById('setVideoLimit').value = s.val() || 5);
             db.ref('videoSettings/refillThreshold').once('value', s => document.getElementById('setVideoThreshold').value = s.val() || 5);
             
-            // Load Airdrop Settings
+            // Load Airdrop Settings (New Timer)
             db.ref('airdropConfig/poolAmount').once('value', s => document.getElementById('setAirdropPool').value = s.val() || 50.00);
             db.ref('airdropConfig/min').once('value', s => document.getElementById('setAirdropMin').value = s.val() || 0.50);
             db.ref('airdropConfig/max').once('value', s => document.getElementById('setAirdropMax').value = s.val() || 2.00);
             db.ref('airdropConfig/limit').once('value', s => document.getElementById('setAirdropLimit').value = s.val() || 50);
             
-            // Load Airdrop Times (Convert Timestamp to datetime-local string)
+            // Load Airdrop Start Time
             db.ref('airdropConfig/startTime').once('value', s => {
                 let val = s.val();
                 if(val) {
                     document.getElementById('setAirdropStart').value = new Date(val).toISOString().slice(0, 16);
                 } else {
                     document.getElementById('setAirdropStart').value = '';
-                }
-            });
-            db.ref('airdropConfig/endTime').once('value', s => {
-                let val = s.val();
-                if(val) {
-                    document.getElementById('setAirdropEnd').value = new Date(val).toISOString().slice(0, 16);
-                } else {
-                    document.getElementById('setAirdropEnd').value = '';
                 }
             });
 
@@ -760,7 +749,6 @@
             let max = parseFloat(document.getElementById('setAirdropMax').value) || 2.00;
             let limit = parseInt(document.getElementById('setAirdropLimit').value) || 50;
             let startInput = document.getElementById('setAirdropStart').value;
-            let endInput = document.getElementById('setAirdropEnd').value;
 
             if(min >= max) {
                 alert("Min Reward must be less than Max Reward!");
@@ -774,21 +762,15 @@
                 limit: limit
             };
 
-            // Convert datetime-local strings to Timestamps
+            // Convert datetime-local string to Timestamp
             if(startInput) {
                 updateData.startTime = new Date(startInput).getTime();
             } else {
-                updateData.startTime = null; // or delete
-            }
-
-            if(endInput) {
-                updateData.endTime = new Date(endInput).getTime();
-            } else {
-                updateData.endTime = null; // or delete
+                updateData.startTime = null;
             }
 
             db.ref('airdropConfig').update(updateData).then(() => {
-                alert('AirDrop settings (including timers) saved successfully!');
+                alert('AirDrop settings (including timer) saved successfully!');
             }).catch(err => alert('Error saving: ' + err.message));
         }
 
