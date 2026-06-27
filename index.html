@@ -162,7 +162,7 @@
             </div>
         </div>
 
-        <!-- SECTION: OFFERS & NOTIFICATIONS (NEW) -->
+        <!-- SECTION: OFFERS & NOTIFICATIONS -->
         <div id="tabOffers" class="hidden">
             <div class="section-header">
                 <h4>📢 Send Offers & Notifications</h4>
@@ -230,15 +230,23 @@
                 </div>
 
                 <div class="settings-card">
-                    <h5>📅 Weekly Rewards</h5>
-                    <label>Day 1 Reward</label><input type="number" id="setW1" value="10">
-                    <label>Day 2 Reward</label><input type="number" id="setW2" value="15">
-                    <label>Day 3 Reward</label><input type="number" id="setW3" value="20">
-                    <label>Day 4 Reward</label><input type="number" id="setW4" value="25">
-                    <label>Day 5 Reward</label><input type="number" id="setW5" value="30">
-                    <label>Day 6 Reward</label><input type="number" id="setW6" value="40">
-                    <label>Day 7 Reward</label><input type="number" id="setW7" value="50">
-                    <button onclick="saveWeeklySettings()">Save Weekly Rewards</button>
+                    <h5>📅 Weekly Rewards (Removed for AirDrop)</h5>
+                    <p style="font-size:12px;color:#94a3b8;">Weekly rewards have been replaced by Live AirDrop.</p>
+                </div>
+
+                <!-- NEW: AIRDROP SETTINGS -->
+                <div class="settings-card" style="grid-column: span 1;">
+                    <h5>📢 Live AirDrop Settings</h5>
+                    <label>Total Pool Amount ($)</label>
+                    <input type="number" id="setAirdropPool" value="50.00" step="0.01">
+                    <label>Min Reward per User ($)</label>
+                    <input type="number" id="setAirdropMin" value="0.50" step="0.01">
+                    <label>Max Reward per User ($)</label>
+                    <input type="number" id="setAirdropMax" value="2.00" step="0.01">
+                    <label>Participant Limit (Max Users)</label>
+                    <input type="number" id="setAirdropLimit" value="50">
+                    <button onclick="saveAirdropSettings()">Save AirDrop Settings</button>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Note: Users will get random rewards between Min and Max.</p>
                 </div>
 
                 <!-- 100 LEVELS CONFIG (1-100, 200 XP increment) -->
@@ -566,7 +574,7 @@
             db.ref('withdrawRequests/' + id).update({ status: status }).then(() => loadWithdraws());
         }
 
-        // ================= OFFERS & NOTIFICATIONS (NEW) =================
+        // ================= OFFERS & NOTIFICATIONS =================
         function loadOffersHistory() {
             db.ref('offersHistory').once('value', snap => {
                 let html = '';
@@ -608,9 +616,7 @@
                 type: 'personal'
             };
 
-            // Save to user's specific path
             db.ref('users/' + userId + '/notifications').push(offerData).then(() => {
-                // Log to History
                 db.ref('offersHistory').push({
                     ...offerData,
                     targetUserId: userId,
@@ -637,7 +643,6 @@
 
             if(!confirm("Are you sure you want to send this to ALL users? This may take some time.")) return;
 
-            // Fetch all users
             db.ref('users').once('value', snap => {
                 let updates = {};
                 let broadcastData = {
@@ -654,7 +659,6 @@
                         let userId = child.key;
                         updates['users/' + userId + '/notifications'] = broadcastData;
                     });
-                    // Also save to history
                     updates['offersHistory'] = {
                         ...broadcastData,
                         targetUserId: 'All Users',
@@ -683,11 +687,11 @@
             db.ref('videoSettings/dailyLimit').once('value', s => document.getElementById('setVideoLimit').value = s.val() || 5);
             db.ref('videoSettings/refillThreshold').once('value', s => document.getElementById('setVideoThreshold').value = s.val() || 5);
             
-            for(let i=1; i<=7; i++) {
-                db.ref('weeklyRewards/' + (i-1)).once('value', s => {
-                    document.getElementById('setW' + i).value = s.val() || [10,15,20,25,30,40,50][i-1];
-                });
-            }
+            // Load Airdrop Settings
+            db.ref('airdropConfig/poolAmount').once('value', s => document.getElementById('setAirdropPool').value = s.val() || 50.00);
+            db.ref('airdropConfig/min').once('value', s => document.getElementById('setAirdropMin').value = s.val() || 0.50);
+            db.ref('airdropConfig/max').once('value', s => document.getElementById('setAirdropMax').value = s.val() || 2.00);
+            db.ref('airdropConfig/limit').once('value', s => document.getElementById('setAirdropLimit').value = s.val() || 50);
 
             db.ref('levelConfig/levels/1/requiredPoints').once('value', s => document.getElementById('setL1').value = s.val() || 0);
             db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 200);
@@ -729,16 +733,27 @@
             alert('Video settings saved!');
         }
 
-        function saveWeeklySettings() {
-            let updates = {};
-            for(let i=1; i<=7; i++) {
-                updates[i-1] = parseInt(document.getElementById('setW' + i).value) || 0;
+        // NEW: Save Airdrop Settings
+        function saveAirdropSettings() {
+            let pool = parseFloat(document.getElementById('setAirdropPool').value) || 50.00;
+            let min = parseFloat(document.getElementById('setAirdropMin').value) || 0.50;
+            let max = parseFloat(document.getElementById('setAirdropMax').value) || 2.00;
+            let limit = parseInt(document.getElementById('setAirdropLimit').value) || 50;
+
+            if(min >= max) {
+                alert("Min Reward must be less than Max Reward!");
+                return;
             }
-            db.ref('weeklyRewards').update(updates);
-            alert('Weekly rewards updated!');
+
+            db.ref('airdropConfig').update({
+                poolAmount: pool,
+                min: min,
+                max: max,
+                limit: limit
+            });
+            alert('AirDrop settings saved!');
         }
 
-        // FIXED: Generate & Save 100 Levels (200 XP increment)
         function saveLevelSettings() {
             let levels = {};
             for (let i = 1; i <= 100; i++) {
@@ -761,7 +776,7 @@
             }
             db.ref('levelConfig/levels').update(levels).then(() => {
                 alert('Successfully generated and saved 100 levels with 200 XP each!');
-                loadSettingsInputs(); // Refresh UI
+                loadSettingsInputs();
             });
         }
 
