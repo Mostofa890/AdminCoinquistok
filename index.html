@@ -229,12 +229,7 @@
                     <button onclick="saveVideoSettings()" style="margin-top: 20px;">Save Video Settings</button>
                 </div>
 
-                <div class="settings-card">
-                    <h5>📅 Weekly Rewards (Removed for AirDrop)</h5>
-                    <p style="font-size:12px;color:#94a3b8;">Weekly rewards have been replaced by Live AirDrop.</p>
-                </div>
-
-                <!-- NEW: AIRDROP SETTINGS -->
+                <!-- NEW: ADVANCED AIRDROP SETTINGS (Replaces Weekly Rewards) -->
                 <div class="settings-card" style="grid-column: span 1;">
                     <h5>📢 Live AirDrop Settings</h5>
                     <label>Total Pool Amount ($)</label>
@@ -245,8 +240,15 @@
                     <input type="number" id="setAirdropMax" value="2.00" step="0.01">
                     <label>Participant Limit (Max Users)</label>
                     <input type="number" id="setAirdropLimit" value="50">
-                    <button onclick="saveAirdropSettings()">Save AirDrop Settings</button>
-                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Note: Users will get random rewards between Min and Max.</p>
+                    
+                    <label style="margin-top: 10px; color: #fbbf24;">⏰ Drop Start Time</label>
+                    <input type="datetime-local" id="setAirdropStart">
+                    
+                    <label style="margin-top: 5px; color: #fbbf24;">⏰ Drop End Time</label>
+                    <input type="datetime-local" id="setAirdropEnd">
+                    
+                    <button onclick="saveAirdropSettings()" style="margin-top: 20px;">Save AirDrop Settings</button>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Users will see a live countdown and claim button based on these times.</p>
                 </div>
 
                 <!-- 100 LEVELS CONFIG (1-100, 200 XP increment) -->
@@ -692,6 +694,24 @@
             db.ref('airdropConfig/min').once('value', s => document.getElementById('setAirdropMin').value = s.val() || 0.50);
             db.ref('airdropConfig/max').once('value', s => document.getElementById('setAirdropMax').value = s.val() || 2.00);
             db.ref('airdropConfig/limit').once('value', s => document.getElementById('setAirdropLimit').value = s.val() || 50);
+            
+            // Load Airdrop Times (Convert Timestamp to datetime-local string)
+            db.ref('airdropConfig/startTime').once('value', s => {
+                let val = s.val();
+                if(val) {
+                    document.getElementById('setAirdropStart').value = new Date(val).toISOString().slice(0, 16);
+                } else {
+                    document.getElementById('setAirdropStart').value = '';
+                }
+            });
+            db.ref('airdropConfig/endTime').once('value', s => {
+                let val = s.val();
+                if(val) {
+                    document.getElementById('setAirdropEnd').value = new Date(val).toISOString().slice(0, 16);
+                } else {
+                    document.getElementById('setAirdropEnd').value = '';
+                }
+            });
 
             db.ref('levelConfig/levels/1/requiredPoints').once('value', s => document.getElementById('setL1').value = s.val() || 0);
             db.ref('levelConfig/levels/2/requiredPoints').once('value', s => document.getElementById('setL2').value = s.val() || 200);
@@ -733,25 +753,43 @@
             alert('Video settings saved!');
         }
 
-        // NEW: Save Airdrop Settings
+        // NEW: Save Advanced AirDrop Settings
         function saveAirdropSettings() {
             let pool = parseFloat(document.getElementById('setAirdropPool').value) || 50.00;
             let min = parseFloat(document.getElementById('setAirdropMin').value) || 0.50;
             let max = parseFloat(document.getElementById('setAirdropMax').value) || 2.00;
             let limit = parseInt(document.getElementById('setAirdropLimit').value) || 50;
+            let startInput = document.getElementById('setAirdropStart').value;
+            let endInput = document.getElementById('setAirdropEnd').value;
 
             if(min >= max) {
                 alert("Min Reward must be less than Max Reward!");
                 return;
             }
 
-            db.ref('airdropConfig').update({
+            let updateData = {
                 poolAmount: pool,
                 min: min,
                 max: max,
                 limit: limit
-            });
-            alert('AirDrop settings saved!');
+            };
+
+            // Convert datetime-local strings to Timestamps
+            if(startInput) {
+                updateData.startTime = new Date(startInput).getTime();
+            } else {
+                updateData.startTime = null; // or delete
+            }
+
+            if(endInput) {
+                updateData.endTime = new Date(endInput).getTime();
+            } else {
+                updateData.endTime = null; // or delete
+            }
+
+            db.ref('airdropConfig').update(updateData).then(() => {
+                alert('AirDrop settings (including timers) saved successfully!');
+            }).catch(err => alert('Error saving: ' + err.message));
         }
 
         function saveLevelSettings() {
