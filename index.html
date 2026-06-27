@@ -229,7 +229,7 @@
                     <button onclick="saveVideoSettings()" style="margin-top: 20px;">Save Video Settings</button>
                 </div>
 
-                <!-- NEW: ADVANCED AIRDROP SETTINGS (Timer Based) -->
+                <!-- ADVANCED AIRDROP SETTINGS -->
                 <div class="settings-card" style="grid-column: span 1;">
                     <h5>📢 Live AirDrop Settings</h5>
                     <label>Total Pool Amount ($)</label>
@@ -245,7 +245,7 @@
                     <input type="datetime-local" id="setAirdropStart">
                     
                     <button onclick="saveAirdropSettings()" style="margin-top: 20px;">Save AirDrop Settings</button>
-                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Users will see a live 5-minute countdown and claim button based on this start time.</p>
+                    <p style="font-size:10px;color:#64748b;margin-top:5px;">Users will see a live countdown. Button activates exactly at Start Time with a 5-minute claim window.</p>
                 </div>
 
                 <!-- 100 LEVELS CONFIG (1-100, 200 XP increment) -->
@@ -686,7 +686,7 @@
             db.ref('videoSettings/dailyLimit').once('value', s => document.getElementById('setVideoLimit').value = s.val() || 5);
             db.ref('videoSettings/refillThreshold').once('value', s => document.getElementById('setVideoThreshold').value = s.val() || 5);
             
-            // Load Airdrop Settings (New Timer)
+            // Load Airdrop Settings
             db.ref('airdropConfig/poolAmount').once('value', s => document.getElementById('setAirdropPool').value = s.val() || 50.00);
             db.ref('airdropConfig/min').once('value', s => document.getElementById('setAirdropMin').value = s.val() || 0.50);
             db.ref('airdropConfig/max').once('value', s => document.getElementById('setAirdropMax').value = s.val() || 2.00);
@@ -742,7 +742,7 @@
             alert('Video settings saved!');
         }
 
-        // NEW: Save Advanced AirDrop Settings
+        // Save Advanced AirDrop Settings
         function saveAirdropSettings() {
             let pool = parseFloat(document.getElementById('setAirdropPool').value) || 50.00;
             let min = parseFloat(document.getElementById('setAirdropMin').value) || 0.50;
