@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinQuest Admin Panel</title>
+    <title>CoinQuest - Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,226 +12,458 @@
         body { background: #0f172a; color: #e2e8f0; display: flex; min-height: 100vh; }
         
         /* Sidebar */
-        .sidebar { width: 260px; background: #1e293b; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid #334155; z-index: 100; }
-        .sidebar h2 { color: #fbbf24; margin-bottom: 30px; font-size: 24px; text-align: center; }
-        .sidebar .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; cursor: pointer; margin-bottom: 4px; transition: 0.3s; color: #94a3b8; font-size: 14px; }
-        .sidebar .nav-item:hover, .sidebar .nav-item.active { background: rgba(251,191,36,0.1); color: #fbbf24; }
+        .sidebar { 
+            width: 280px; background: #1e293b; padding: 20px; 
+            position: fixed; height: 100vh; overflow-y: auto; 
+            border-right: 1px solid #334155; z-index: 100; 
+        }
+        .sidebar h2 { 
+            color: #fbbf24; margin-bottom: 30px; font-size: 22px; 
+            text-align: center; padding-bottom: 15px; border-bottom: 1px solid #334155;
+        }
+        .sidebar .nav-item { 
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
+            border-radius: 10px; cursor: pointer; margin-bottom: 4px; 
+            transition: 0.3s; color: #94a3b8; font-size: 14px; 
+        }
+        .sidebar .nav-item:hover, .sidebar .nav-item.active { 
+            background: rgba(251,191,36,0.1); color: #fbbf24; 
+        }
         .sidebar .nav-item i { width: 20px; }
         
         /* Main Content */
-        .main-content { margin-left: 260px; flex: 1; padding: 24px; }
+        .main-content { margin-left: 280px; flex: 1; padding: 24px; }
         .page { display: none; }
         .page.active { display: block; }
-        .page-header { font-size: 28px; font-weight: 800; margin-bottom: 24px; color: #fbbf24; }
+        .page-header { 
+            font-size: 26px; font-weight: 800; margin-bottom: 24px; 
+            color: #fbbf24; display: flex; align-items: center; gap: 12px;
+        }
+        .live-indicator {
+            width: 10px; height: 10px; background: #10b981;
+            border-radius: 50%; animation: livePulse 1.5s infinite;
+        }
+        @keyframes livePulse { 
+            0%, 100% { opacity: 1; } 50% { opacity: 0.3; } 
+        }
         
-        /* Cards */
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        /* Stat Grid */
+        .stat-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 16px; margin-bottom: 24px; 
+        }
+        .stat-card { 
+            background: rgba(255,255,255,0.05); padding: 20px; 
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); 
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
         .stat-card .label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
         .stat-card .value { font-size: 32px; font-weight: 900; color: #fbbf24; }
+        .stat-card .sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
         
-        /* Form Cards */
-        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .card h3 { margin-bottom: 16px; color: #fff; font-size: 18px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #fbbf24; }
-        .form-group textarea { min-height: 80px; resize: vertical; }
+        /* Cards */
+        .card { 
+            background: rgba(255,255,255,0.05); padding: 20px; 
+            border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); 
+            margin-bottom: 20px; 
+        }
+        .card h3 { margin-bottom: 16px; color: #fff; font-size: 18px; display: flex; align-items: center; gap: 8px; }
         
-        .btn { padding: 10px 24px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        /* Form */
+        .form-group { margin-bottom: 14px; }
+        .form-group label { 
+            display: block; font-size: 12px; color: #94a3b8; 
+            margin-bottom: 5px; font-weight: 600;
+        }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 10px 14px; background: #1e293b; 
+            border: 1px solid #334155; border-radius: 8px; 
+            color: #fff; font-size: 13px; outline: none; transition: 0.3s; 
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            border-color: #fbbf24; 
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; border-radius: 8px; border: none; 
+            font-weight: 700; cursor: pointer; font-size: 13px; 
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 6px;
+        }
         .btn-primary { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(251,191,36,0.3); }
         .btn-danger { background: #ef4444; color: #fff; }
         .btn-success { background: #10b981; color: #fff; }
         .btn-info { background: #3b82f6; color: #fff; }
-        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .btn-warning { background: #f59e0b; color: #000; }
+        .btn-sm { padding: 6px 12px; font-size: 11px; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
         
         /* Table */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 13px; }
-        th { color: #94a3b8; font-weight: 600; }
+        .table-container { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { 
+            color: #94a3b8; font-weight: 600; position: sticky; top: 0; 
+            background: #1e293b; z-index: 10;
+        }
+        tr:hover { background: rgba(255,255,255,0.03); }
         
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge { 
+            padding: 4px 10px; border-radius: 20px; font-size: 10px; 
+            font-weight: 700; display: inline-block;
+        }
         .badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
         .badge-warning { background: rgba(251,191,36,0.2); color: #fbbf24; }
         .badge-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .badge-info { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .badge-mining { 
+            background: rgba(16,185,129,0.2); color: #10b981; 
+            animation: miningBadge 2s infinite;
+        }
+        @keyframes miningBadge { 
+            0%, 100% { opacity: 1; } 50% { opacity: 0.5; } 
+        }
         
-        .toast { position: fixed; top: 20px; right: 20px; padding: 14px 24px; border-radius: 12px; color: #fff; font-weight: 600; z-index: 9999; display: none; animation: slideIn 0.3s ease; }
+        /* Search */
+        .search-box {
+            display: flex; gap: 10px; margin-bottom: 16px;
+        }
+        .search-box input {
+            flex: 1; padding: 10px 14px; background: #1e293b;
+            border: 1px solid #334155; border-radius: 8px;
+            color: #fff; font-size: 13px; outline: none;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #1e293b; padding: 24px; border-radius: 16px;
+            width: 90%; max-width: 450px; border: 1px solid #334155;
+        }
+        .modal-box h3 { color: #fbbf24; margin-bottom: 16px; }
+        
+        /* Toast */
+        .toast { 
+            position: fixed; top: 20px; right: 20px; padding: 12px 24px; 
+            border-radius: 12px; color: #fff; font-weight: 600; 
+            z-index: 99999; display: none; animation: slideIn 0.3s ease;
+        }
         .toast.show { display: block; }
         .toast.success { background: #10b981; }
         .toast.error { background: #ef4444; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
-        .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        /* Login */
+        .login-container { 
+            max-width: 400px; margin: 100px auto; padding: 40px; 
+            background: rgba(255,255,255,0.05); border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
+        }
+        .login-container h2 { color: #fbbf24; margin-bottom: 24px; }
+        
+        /* Mining Monitor */
+        .mining-monitor-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px; max-height: 600px; overflow-y: auto;
+        }
+        .mining-user-card {
+            background: rgba(255,255,255,0.03); border-radius: 12px;
+            padding: 14px; border: 1px solid rgba(255,255,255,0.08);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mining-user-card.active-mining {
+            border-color: #10b981;
+            background: rgba(16,185,129,0.05);
+        }
     </style>
 </head>
 <body>
+    <!-- Login Page -->
     <div id="loginPage" style="display:flex; align-items:center; justify-content:center; min-height:100vh;">
         <div class="login-container">
-            <h2 style="color:#fbbf24; text-align:center; margin-bottom:24px;">🔐 Admin Login</h2>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="adminUsername" placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="adminPassword" placeholder="Enter password">
-            </div>
+            <h2>🔐 CoinQuest Admin</h2>
+            <div class="form-group"><input type="text" id="adminUser" placeholder="Username"></div>
+            <div class="form-group"><input type="password" id="adminPass" placeholder="Password"></div>
             <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;">Login</button>
-            <p id="loginError" style="color:#ef4444; text-align:center; margin-top:12px; display:none;"></p>
+            <p id="loginError" style="color:#ef4444;margin-top:12px;display:none;"></p>
         </div>
     </div>
 
+    <!-- Admin Panel -->
     <div id="adminPanel" style="display:none;">
+        <!-- Sidebar -->
         <div class="sidebar">
-            <h2>🪙 CoinQuest</h2>
-            <div class="nav-item active" onclick="switchAdminPage('dashboard', this)"><i class="fas fa-chart-bar"></i> Dashboard</div>
-            <div class="nav-item" onclick="switchAdminPage('users', this)"><i class="fas fa-users"></i> Users</div>
-            <div class="nav-item" onclick="switchAdminPage('tasks', this)"><i class="fas fa-tasks"></i> Tasks</div>
-            <div class="nav-item" onclick="switchAdminPage('withdrawals', this)"><i class="fas fa-money-bill"></i> Withdrawals</div>
-            <div class="nav-item" onclick="switchAdminPage('airdrop', this)"><i class="fas fa-parachute-box"></i> Airdrop</div>
-            <div class="nav-item" onclick="switchAdminPage('settings', this)"><i class="fas fa-cog"></i> Settings</div>
-            <div class="nav-item" onclick="switchAdminPage('special', this)"><i class="fas fa-gift"></i> Special Offers</div>
-            <div class="nav-item" onclick="switchAdminPage('levels', this)"><i class="fas fa-trophy"></i> Levels</div>
-            <div class="nav-item" onclick="switchAdminPage('referral', this)"><i class="fas fa-link"></i> Referral</div>
-            <div class="nav-item" onclick="switchAdminPage('video', this)"><i class="fas fa-video"></i> Video Settings</div>
-            <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            <h2>🪙 CoinQuest Admin</h2>
+            <div class="nav-item active" onclick="switchPage('dashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </div>
+            <div class="nav-item" onclick="switchPage('users', this)">
+                <i class="fas fa-users"></i> User Management
+            </div>
+            <div class="nav-item" onclick="switchPage('mining', this)">
+                <i class="fas fa-microchip"></i> Mining Monitor
+            </div>
+            <div class="nav-item" onclick="switchPage('withdrawals', this)">
+                <i class="fas fa-money-bill-wave"></i> Withdrawals
+            </div>
+            <div class="nav-item" onclick="switchPage('tasks', this)">
+                <i class="fas fa-tasks"></i> Tasks
+            </div>
+            <div class="nav-item" onclick="switchPage('airdrop', this)">
+                <i class="fas fa-parachute-box"></i> Airdrop
+            </div>
+            <div class="nav-item" onclick="switchPage('offers', this)">
+                <i class="fas fa-gift"></i> Special Offers
+            </div>
+            <div class="nav-item" onclick="switchPage('levels', this)">
+                <i class="fas fa-trophy"></i> Level Config
+            </div>
+            <div class="nav-item" onclick="switchPage('settings', this)">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+            <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </div>
         </div>
-        
+
+        <!-- Main Content -->
         <div class="main-content">
             <!-- Dashboard -->
-            <div class="page active" id="adminDashboard">
-                <div class="page-header">📊 Dashboard Overview</div>
+            <div class="page active" id="pageDashboard">
+                <div class="page-header">
+                    <span class="live-indicator"></span> Live Dashboard
+                </div>
                 <div class="stat-grid">
-                    <div class="stat-card"><div class="label">Total Users</div><div class="value" id="totalUsers">0</div></div>
-                    <div class="stat-card"><div class="label">Total Withdrawals</div><div class="value" id="totalWithdrawals">$0</div></div>
-                    <div class="stat-card"><div class="label">Pending Withdrawals</div><div class="value" id="pendingWithdrawals">0</div></div>
-                    <div class="stat-card"><div class="label">Active Tasks</div><div class="value" id="activeTasks">0</div></div>
+                    <div class="stat-card">
+                        <div class="label">👥 Total Users</div>
+                        <div class="value" id="dashTotalUsers">0</div>
+                        <div class="sub">Registered accounts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">⛏️ Active Mining</div>
+                        <div class="value" id="dashActiveMining" style="color:#10b981;">0</div>
+                        <div class="sub">Users currently mining</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">💰 Total Balance</div>
+                        <div class="value" id="dashTotalBalance">0</div>
+                        <div class="sub">All users combined</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">💵 Total USD</div>
+                        <div class="value" id="dashTotalUSD" style="color:#10b981;">$0</div>
+                        <div class="sub">Converted earnings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">📋 Pending Withdrawals</div>
+                        <div class="value" id="dashPendingWithdraw" style="color:#f59e0b;">0</div>
+                        <div class="sub">Awaiting approval</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">✅ Approved</div>
+                        <div class="value" id="dashApprovedWithdraw" style="color:#10b981;">$0</div>
+                        <div class="sub">Total paid out</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📊 Recent Activity</h3>
+                    <div class="table-container" id="recentActivity"></div>
                 </div>
             </div>
 
             <!-- Users Page -->
-            <div class="page" id="adminUsers">
+            <div class="page" id="pageUsers">
                 <div class="page-header">👥 User Management</div>
-                <div class="card">
-                    <h3>Search User</h3>
-                    <div class="form-group"><input type="text" id="userSearch" placeholder="Search by User ID or Username..."></div>
-                    <button class="btn btn-primary" onclick="searchUser()">Search</button>
+                
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="Search by User ID or Username..." onkeyup="searchUsers()">
+                    <button class="btn btn-primary" onclick="loadAllUsers()">🔄 Refresh</button>
                 </div>
+                
                 <div class="card">
                     <h3>All Users</h3>
                     <div class="table-container" id="usersTable"></div>
                 </div>
+                
+                <!-- Edit User Modal -->
+                <div class="modal-overlay" id="editUserModal">
+                    <div class="modal-box">
+                        <h3>✏️ Edit User</h3>
+                        <input type="hidden" id="editUserId">
+                        <div class="form-group"><label>Balance</label><input type="number" id="editBalance"></div>
+                        <div class="form-group"><label>USD Balance</label><input type="number" id="editUsdBalance" step="0.01"></div>
+                        <div class="form-group"><label>XP Points</label><input type="number" id="editXpPoints"></div>
+                        <div class="form-group"><label>Progress Coins</label><input type="number" id="editProgressCoins"></div>
+                        <div class="form-group"><label>Referral Count</label><input type="number" id="editReferCount"></div>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn btn-primary" onclick="saveUserEdit()">💾 Save</button>
+                            <button class="btn btn-danger" onclick="closeModal('editUserModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Tasks Page -->
-            <div class="page" id="adminTasks">
-                <div class="page-header">📋 Task Management</div>
-                <div class="card">
-                    <h3>Add New Task</h3>
-                    <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle"></div>
-                    <div class="form-group"><label>Description</label><textarea id="taskDesc"></textarea></div>
-                    <div class="form-group"><label>Reward (Coins)</label><input type="number" id="taskReward" value="50"></div>
-                    <div class="form-group"><label>Type</label><select id="taskType"><option value="link">Link</option><option value="button">Button</option><option value="video">Video</option></select></div>
-                    <div class="form-group"><label>Link URL (for link type)</label><input type="text" id="taskLink" placeholder="https://..."></div>
-                    <div class="form-group"><label>Action Text</label><input type="text" id="taskActionText" value="Complete"></div>
-                    <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+            <!-- Mining Monitor Page -->
+            <div class="page" id="pageMining">
+                <div class="page-header">
+                    <span class="live-indicator"></span> Live Mining Monitor
                 </div>
                 <div class="card">
-                    <h3>Existing Tasks</h3>
-                    <div class="table-container" id="tasksTable"></div>
+                    <h3>⛏️ Real-time Mining Status</h3>
+                    <div class="mining-monitor-grid" id="miningMonitorGrid">
+                        <p style="color:#94a3b8;">Loading mining data...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Withdrawals Page -->
-            <div class="page" id="adminWithdrawals">
+            <div class="page" id="pageWithdrawals">
                 <div class="page-header">💳 Withdrawal Management</div>
+                
                 <div class="card">
                     <h3>Withdrawal Requests</h3>
                     <div class="table-container" id="withdrawalsTable"></div>
                 </div>
+                
+                <!-- Cancel Withdrawal Modal -->
+                <div class="modal-overlay" id="cancelWithdrawModal">
+                    <div class="modal-box">
+                        <h3>❌ Cancel Withdrawal</h3>
+                        <input type="hidden" id="cancelWithdrawId">
+                        <div class="form-group">
+                            <label>Cancel Reason (will be shown to user)</label>
+                            <textarea id="cancelReason" rows="3" placeholder="Enter reason for cancellation..."></textarea>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn btn-danger" onclick="confirmCancelWithdraw()">❌ Cancel & Refund</button>
+                            <button class="btn btn-info" onclick="closeModal('cancelWithdrawModal')">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Page -->
+            <div class="page" id="pageTasks">
+                <div class="page-header">📋 Task Management</div>
+                
+                <div class="card">
+                    <h3>➕ Add New Task</h3>
+                    <div class="form-group"><label>Title</label><input type="text" id="taskTitle"></div>
+                    <div class="form-group"><label>Description</label><textarea id="taskDesc" rows="2"></textarea></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Reward (Coins)</label><input type="number" id="taskReward" value="50"></div>
+                        <div class="form-group"><label>Type</label><select id="taskType"><option value="link">Link</option><option value="button">Button</option><option value="video">Video</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Link URL</label><input type="text" id="taskLink"></div>
+                    <div class="form-group"><label>Action Text</label><input type="text" id="taskActionText" value="Complete"></div>
+                    <button class="btn btn-primary" onclick="addTask()">➕ Add Task</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Existing Tasks</h3>
+                    <div class="table-container" id="adminTasksTable"></div>
+                </div>
             </div>
 
             <!-- Airdrop Page -->
-            <div class="page" id="adminAirdrop">
+            <div class="page" id="pageAirdrop">
                 <div class="page-header">🎯 Airdrop Management</div>
+                
                 <div class="card">
                     <h3>Airdrop Configuration</h3>
-                    <div class="form-group"><label>Pool Amount ($)</label><input type="number" id="airdropPool" value="50" step="0.01"></div>
-                    <div class="form-group"><label>Min Reward ($)</label><input type="number" id="airdropMin" value="0.5" step="0.01"></div>
-                    <div class="form-group"><label>Max Reward ($)</label><input type="number" id="airdropMax" value="2.0" step="0.01"></div>
-                    <button class="btn btn-primary" onclick="saveAirdropConfig()">Save Config</button>
-                    <button class="btn btn-success" onclick="startAirdrop()" style="margin-left:10px;">Start Airdrop Now</button>
-                </div>
-            </div>
-
-            <!-- Settings Page -->
-            <div class="page" id="adminSettings">
-                <div class="page-header">⚙️ General Settings</div>
-                <div class="card">
-                    <h3>Conversion Rate</h3>
-                    <div class="form-group"><label>Coins per 1 USD</label><input type="number" id="conversionRate" value="1000"></div>
-                    <button class="btn btn-primary" onclick="saveConversionRate()">Save</button>
-                </div>
-                <div class="card">
-                    <h3>Withdraw Settings</h3>
-                    <div class="form-group"><label>Minimum Withdraw ($)</label><input type="number" id="minWithdraw" value="10" step="0.01"></div>
-                    <div class="form-group"><label>Available Methods (comma separated)</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div>
-                    <button class="btn btn-primary" onclick="saveWithdrawSettings()">Save</button>
+                    <div class="form-row">
+                        <div class="form-group"><label>Pool Amount ($)</label><input type="number" id="airdropPool" value="50" step="0.01"></div>
+                        <div class="form-group"><label>Min Reward ($)</label><input type="number" id="airdropMin" value="0.5" step="0.01"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Max Reward ($)</label><input type="number" id="airdropMax" value="2.0" step="0.01"></div>
+                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="airdropDuration" value="5"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-primary" onclick="saveAirdropConfig()">💾 Save Config</button>
+                        <button class="btn btn-success" onclick="startAirdropNow()">🚀 Start Airdrop Now</button>
+                        <button class="btn btn-danger" onclick="resetAirdrop()">🔄 Reset Claims</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Special Offers Page -->
-            <div class="page" id="adminSpecial">
+            <div class="page" id="pageOffers">
                 <div class="page-header">🎁 Special Offers</div>
+                
                 <div class="card">
-                    <h3>Send Special Offer</h3>
-                    <div class="form-group"><label>User ID</label><input type="text" id="specialUserId"></div>
-                    <div class="form-group"><label>Offer Title</label><input type="text" id="specialTitle"></div>
-                    <div class="form-group"><label>Description</label><textarea id="specialDesc"></textarea></div>
-                    <div class="form-group"><label>Reward (Coins)</label><input type="number" id="specialReward" value="100"></div>
-                    <button class="btn btn-primary" onclick="sendSpecialOffer()">Send Offer</button>
+                    <h3>📤 Send Offer to User</h3>
+                    <div class="form-group"><label>Target User ID</label><input type="text" id="offerUserId"></div>
+                    <div class="form-group"><label>Title</label><input type="text" id="offerTitle"></div>
+                    <div class="form-group"><label>Description</label><textarea id="offerDesc" rows="2"></textarea></div>
+                    <div class="form-group"><label>Reward (Coins)</label><input type="number" id="offerReward" value="100"></div>
+                    <button class="btn btn-primary" onclick="sendAdminOffer()">📤 Send Offer</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Active Offers</h3>
+                    <div class="table-container" id="offersTable"></div>
                 </div>
             </div>
 
-            <!-- Levels Page -->
-            <div class="page" id="adminLevels">
+            <!-- Level Config Page -->
+            <div class="page" id="pageLevels">
                 <div class="page-header">🏆 Level Configuration</div>
+                
                 <div class="card">
-                    <h3>Configure Level</h3>
-                    <div class="form-group"><label>Level Number (1-100)</label><input type="number" id="levelNumber" min="1" max="100"></div>
-                    <div class="form-group"><label>Required XP</label><input type="number" id="levelXP"></div>
+                    <h3>Quick Configure</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Level Number</label><input type="number" id="levelNum" min="1" max="100"></div>
+                        <div class="form-group"><label>Required XP</label><input type="number" id="levelXp"></div>
+                    </div>
                     <div class="form-group"><label>Bonus %</label><input type="number" id="levelBonus" value="1"></div>
-                    <button class="btn btn-primary" onclick="saveLevel()">Save Level</button>
+                    <button class="btn btn-primary" onclick="saveLevelConfig()">💾 Save Level</button>
                 </div>
             </div>
 
-            <!-- Referral Page -->
-            <div class="page" id="adminReferral">
-                <div class="page-header">🔗 Referral Configuration</div>
+            <!-- Settings Page -->
+            <div class="page" id="pageSettings">
+                <div class="page-header">⚙️ General Settings</div>
+                
                 <div class="card">
-                    <h3>Referral Settings</h3>
-                    <div class="form-group"><label>Coins per Referral</label><input type="number" id="refPerReferral" value="50"></div>
-                    <div class="form-group"><label>Tier 1 (Referrals Needed)</label><input type="number" id="refTier1Count" value="10"></div>
-                    <div class="form-group"><label>Tier 1 Bonus</label><input type="number" id="refTier1Bonus" value="50"></div>
-                    <div class="form-group"><label>Tier 2 Count</label><input type="number" id="refTier2Count" value="25"></div>
-                    <div class="form-group"><label>Tier 2 Bonus</label><input type="number" id="refTier2Bonus" value="150"></div>
-                    <div class="form-group"><label>Tier 3 Count</label><input type="number" id="refTier3Count" value="50"></div>
-                    <div class="form-group"><label>Tier 3 Bonus</label><input type="number" id="refTier3Bonus" value="300"></div>
-                    <button class="btn btn-primary" onclick="saveReferralConfig()">Save</button>
+                    <h3>💰 Conversion Rate</h3>
+                    <div class="form-group"><label>Coins per 1 USD</label><input type="number" id="conversionRate" value="1000"></div>
+                    <button class="btn btn-primary" onclick="saveConversionRate()">💾 Save</button>
                 </div>
-            </div>
-
-            <!-- Video Settings Page -->
-            <div class="page" id="adminVideo">
-                <div class="page-header">📺 Video Settings</div>
+                
                 <div class="card">
-                    <h3>Video Configuration</h3>
-                    <div class="form-group"><label>Reward per Video</label><input type="number" id="videoReward" value="10"></div>
-                    <div class="form-group"><label>Daily Video Limit</label><input type="number" id="videoDailyLimit" value="5"></div>
-                    <button class="btn btn-primary" onclick="saveVideoSettings()">Save</button>
+                    <h3>💳 Withdraw Settings</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Min Withdraw ($)</label><input type="number" id="minWithdraw" value="10" step="0.01"></div>
+                        <div class="form-group"><label>Methods (comma separated)</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveWithdrawSettings()">💾 Save</button>
+                </div>
+                
+                <div class="card">
+                    <h3>📺 Video Settings</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Reward per Video</label><input type="number" id="videoReward" value="10"></div>
+                        <div class="form-group"><label>Daily Limit</label><input type="number" id="videoDailyLimit" value="5"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveVideoSettings()">💾 Save</button>
+                </div>
+                
+                <div class="card">
+                    <h3>🔐 Admin Credentials</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>New Username</label><input type="text" id="newAdminUser"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" id="newAdminPass"></div>
+                    </div>
+                    <button class="btn btn-warning" onclick="changeAdminCredentials()">🔐 Update Credentials</button>
                 </div>
             </div>
         </div>
@@ -240,6 +472,7 @@
     <div class="toast" id="adminToast"></div>
 
     <script>
+        // ==================== FIREBASE ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAqCNHhu9oaBDea85tAH-iHucHczZnR7nY",
             authDomain: "tolaka-exc-reverb-b1afd.firebaseapp.com",
@@ -251,139 +484,349 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        let isAdminLoggedIn = false;
 
+        // ==================== TOAST ====================
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('adminToast');
             toast.textContent = msg; toast.className = `toast show ${type}`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Admin Authentication
+        // ==================== AUTH ====================
         function adminLogin() {
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
+            
             db.ref('admin/credentials').once('value', snap => {
                 const creds = snap.val();
                 if (!creds) {
-                    // First time setup - create default admin
                     db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' });
-                    if (username === 'admin' && password === 'coinquest2024') {
-                        loginSuccess();
-                    } else {
-                        document.getElementById('loginError').style.display = 'block';
-                        document.getElementById('loginError').textContent = 'Default: admin / coinquest2024';
-                    }
+                    if (user === 'admin' && pass === 'coinquest2024') { loginSuccess(); }
+                    else { document.getElementById('loginError').style.display = 'block'; document.getElementById('loginError').textContent = 'Default: admin / coinquest2024'; }
                 } else {
-                    if (username === creds.username && password === creds.password) {
-                        loginSuccess();
-                    } else {
-                        document.getElementById('loginError').style.display = 'block';
-                        document.getElementById('loginError').textContent = 'Invalid credentials!';
-                    }
+                    if (user === creds.username && pass === creds.password) { loginSuccess(); }
+                    else { document.getElementById('loginError').style.display = 'block'; document.getElementById('loginError').textContent = 'Invalid credentials!'; }
                 }
             });
         }
 
         function loginSuccess() {
+            isAdminLoggedIn = true;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             loadDashboard();
+            startLiveUpdates();
         }
 
         function adminLogout() {
+            isAdminLoggedIn = false;
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
         }
 
-        function switchAdminPage(page, el) {
+        function changeAdminCredentials() {
+            const user = document.getElementById('newAdminUser').value.trim();
+            const pass = document.getElementById('newAdminPass').value.trim();
+            if (!user || !pass) { showToast('Fill all fields!', 'error'); return; }
+            db.ref('admin/credentials').set({ username: user, password: pass });
+            showToast('Credentials updated!');
+            document.getElementById('newAdminUser').value = '';
+            document.getElementById('newAdminPass').value = '';
+        }
+
+        // ==================== PAGE SWITCHING ====================
+        function switchPage(page, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('admin' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
+            document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1)).classList.add('active');
             document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
             if (el) el.classList.add('active');
             
             if (page === 'dashboard') loadDashboard();
-            if (page === 'users') loadUsers();
-            if (page === 'tasks') loadTasksAdmin();
-            if (page === 'withdrawals') loadWithdrawalsAdmin();
+            if (page === 'users') loadAllUsers();
+            if (page === 'mining') loadMiningMonitor();
+            if (page === 'withdrawals') loadWithdrawals();
+            if (page === 'tasks') loadAdminTasks();
             if (page === 'airdrop') loadAirdropConfig();
+            if (page === 'offers') loadAllOffers();
+            if (page === 'settings') loadSettings();
         }
 
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        // ==================== DASHBOARD ====================
         function loadDashboard() {
             db.ref('users').once('value', snap => {
-                document.getElementById('totalUsers').textContent = snap.numChildren() || 0;
-            });
-            db.ref('withdrawRequests').once('value', snap => {
-                let total = 0, pending = 0;
+                let totalUsers = 0, totalBalance = 0, totalUSD = 0, activeMiners = 0;
+                const activity = [];
+                
                 snap.forEach(child => {
-                    const d = child.val();
-                    if (d.status === 'approved') total += d.amount || 0;
-                    if (d.status === 'pending') pending++;
+                    totalUsers++;
+                    const u = child.val();
+                    totalBalance += (u.balance || 0);
+                    totalUSD += (u.usdBalance || 0);
+                    if (u.isCurrentlyMining) activeMiners++;
+                    
+                    if (u.lastMiningActivity) {
+                        activity.push({
+                            userId: child.key,
+                            username: u.username || 'Unknown',
+                            action: 'mining',
+                            time: u.lastMiningActivity
+                        });
+                    }
                 });
-                document.getElementById('totalWithdrawals').textContent = '$' + total.toFixed(2);
-                document.getElementById('pendingWithdrawals').textContent = pending;
+                
+                document.getElementById('dashTotalUsers').textContent = totalUsers;
+                document.getElementById('dashActiveMining').textContent = activeMiners;
+                document.getElementById('dashTotalBalance').textContent = totalBalance.toLocaleString();
+                document.getElementById('dashTotalUSD').textContent = '$' + totalUSD.toFixed(2);
+                
+                // Sort activity by time
+                activity.sort((a, b) => b.time - a.time);
+                const recentHtml = activity.slice(0, 20).map(a => `
+                    <tr>
+                        <td>${a.userId.substring(0, 10)}...</td>
+                        <td>${a.username}</td>
+                        <td>⛏️ Mining</td>
+                        <td>${new Date(a.time).toLocaleTimeString()}</td>
+                    </tr>
+                `).join('');
+                document.getElementById('recentActivity').innerHTML = `
+                    <table><tr><th>User ID</th><th>Username</th><th>Action</th><th>Time</th></tr>${recentActivity}</table>
+                ` || '<p style="color:#94a3b8;">No recent activity</p>';
             });
-            db.ref('tasks').once('value', snap => {
-                document.getElementById('activeTasks').textContent = snap.numChildren() || 0;
+            
+            db.ref('withdrawRequests').once('value', snap => {
+                let pending = 0, approved = 0;
+                snap.forEach(child => {
+                    const w = child.val();
+                    if (w.status === 'pending') pending++;
+                    if (w.status === 'approved') approved += (w.amount || 0);
+                });
+                document.getElementById('dashPendingWithdraw').textContent = pending;
+                document.getElementById('dashApprovedWithdraw').textContent = '$' + approved.toFixed(2);
             });
         }
 
-        function loadUsers() {
+        function startLiveUpdates() {
+            // Real-time mining monitor
+            db.ref('users').on('value', snap => {
+                if (document.getElementById('pageMining').classList.contains('active')) {
+                    loadMiningMonitor();
+                }
+                // Update dashboard stats every 5 seconds
+                setTimeout(() => {
+                    if (document.getElementById('pageDashboard').classList.contains('active')) {
+                        loadDashboard();
+                    }
+                }, 5000);
+            });
+        }
+
+        // ==================== USERS ====================
+        function loadAllUsers() {
             db.ref('users').once('value', snap => {
-                let html = '<table><tr><th>User ID</th><th>Balance</th><th>USD</th><th>Level</th><th>Referrals</th><th>Status</th><th>Actions</th></tr>';
+                let html = `<table><tr><th>User ID</th><th>Balance</th><th>USD</th><th>XP</th><th>Coins Left</th><th>Mining</th><th>Refs</th><th>Status</th><th>Actions</th></tr>`;
                 snap.forEach(child => {
                     const u = child.val();
                     const id = child.key;
                     html += `<tr>
-                        <td>${id}</td>
-                        <td>${u.balance || 0}</td>
+                        <td title="${id}">${id.substring(0, 8)}...</td>
+                        <td>${(u.balance || 0).toLocaleString()}</td>
                         <td>$${(u.usdBalance || 0).toFixed(2)}</td>
-                        <td>${u.xpPoints || 0}</td>
+                        <td>${u.xpPoints || -1000}</td>
+                        <td>${u.progressCoins !== undefined ? u.progressCoins : 1000}</td>
+                        <td>${u.isCurrentlyMining ? '<span class="badge badge-mining">⛏️ Active</span>' : '<span class="badge badge-info">Idle</span>'}</td>
                         <td>${u.referCount || 0}</td>
-                        <td><span class="badge ${u.banned ? 'badge-danger' : 'badge-success'}">${u.banned ? 'Banned' : 'Active'}</span></td>
+                        <td>${u.banned ? '<span class="badge badge-danger">Banned</span>' : '<span class="badge badge-success">Active</span>'}</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="editUser('${id}')">Edit</button>
-                            <button class="btn btn-sm ${u.banned ? 'btn-success' : 'btn-danger'}" onclick="toggleBan('${id}', ${!u.banned})">${u.banned ? 'Unban' : 'Ban'}</button>
+                            <button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button>
+                            <button class="btn btn-sm ${u.banned ? 'btn-success' : 'btn-danger'}" onclick="toggleBan('${id}', ${!u.banned})">${u.banned ? '✅' : '🚫'}</button>
+                            <button class="btn btn-sm btn-warning" onclick="deleteUser('${id}')">🗑️</button>
                         </td>
                     </tr>`;
                 });
                 html += '</table>';
-                document.getElementById('usersTable').innerHTML = html;
+                document.getElementById('usersTable').innerHTML = html || '<p style="color:#94a3b8;">No users found</p>';
             });
         }
 
-        function searchUser() {
-            const search = document.getElementById('userSearch').value.trim();
-            if (!search) { loadUsers(); return; }
-            db.ref('users').orderByKey().equalTo(search).once('value', snap => {
-                let html = '<table><tr><th>User ID</th><th>Balance</th><th>USD</th><th>Status</th><th>Actions</th></tr>';
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const u = child.val();
-                        html += `<tr><td>${child.key}</td><td>${u.balance}</td><td>$${(u.usdBalance||0).toFixed(2)}</td><td>${u.banned?'Banned':'Active'}</td><td><button onclick="editUser('${child.key}')">Edit</button></td></tr>`;
-                    });
-                } else {
-                    html += '<tr><td colspan="5">No user found</td></tr>';
-                }
+        function searchUsers() {
+            const search = document.getElementById('userSearch').value.trim().toLowerCase();
+            if (!search) { loadAllUsers(); return; }
+            
+            db.ref('users').once('value', snap => {
+                let html = `<table><tr><th>User ID</th><th>Balance</th><th>USD</th><th>Status</th><th>Actions</th></tr>`;
+                let found = false;
+                snap.forEach(child => {
+                    const u = child.val();
+                    const id = child.key;
+                    if (id.toLowerCase().includes(search) || (u.username || '').toLowerCase().includes(search)) {
+                        found = true;
+                        html += `<tr>
+                            <td>${id}</td>
+                            <td>${(u.balance || 0).toLocaleString()}</td>
+                            <td>$${(u.usdBalance || 0).toFixed(2)}</td>
+                            <td>${u.banned ? '🚫 Banned' : '✅ Active'}</td>
+                            <td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button></td>
+                        </tr>`;
+                    }
+                });
                 html += '</table>';
-                document.getElementById('usersTable').innerHTML = html;
+                document.getElementById('usersTable').innerHTML = found ? html : '<p style="color:#94a3b8;">No users found</p>';
             });
         }
 
         function editUser(uid) {
-            const newBal = prompt('Enter new balance:');
-            if (newBal !== null) {
-                db.ref('users/' + uid).update({ balance: parseInt(newBal) || 0 });
-                showToast('User updated!');
-                loadUsers();
-            }
+            db.ref('users/' + uid).once('value', snap => {
+                const u = snap.val() || {};
+                document.getElementById('editUserId').value = uid;
+                document.getElementById('editBalance').value = u.balance || 0;
+                document.getElementById('editUsdBalance').value = u.usdBalance || 0;
+                document.getElementById('editXpPoints').value = u.xpPoints || -1000;
+                document.getElementById('editProgressCoins').value = u.progressCoins !== undefined ? u.progressCoins : 1000;
+                document.getElementById('editReferCount').value = u.referCount || 0;
+                document.getElementById('editUserModal').classList.add('show');
+            });
+        }
+
+        function saveUserEdit() {
+            const uid = document.getElementById('editUserId').value;
+            const data = {
+                balance: parseInt(document.getElementById('editBalance').value) || 0,
+                usdBalance: parseFloat(document.getElementById('editUsdBalance').value) || 0,
+                xpPoints: parseInt(document.getElementById('editXpPoints').value) || -1000,
+                progressCoins: parseInt(document.getElementById('editProgressCoins').value) || 1000,
+                referCount: parseInt(document.getElementById('editReferCount').value) || 0
+            };
+            db.ref('users/' + uid).update(data);
+            closeModal('editUserModal');
+            loadAllUsers();
+            showToast('User updated!');
         }
 
         function toggleBan(uid, ban) {
-            db.ref('users/' + uid).update({ banned: ban, banReason: ban ? 'Banned by admin' : null });
+            const reason = ban ? prompt('Ban reason:') || 'Violation of terms' : null;
+            db.ref('users/' + uid).update({ 
+                banned: ban, 
+                banReason: ban ? reason : null 
+            });
             showToast(ban ? 'User banned!' : 'User unbanned!');
-            loadUsers();
+            loadAllUsers();
         }
 
+        function deleteUser(uid) {
+            if (confirm('Are you sure you want to delete this user? This cannot be undone!')) {
+                db.ref('users/' + uid).remove();
+                db.ref('referrals/' + uid).remove();
+                db.ref('specialOffers/' + uid).remove();
+                showToast('User deleted!');
+                loadAllUsers();
+            }
+        }
+
+        // ==================== MINING MONITOR ====================
+        function loadMiningMonitor() {
+            db.ref('users').once('value', snap => {
+                let html = '';
+                snap.forEach(child => {
+                    const u = child.val();
+                    const id = child.key;
+                    const isActive = u.isCurrentlyMining || false;
+                    html += `
+                        <div class="mining-user-card ${isActive ? 'active-mining' : ''}">
+                            <div>
+                                <div style="font-weight:700;color:#fff;">${id.substring(0, 12)}...</div>
+                                <div style="font-size:11px;color:#94a3b8;">Balance: ${(u.balance || 0).toLocaleString()} | XP: ${u.xpPoints || -1000}</div>
+                                <div style="font-size:11px;color:#94a3b8;">Coins Left: ${u.progressCoins !== undefined ? u.progressCoins : 1000}</div>
+                            </div>
+                            <div>
+                                ${isActive ? 
+                                    '<span class="badge badge-mining">⛏️ MINING</span>' : 
+                                    '<span class="badge badge-info">😴 Idle</span>'}
+                                <div style="font-size:10px;color:#94a3b8;margin-top:4px;">
+                                    ${u.lastMiningActivity ? new Date(u.lastMiningActivity).toLocaleTimeString() : 'No activity'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('miningMonitorGrid').innerHTML = html || '<p style="color:#94a3b8;">No users</p>';
+            });
+        }
+
+        // ==================== WITHDRAWALS ====================
+        function loadWithdrawals() {
+            db.ref('withdrawRequests').once('value', snap => {
+                let html = `<table><tr><th>User</th><th>Amount</th><th>Method</th><th>Account</th><th>Status</th><th>Date</th><th>Actions</th></tr>`;
+                snap.forEach(child => {
+                    const w = child.val();
+                    const statusClass = w.status === 'approved' ? 'badge-success' : w.status === 'cancelled' ? 'badge-danger' : 'badge-warning';
+                    html += `<tr>
+                        <td>${w.username || w.userId}</td>
+                        <td>$${(w.amount || 0).toFixed(2)}</td>
+                        <td>${w.method || 'N/A'}</td>
+                        <td>${w.account || 'N/A'}</td>
+                        <td><span class="badge ${statusClass}">${w.status}</span></td>
+                        <td>${w.requestedAt ? new Date(w.requestedAt).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            ${w.status === 'pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="approveWithdraw('${child.key}')">✅ Approve</button>
+                                <button class="btn btn-sm btn-danger" onclick="openCancelWithdraw('${child.key}')">❌ Cancel</button>
+                            ` : '<span style="color:#94a3b8;">Done</span>'}
+                        </td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('withdrawalsTable').innerHTML = html || '<p style="color:#94a3b8;">No withdrawals</p>';
+            });
+        }
+
+        function approveWithdraw(id) {
+            db.ref('withdrawRequests/' + id).update({ 
+                status: 'approved', 
+                approvedAt: Date.now() 
+            });
+            showToast('Withdrawal approved!');
+            loadWithdrawals();
+            loadDashboard();
+        }
+
+        function openCancelWithdraw(id) {
+            document.getElementById('cancelWithdrawId').value = id;
+            document.getElementById('cancelReason').value = '';
+            document.getElementById('cancelWithdrawModal').classList.add('show');
+        }
+
+        function confirmCancelWithdraw() {
+            const id = document.getElementById('cancelWithdrawId').value;
+            const reason = document.getElementById('cancelReason').value.trim() || 'Cancelled by admin';
+            
+            db.ref('withdrawRequests/' + id).once('value', snap => {
+                const data = snap.val();
+                if (data) {
+                    // Refund user
+                    db.ref('users/' + data.userId).transaction(user => {
+                        if (user) return { ...user, usdBalance: (user.usdBalance || 0) + (data.amount || 0) };
+                        return user;
+                    });
+                    // Update withdrawal status
+                    db.ref('withdrawRequests/' + id).update({ 
+                        status: 'cancelled', 
+                        cancelReason: reason,
+                        cancelledAt: Date.now()
+                    });
+                }
+            });
+            
+            closeModal('cancelWithdrawModal');
+            showToast('Withdrawal cancelled & refunded with reason!');
+            loadWithdrawals();
+            loadDashboard();
+        }
+
+        // ==================== TASKS ====================
         function addTask() {
             const task = {
                 title: document.getElementById('taskTitle').value,
@@ -399,150 +842,184 @@
             showToast('Task added!');
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDesc').value = '';
-            loadTasksAdmin();
+            loadAdminTasks();
         }
 
-        function loadTasksAdmin() {
+        function loadAdminTasks() {
             db.ref('tasks').once('value', snap => {
-                let html = '<table><tr><th>Title</th><th>Type</th><th>Reward</th><th>Actions</th></tr>';
+                let html = `<table><tr><th>Title</th><th>Type</th><th>Reward</th><th>Actions</th></tr>`;
                 snap.forEach(child => {
                     const t = child.val();
-                    html += `<tr><td>${t.title}</td><td>${t.type}</td><td>+${t.reward}</td><td><button class="btn btn-sm btn-danger" onclick="deleteTask('${child.key}')">Delete</button></td></tr>`;
+                    html += `<tr><td>${t.title}</td><td>${t.type}</td><td>+${t.reward}</td><td><button class="btn btn-sm btn-danger" onclick="deleteTask('${child.key}')">🗑️</button></td></tr>`;
                 });
                 html += '</table>';
-                document.getElementById('tasksTable').innerHTML = html;
+                document.getElementById('adminTasksTable').innerHTML = html || '<p style="color:#94a3b8;">No tasks</p>';
             });
         }
 
         function deleteTask(id) {
             db.ref('tasks/' + id).remove();
             showToast('Task deleted!');
-            loadTasksAdmin();
+            loadAdminTasks();
         }
 
-        function loadWithdrawalsAdmin() {
-            db.ref('withdrawRequests').once('value', snap => {
-                let html = '<table><tr><th>User</th><th>Amount</th><th>Method</th><th>Account</th><th>Status</th><th>Actions</th></tr>';
-                snap.forEach(child => {
-                    const w = child.val();
-                    html += `<tr>
-                        <td>${w.username || w.userId}</td>
-                        <td>$${w.amount?.toFixed(2)}</td>
-                        <td>${w.method}</td>
-                        <td>${w.account}</td>
-                        <td><span class="badge badge-${w.status === 'approved' ? 'success' : w.status === 'cancelled' ? 'danger' : 'warning'}">${w.status}</span></td>
-                        <td>
-                            ${w.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="approveWithdraw('${child.key}')">Approve</button>
-                            <button class="btn btn-sm btn-danger" onclick="cancelWithdraw('${child.key}')">Cancel</button>` : ''}
-                        </td>
-                    </tr>`;
-                });
-                html += '</table>';
-                document.getElementById('withdrawalsTable').innerHTML = html;
-            });
-        }
-
-        function approveWithdraw(id) {
-            db.ref('withdrawRequests/' + id).update({ status: 'approved', approvedAt: Date.now() });
-            showToast('Withdrawal approved!');
-            loadWithdrawalsAdmin();
-        }
-
-        function cancelWithdraw(id) {
-            const reason = prompt('Cancel reason:') || 'Cancelled by admin';
-            db.ref('withdrawRequests/' + id).once('value', snap => {
-                const data = snap.val();
-                db.ref('withdrawRequests/' + id).update({ status: 'cancelled', cancelReason: reason });
-                // Refund user
-                db.ref('users/' + data.userId).transaction(user => {
-                    if (user) return { ...user, usdBalance: (user.usdBalance || 0) + data.amount };
-                    return user;
-                });
-                showToast('Withdrawal cancelled and refunded!');
-                loadWithdrawalsAdmin();
-            });
-        }
-
-        function saveAirdropConfig() {
-            const config = {
-                poolAmount: parseFloat(document.getElementById('airdropPool').value) || 50,
-                min: parseFloat(document.getElementById('airdropMin').value) || 0.5,
-                max: parseFloat(document.getElementById('airdropMax').value) || 2.0,
-                active: true
-            };
-            db.ref('airdropConfig').set(config);
-            showToast('Airdrop config saved!');
-        }
-
-        function startAirdrop() {
-            db.ref('airdropConfig/startTime').set(Date.now());
-            showToast('Airdrop started!');
-        }
-
+        // ==================== AIRDROP ====================
         function loadAirdropConfig() {
             db.ref('airdropConfig').once('value', snap => {
                 const c = snap.val() || {};
                 document.getElementById('airdropPool').value = c.poolAmount || 50;
                 document.getElementById('airdropMin').value = c.min || 0.5;
                 document.getElementById('airdropMax').value = c.max || 2.0;
+                document.getElementById('airdropDuration').value = c.duration || 5;
+            });
+        }
+
+        function saveAirdropConfig() {
+            db.ref('airdropConfig').set({
+                poolAmount: parseFloat(document.getElementById('airdropPool').value) || 50,
+                min: parseFloat(document.getElementById('airdropMin').value) || 0.5,
+                max: parseFloat(document.getElementById('airdropMax').value) || 2.0,
+                duration: parseInt(document.getElementById('airdropDuration').value) || 5
+            });
+            showToast('Airdrop config saved!');
+        }
+
+        function startAirdropNow() {
+            db.ref('airdropConfig').update({ startTime: Date.now() });
+            showToast('🚀 Airdrop started! Users can claim now.');
+        }
+
+        function resetAirdrop() {
+            if (confirm('Reset all airdrop claims? Users can claim again.')) {
+                db.ref('users').once('value', snap => {
+                    snap.forEach(child => {
+                        db.ref('users/' + child.key + '/airdropClaimed').set(false);
+                    });
+                });
+                showToast('Airdrop claims reset!');
+            }
+        }
+
+        // ==================== SPECIAL OFFERS ====================
+        function sendAdminOffer() {
+            const uid = document.getElementById('offerUserId').value.trim();
+            const title = document.getElementById('offerTitle').value.trim();
+            const desc = document.getElementById('offerDesc').value.trim();
+            const reward = parseInt(document.getElementById('offerReward').value) || 100;
+            
+            if (!uid || !title) { showToast('User ID and Title required!', 'error'); return; }
+            
+            db.ref('specialOffers/' + uid).set({
+                fromUserId: 'admin',
+                fromUsername: 'Admin',
+                title, description: desc, reward,
+                claimed: false,
+                createdAt: Date.now()
+            });
+            
+            showToast('Offer sent to user!');
+            document.getElementById('offerUserId').value = '';
+            document.getElementById('offerTitle').value = '';
+            document.getElementById('offerDesc').value = '';
+            loadAllOffers();
+        }
+
+        function loadAllOffers() {
+            db.ref('specialOffers').once('value', snap => {
+                let html = `<table><tr><th>User ID</th><th>Title</th><th>Reward</th><th>Status</th><th>Actions</th></tr>`;
+                snap.forEach(child => {
+                    const o = child.val();
+                    html += `<tr>
+                        <td>${child.key}</td>
+                        <td>${o.title}</td>
+                        <td>+${o.reward}</td>
+                        <td>${o.claimed ? '<span class="badge badge-success">Claimed</span>' : '<span class="badge badge-warning">Pending</span>'}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteOffer('${child.key}')">🗑️</button></td>
+                    </tr>`;
+                });
+                html += '</table>';
+                document.getElementById('offersTable').innerHTML = html || '<p style="color:#94a3b8;">No offers</p>';
+            });
+        }
+
+        function deleteOffer(uid) {
+            db.ref('specialOffers/' + uid).remove();
+            showToast('Offer deleted!');
+            loadAllOffers();
+        }
+
+        // ==================== LEVEL CONFIG ====================
+        function saveLevelConfig() {
+            const lvl = parseInt(document.getElementById('levelNum').value);
+            const xp = parseInt(document.getElementById('levelXp').value);
+            const bonus = parseInt(document.getElementById('levelBonus').value);
+            if (!lvl || !xp) { showToast('Fill all fields!', 'error'); return; }
+            db.ref('levelConfig/' + lvl).set({ requiredXP: xp, bonus: bonus });
+            showToast(`Level ${lvl} saved!`);
+        }
+
+        // ==================== SETTINGS ====================
+        function loadSettings() {
+            db.ref('conversionRate').once('value', s => {
+                document.getElementById('conversionRate').value = s.val() || 1000;
+            });
+            db.ref('withdrawSettings').once('value', s => {
+                if (s.exists()) {
+                    document.getElementById('minWithdraw').value = s.val().minAmount || 10;
+                    document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(',');
+                }
+            });
+            db.ref('videoSettings').once('value', s => {
+                if (s.exists()) {
+                    document.getElementById('videoReward').value = s.val().reward || 10;
+                    document.getElementById('videoDailyLimit').value = s.val().dailyLimit || 5;
+                }
             });
         }
 
         function saveConversionRate() {
-            const rate = parseInt(document.getElementById('conversionRate').value) || 1000;
-            db.ref('conversionRate').set(rate);
+            db.ref('conversionRate').set(parseInt(document.getElementById('conversionRate').value) || 1000);
             showToast('Conversion rate saved!');
         }
 
         function saveWithdrawSettings() {
-            const min = parseFloat(document.getElementById('minWithdraw').value) || 10;
-            const methods = document.getElementById('withdrawMethods').value.split(',').map(m => m.trim());
-            db.ref('withdrawSettings').set({ minAmount: min, methods: methods });
+            db.ref('withdrawSettings').set({
+                minAmount: parseFloat(document.getElementById('minWithdraw').value) || 10,
+                methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim())
+            });
             showToast('Withdraw settings saved!');
         }
 
-        function sendSpecialOffer() {
-            const uid = document.getElementById('specialUserId').value;
-            const offer = {
-                title: document.getElementById('specialTitle').value,
-                description: document.getElementById('specialDesc').value,
-                reward: parseInt(document.getElementById('specialReward').value) || 100,
-                claimed: false,
-                createdAt: Date.now()
-            };
-            if (!uid || !offer.title) { showToast('User ID and Title required!', 'error'); return; }
-            db.ref('specialOffers/' + uid).set(offer);
-            showToast('Special offer sent!');
-        }
-
-        function saveLevel() {
-            const lvl = parseInt(document.getElementById('levelNumber').value);
-            const xp = parseInt(document.getElementById('levelXP').value);
-            const bonus = parseInt(document.getElementById('levelBonus').value);
-            if (!lvl || !xp) { showToast('All fields required!', 'error'); return; }
-            db.ref('levelConfig/' + lvl).set({ requiredXP: xp, bonus: bonus });
-            showToast('Level saved!');
-        }
-
-        function saveReferralConfig() {
-            const config = {
-                perReferralCoins: parseInt(document.getElementById('refPerReferral').value) || 50,
-                tier1: { count: parseInt(document.getElementById('refTier1Count').value) || 10, bonus: parseInt(document.getElementById('refTier1Bonus').value) || 50 },
-                tier2: { count: parseInt(document.getElementById('refTier2Count').value) || 25, bonus: parseInt(document.getElementById('refTier2Bonus').value) || 150 },
-                tier3: { count: parseInt(document.getElementById('refTier3Count').value) || 50, bonus: parseInt(document.getElementById('refTier3Bonus').value) || 300 }
-            };
-            db.ref('referralConfig').set(config);
-            showToast('Referral config saved!');
-        }
-
         function saveVideoSettings() {
-            const config = {
+            db.ref('videoSettings').set({
                 reward: parseInt(document.getElementById('videoReward').value) || 10,
                 dailyLimit: parseInt(document.getElementById('videoDailyLimit').value) || 5
-            };
-            db.ref('videoSettings').set(config);
+            });
             showToast('Video settings saved!');
         }
+
+        // ==================== INIT ====================
+        function initAdmin() {
+            // Check if already logged in
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            // Auto-login if credentials exist
+            db.ref('admin/credentials').once('value', snap => {
+                if (!snap.exists()) {
+                    db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initAdmin);
+        
+        // Keyboard shortcut for Enter key login
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') {
+                adminLogin();
+            }
+        });
     </script>
 </body>
 </html>
