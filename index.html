@@ -161,30 +161,16 @@
                 <div class="card"><h3>📊 Task History</h3><div class="table-container"><table><thead><tr><th>Title</th><th>Type</th><th>Reward</th><th>Created</th><th>Actions</th></tr></thead><tbody id="tasksTableBody"></tbody></table></div></div>
             </div>
 
-            <!-- Airdrop (UPDATED with Live Watchers) -->
+            <!-- Airdrop -->
             <div class="page" id="pageAirdrop">
                 <div class="page-header">🎯 Airdrop Management</div>
-                
-                <!-- Live Status Card -->
                 <div class="live-card" style="margin-bottom:20px;">
                     <h3><span class="live-dot"></span> Live Airdrop Status</h3>
                     <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;">
-                        <div style="text-align:center;">
-                            <div style="font-size:36px;font-weight:900;color:#10b981;" id="liveWatchersCount">0</div>
-                            <div style="font-size:12px;color:#94a3b8;">👥 Live Watchers</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="font-size:36px;font-weight:900;color:#fbbf24;" id="livePoolAmount">$50.00</div>
-                            <div style="font-size:12px;color:#94a3b8;">💰 Pool</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="font-size:20px;font-weight:bold;color:#94a3b8;" id="liveAirdropStatus">⏳ Not Active</div>
-                            <div style="font-size:12px;color:#94a3b8;">📡 Status</div>
-                        </div>
-                        <div style="text-align:center;">
-                            <div style="font-size:16px;font-weight:bold;color:#fbbf24;" id="liveAirdropTimer">--:--:--</div>
-                            <div style="font-size:12px;color:#94a3b8;">⏱️ Timer</div>
-                        </div>
+                        <div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:#10b981;" id="liveWatchersCount">0</div><div style="font-size:12px;color:#94a3b8;">👥 Live Watchers</div></div>
+                        <div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:#fbbf24;" id="livePoolAmount">$50.00</div><div style="font-size:12px;color:#94a3b8;">💰 Pool</div></div>
+                        <div style="text-align:center;"><div style="font-size:20px;font-weight:bold;color:#94a3b8;" id="liveAirdropStatus">⏳ Not Active</div><div style="font-size:12px;color:#94a3b8;">📡 Status</div></div>
+                        <div style="text-align:center;"><div style="font-size:16px;font-weight:bold;color:#fbbf24;" id="liveAirdropTimer">--:--:--</div><div style="font-size:12px;color:#94a3b8;">⏱️ Timer</div></div>
                     </div>
                     <div style="margin-top:12px;padding:8px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:11px;">
                         <span style="color:#94a3b8;">Start: </span><span style="color:#10b981;" id="liveStartTime">-</span>
@@ -192,20 +178,16 @@
                         <span style="color:#94a3b8;margin-left:10px;">| Claims: </span><span style="color:#fbbf24;" id="liveClaimCount">0</span>
                     </div>
                 </div>
-
-                <!-- Configure -->
                 <div class="card"><h3>⚙️ Configure Airdrop</h3>
                     <div class="form-row"><div class="form-group"><label>Pool ($)</label><input type="number" id="airdropPool" value="50" step="0.01"></div><div class="form-group"><label>Min ($)</label><input type="number" id="airdropMin" value="0.5" step="0.01"></div></div>
                     <div class="form-row"><div class="form-group"><label>Max ($)</label><input type="number" id="airdropMax" value="2" step="0.01"></div><div class="form-group"><label>Duration (min)</label><input type="number" id="airdropDuration" value="5"></div></div>
                     <div class="form-row"><div class="form-group"><label>Start Time</label><input type="datetime-local" id="airdropStartTime"></div><div class="form-group"><label>End Time</label><input type="datetime-local" id="airdropEndTime"></div></div>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="saveAirdrop()">💾 Save</button><button class="btn btn-success" onclick="startAirdropNow()">🚀 Start</button><button class="btn btn-warning" onclick="stopAirdrop()">⏹️ Stop</button><button class="btn btn-danger" onclick="resetAirdropClaims()">🔄 Reset</button></div>
                 </div>
-
-                <!-- Recent Claims -->
                 <div class="card"><h3>🏆 Recent Claims</h3><div class="table-container"><table><thead><tr><th>User</th><th>Amount</th><th>Coins</th><th>Time</th></tr></thead><tbody id="airdropClaimsBody"><tr><td colspan="4" style="text-align:center;color:#94a3b8;">No claims yet</td></tr></tbody></table></div></div>
             </div>
 
-            <!-- Levels (UPDATED History) -->
+            <!-- Levels -->
             <div class="page" id="pageLevels">
                 <div class="page-header">🏆 Level Configuration (0-100)</div>
                 <div class="card">
@@ -258,7 +240,7 @@
         function switchPage(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); if (tp) tp.classList.add('active'); document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); if (el) el.classList.add('active'); if (p === 'dashboard') loadDash(); if (p === 'users') loadUsers(); if (p === 'mining') loadMining(); if (p === 'withdrawals') loadWithdrawals(); if (p === 'banAppeals') loadBanAppeals(); if (p === 'referral') loadReferralConfig(); if (p === 'tasks') loadTasks(); if (p === 'airdrop') { loadAirdropCfg(); loadLiveWatchers(); } if (p === 'levels') { clearLevelForm(); loadLevels(); } if (p === 'settings') loadSettings(); }
 
         function loadDash() { db.ref('users').once('value', s => { let u = 0, c = 0, usd = 0, m = 0, b = 0; s.forEach(ch => { u++; const d = ch.val(); c += (d.balance || 0); usd += (d.usdBalance || 0); if (d.isCurrentlyMining) m++; if (d.banned) b++; }); document.getElementById('dashUsers').textContent = u; document.getElementById('dashCoins').textContent = c.toLocaleString(); document.getElementById('dashUSD').textContent = '$' + usd.toFixed(2); document.getElementById('dashMining').textContent = m; document.getElementById('dashBanned').textContent = b; }); db.ref('airdropVisitors').once('value', s => { document.getElementById('dashAirdropLive').textContent = s.exists() ? s.numChildren() : 0; }); loadAppealCount(); }
-        function loadAppealCount() { db.ref('banAppeals').once('value', s => { let count = 0; if (s.exists()) s.forEach(ch => { if (ch.val().status === 'pending') count++; }); document.getElementById('dashAppeals') && (document.getElementById('dashAppeals').textContent = count); const badge = document.getElementById('appealBadge'); if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } else { badge.style.display = 'none'; } }); }
+        function loadAppealCount() { db.ref('banAppeals').once('value', s => { let count = 0; if (s.exists()) s.forEach(ch => { if (ch.val().status === 'pending') count++; }); const badge = document.getElementById('appealBadge'); if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } else { badge.style.display = 'none'; } }); }
 
         function calcUserLevel(xp) { xp = xp || -1000; if (xp < 0) { return { level: 0, progress: Math.max(0, Math.floor(((1000 - Math.abs(xp + 1000)) / 1000) * 100)), tierEmoji: '🔒', tierName: 'Unlocking' }; } let lvl = 1, xpNext = 100, totalXp = 0; while (xp >= totalXp + xpNext && lvl < 100) { totalXp += xpNext; lvl++; xpNext = lvl * 100; } let te = '🥉', tn = 'Bronze'; if (lvl > 20) { te = '🥈'; tn = 'Silver'; } if (lvl > 40) { te = '🥇'; tn = 'Gold'; } if (lvl > 60) { te = '💎'; tn = 'Platinum'; } if (lvl > 80) { te = '👑'; tn = 'Diamond'; } return { level: lvl, progress: Math.min(100, Math.floor(((xp - totalXp) / xpNext) * 100)), tierEmoji: te, tierName: tn }; }
 
@@ -294,7 +276,6 @@
         let airdropLiveInterval = null;
 
         function loadLiveWatchers() {
-            // Live watchers count from airdropVisitors
             db.ref('airdropVisitors').on('value', s => {
                 const count = s.exists() ? s.numChildren() : 0;
                 const el1 = document.getElementById('liveWatchersCount');
@@ -302,69 +283,25 @@
                 const badge = document.getElementById('airdropLiveBadge');
                 if (el1) el1.textContent = count;
                 if (el2) el2.textContent = count;
-                if (badge) {
-                    if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; }
-                    else { badge.style.display = 'none'; }
-                }
+                if (badge) { if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } else { badge.style.display = 'none'; } }
             });
-            
-            // Live airdrop config
             db.ref('airdropConfig').on('value', s => {
                 const c = s.val() || {};
-                const poolEl = document.getElementById('livePoolAmount');
-                const statusEl = document.getElementById('liveAirdropStatus');
-                const timerEl = document.getElementById('liveAirdropTimer');
-                const startEl = document.getElementById('liveStartTime');
-                const endEl = document.getElementById('liveEndTime');
-                
+                const poolEl = document.getElementById('livePoolAmount'), statusEl = document.getElementById('liveAirdropStatus'), timerEl = document.getElementById('liveAirdropTimer'), startEl = document.getElementById('liveStartTime'), endEl = document.getElementById('liveEndTime');
                 if (poolEl) poolEl.textContent = '$' + (c.poolAmount || 50).toFixed(2);
-                
                 if (c.startTime && c.endTime) {
-                    const now = Date.now();
-                    const endTime = c.endTime;
-                    const remaining = Math.max(0, endTime - now);
-                    
+                    const now = Date.now(), endTime = c.endTime, remaining = Math.max(0, endTime - now);
                     if (remaining > 0 && c.active) {
                         if (statusEl) { statusEl.textContent = '🔥 LIVE'; statusEl.style.color = '#10b981'; }
                         if (startEl) startEl.textContent = new Date(c.startTime).toLocaleTimeString();
                         if (endEl) endEl.textContent = new Date(c.endTime).toLocaleTimeString();
                         if (airdropLiveInterval) clearInterval(airdropLiveInterval);
-                        airdropLiveInterval = setInterval(() => {
-                            const r = Math.max(0, endTime - Date.now());
-                            const h = Math.floor(r / 3600000), m = Math.floor((r % 3600000) / 60000), s = Math.floor((r % 60000) / 1000);
-                            if (timerEl) timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                            if (r <= 0) { clearInterval(airdropLiveInterval); if (statusEl) { statusEl.textContent = '⛔ Ended'; statusEl.style.color = '#ef4444'; } }
-                        }, 1000);
-                    } else {
-                        if (statusEl) { statusEl.textContent = '⛔ Ended'; statusEl.style.color = '#ef4444'; }
-                        if (timerEl) timerEl.textContent = '00:00:00';
-                        if (startEl) startEl.textContent = c.startTime ? new Date(c.startTime).toLocaleTimeString() : '-';
-                        if (endEl) endEl.textContent = c.endTime ? new Date(c.endTime).toLocaleTimeString() : '-';
-                    }
-                } else {
-                    if (statusEl) { statusEl.textContent = '⏳ Not Active'; statusEl.style.color = '#94a3b8'; }
-                    if (timerEl) timerEl.textContent = '--:--:--';
-                    if (startEl) startEl.textContent = '-';
-                    if (endEl) endEl.textContent = '-';
-                }
+                        airdropLiveInterval = setInterval(() => { const r = Math.max(0, endTime - Date.now()); const h = Math.floor(r / 3600000), m = Math.floor((r % 3600000) / 60000), s = Math.floor((r % 60000) / 1000); if (timerEl) timerEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if (r <= 0) { clearInterval(airdropLiveInterval); if (statusEl) { statusEl.textContent = '⛔ Ended'; statusEl.style.color = '#ef4444'; } } }, 1000);
+                    } else { if (statusEl) { statusEl.textContent = '⛔ Ended'; statusEl.style.color = '#ef4444'; } if (timerEl) timerEl.textContent = '00:00:00'; if (startEl) startEl.textContent = c.startTime ? new Date(c.startTime).toLocaleTimeString() : '-'; if (endEl) endEl.textContent = c.endTime ? new Date(c.endTime).toLocaleTimeString() : '-'; }
+                } else { if (statusEl) { statusEl.textContent = '⏳ Not Active'; statusEl.style.color = '#94a3b8'; } if (timerEl) timerEl.textContent = '--:--:--'; if (startEl) startEl.textContent = '-'; if (endEl) endEl.textContent = '-'; }
             });
-            
-            // Claim count
-            db.ref('airdropList').on('value', s => {
-                const claimCount = s.exists() ? s.numChildren() : 0;
-                const el = document.getElementById('liveClaimCount');
-                if (el) el.textContent = claimCount;
-            });
-            
-            // Recent claims table
-            db.ref('airdropList').orderByChild('timestamp').limitToLast(20).on('value', s => {
-                const tbody = document.getElementById('airdropClaimsBody');
-                if (!tbody) return;
-                if (!s.exists()) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">No claims yet</td></tr>'; return; }
-                const claims = []; s.forEach(ch => claims.push(ch.val()));
-                claims.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                tbody.innerHTML = claims.map(c => `<tr><td>${c.username || c.userId || 'Unknown'}</td><td>$${(c.amount || 0).toFixed(2)}</td><td>+${c.coins || 0} 🪙</td><td style="font-size:10px;">${c.timestamp ? new Date(c.timestamp).toLocaleTimeString() : ''}</td></tr>`).join('');
-            });
+            db.ref('airdropList').on('value', s => { const claimCount = s.exists() ? s.numChildren() : 0; const el = document.getElementById('liveClaimCount'); if (el) el.textContent = claimCount; });
+            db.ref('airdropList').orderByChild('timestamp').limitToLast(20).on('value', s => { const tbody = document.getElementById('airdropClaimsBody'); if (!tbody) return; if (!s.exists()) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">No claims yet</td></tr>'; return; } const claims = []; s.forEach(ch => claims.push(ch.val())); claims.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); tbody.innerHTML = claims.map(c => `<tr><td>${c.username || c.userId || 'Unknown'}</td><td>$${(c.amount || 0).toFixed(2)}</td><td>+${c.coins || 0} 🪙</td><td style="font-size:10px;">${c.timestamp ? new Date(c.timestamp).toLocaleTimeString() : ''}</td></tr>`).join(''); });
         }
 
         function loadAirdropCfg() { db.ref('airdropConfig').once('value', s => { const c = s.val() || {}; document.getElementById('airdropPool').value = c.poolAmount || 50; document.getElementById('airdropMin').value = c.min || 0.5; document.getElementById('airdropMax').value = c.max || 2; document.getElementById('airdropDuration').value = c.duration || 5; if (c.startTime) document.getElementById('airdropStartTime').value = new Date(c.startTime).toISOString().slice(0, 16); if (c.endTime) document.getElementById('airdropEndTime').value = new Date(c.endTime).toISOString().slice(0, 16); }); }
@@ -373,7 +310,7 @@
         function stopAirdrop() { if (!confirm('Stop airdrop?')) return; db.ref('airdropConfig').update({ endTime: Date.now(), active: false }); toast('⛔ Stopped!'); }
         function resetAirdropClaims() { if (!confirm('Reset all claims?')) return; db.ref('users').once('value', s => { s.forEach(ch => { db.ref('users/' + ch.key + '/airdropClaimed').set(false); }); }); toast('🔄 Reset!'); }
 
-        // ==================== LEVEL SYSTEM WITH HISTORY ====================
+        // ==================== LEVEL SYSTEM (FIXED HISTORY) ====================
         let currentLevelFilter = 'all', allLevelsData = [];
 
         function filterLevelTable(filter, btn) { currentLevelFilter = filter; document.querySelectorAll('.level-filter-tabs button').forEach(b => b.classList.remove('active')); if (btn) btn.classList.add('active'); renderLevelTable(); }
@@ -384,15 +321,21 @@
             const b = +document.getElementById('levelBonus').value;
             const tier = document.getElementById('levelTier').value;
             const ek = document.getElementById('editingLevelKey').value;
-            if (isNaN(l) || l < 0 || l > 100) { toast('Level 0-100!', 'error'); return; }
-            const ld = { requiredXP: xp, bonus: b || 0, tier, updatedAt: Date.now() };
             
-            const saveOp = ek ? db.ref('levelConfig/' + l).update(ld) : db.ref('levelConfig/' + l).set(ld);
+            if (isNaN(l) || l < 0 || l > 100) { toast('Level must be 0-100!', 'error'); return; }
+            
+            const levelData = { requiredXP: xp, bonus: b || 0, tier: tier, updatedAt: Date.now() };
+            
+            const saveOp = ek ? db.ref('levelConfig/' + l).update(levelData) : db.ref('levelConfig/' + l).set(levelData);
+            
             saveOp.then(() => {
                 toast(`✅ Level ${l} ${ek ? 'updated' : 'saved'}!`);
                 clearLevelForm();
-                loadLevels();
-            }).catch(() => toast('Error!', 'error'));
+                // Force reload after save
+                setTimeout(() => { loadLevels(); }, 500);
+            }).catch((error) => {
+                toast('Error: ' + error.message, 'error');
+            });
         }
 
         function editLevel(lvl) {
@@ -420,15 +363,20 @@
 
         function deleteLevel(lvl) {
             if (!confirm(`Delete Level ${lvl}?`)) return;
-            db.ref('levelConfig/' + lvl).remove();
-            loadLevels();
-            toast('🗑️ Deleted!');
+            db.ref('levelConfig/' + lvl).remove().then(() => {
+                toast('🗑️ Deleted!');
+                loadLevels();
+            });
         }
 
         function loadLevels() {
             db.ref('levelConfig').once('value', snap => {
                 allLevelsData = [];
-                if (snap.exists()) snap.forEach(c => allLevelsData.push({ level: +c.key, ...c.val() }));
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        allLevelsData.push({ level: parseInt(child.key), ...child.val() });
+                    });
+                }
                 allLevelsData.sort((a, b) => a.level - b.level);
                 renderLevelTable();
             });
