@@ -73,6 +73,18 @@
         .appeal-card { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
         .live-card { background: rgba(16,185,129,0.05); border: 2px solid rgba(16,185,129,0.3); border-radius: 16px; padding: 20px; }
         .live-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; animation: livePulse 1.5s infinite; display: inline-block; }
+        .rules-text { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; margin-top: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .rules-text .rule-title { font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .rules-text .rule-content { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+        .rule-item { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06); }
+        .rule-item .rule-key { font-weight: 600; color: #fbbf24; font-size: 13px; }
+        .rule-item .rule-value { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+        .video-config-item { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06); }
+        .video-config-item .config-key { font-weight: 600; color: #fbbf24; font-size: 13px; }
+        .video-config-item .config-value { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .status-dot.on { background: #10b981; }
+        .status-dot.off { background: #ef4444; }
     </style>
 </head>
 <body>
@@ -98,7 +110,9 @@
             <div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-link"></i> Referral System</div>
             <div class="nav-item" onclick="switchPage('tasks',this)"><i class="fas fa-tasks"></i> Tasks</div>
             <div class="nav-item" onclick="switchPage('airdrop',this)"><i class="fas fa-parachute-box"></i> Airdrop <span id="airdropLiveBadge" class="badge badge-live" style="display:none;">0</span></div>
-            <div class="nav-item" onclick="switchPage('levels',this)"><i class="fas fa-trophy"></i> Levels (0-100)</div>
+            <div class="nav-item" onclick="switchPage('levels',this)"><i class="fas fa-trophy"></i> Levels</div>
+            <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i> Rules</div>
+            <div class="nav-item" onclick="switchPage('video',this)"><i class="fas fa-video"></i> Video Watch</div>
             <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i> Settings</div>
             <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
@@ -189,24 +203,92 @@
 
             <!-- Levels -->
             <div class="page" id="pageLevels">
-                <div class="page-header">🏆 Level Configuration (0-100)</div>
-                <div class="card">
-                    <h3>ℹ️ Level System Info</h3>
-                    <p style="color:#94a3b8;font-size:13px;margin-bottom:10px;">
-                        <b style="color:#fbbf24;">Level 0:</b> 🔒 Unlocking (-1000 XP) | <b style="color:#fbbf24;">Level 1-20:</b> 🥉 Bronze (1-5%)<br>
-                        <b style="color:#fbbf24;">Level 21-40:</b> 🥈 Silver (7-15%) | <b style="color:#fbbf24;">Level 41-60:</b> 🥇 Gold (17-25%)<br>
-                        <b style="color:#fbbf24;">Level 61-80:</b> 💎 Platinum (27-40%) | <b style="color:#fbbf24;">Level 81-100:</b> 👑 Diamond (42-50%)
-                    </p>
-                </div>
+                <div class="page-header">🏆 Level Configuration</div>
                 <div class="card"><h3 id="levelFormTitle">➕ Add Level</h3><input type="hidden" id="editingLevelKey" value="">
                     <div class="form-row"><div class="form-group"><label>Level (0-100)</label><input type="number" id="levelNum" min="0" max="100" value="0"></div><div class="form-group"><label>Tier</label><select id="levelTier"><option value="unlocking">🔒 Unlocking</option><option value="bronze">🥉 Bronze</option><option value="silver">🥈 Silver</option><option value="gold">🥇 Gold</option><option value="platinum">💎 Platinum</option><option value="diamond">👑 Diamond</option></select></div></div>
                     <div class="form-row"><div class="form-group"><label>Required XP</label><input type="number" id="levelXp" value="-1000"></div><div class="form-group"><label>Bonus %</label><input type="number" id="levelBonus" value="0"></div></div>
                     <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="saveLevel()">💾 Save</button><button class="btn btn-info" onclick="clearLevelForm()">🔄 Clear</button><button class="btn btn-warning" onclick="bulkLevels()">⚡ Bulk 101</button></div>
                 </div>
-                <div class="card"><h3>📊 Level History (All Configured Levels)</h3>
+                <div class="card"><h3>📊 Level History</h3>
                     <div class="level-filter-tabs"><button class="active" onclick="filterLevelTable('all',this)">All</button><button onclick="filterLevelTable('unlocking',this)">🔒</button><button onclick="filterLevelTable('bronze',this)">🥉</button><button onclick="filterLevelTable('silver',this)">🥈</button><button onclick="filterLevelTable('gold',this)">🥇</button><button onclick="filterLevelTable('platinum',this)">💎</button><button onclick="filterLevelTable('diamond',this)">👑</button></div>
                     <div style="margin-bottom:10px;font-size:12px;color:#94a3b8;">Total: <b id="totalLevelsCount" style="color:#fbbf24;">0</b> | Updated: <b id="lastLevelUpdate" style="color:#10b981;">-</b></div>
                     <div class="table-container"><table><thead><tr><th>Level</th><th>Tier</th><th>XP</th><th>Bonus</th><th>Updated</th><th>Actions</th></tr></thead><tbody id="levelsTableBody"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Rules -->
+            <div class="page" id="pageRules">
+                <div class="page-header">📋 Rules Management</div>
+                <div class="card">
+                    <h3><i class="fas fa-gavel"></i> Rules Configuration</h3>
+                    <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">These rules appear on each page of the user app.</p>
+                    <div id="rulesContainer">
+                        <div class="rule-item"><div class="rule-key">📋 Mining Rules</div><div class="rule-value" id="rule-mining">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Task Rules</div><div class="rule-value" id="rule-tasks">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Referral Rules</div><div class="rule-value" id="rule-referral">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Withdraw Rules</div><div class="rule-value" id="rule-withdraw">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Level Rules</div><div class="rule-value" id="rule-level">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Airdrop Rules</div><div class="rule-value" id="rule-airdrop">Loading...</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-edit"></i> Edit Rule</h3>
+                    <div class="form-group">
+                        <label>Rule Key</label>
+                        <select id="ruleKeySelect">
+                            <option value="mining">Mining Rules</option>
+                            <option value="tasks">Task Rules</option>
+                            <option value="referral">Referral Rules</option>
+                            <option value="withdraw">Withdraw Rules</option>
+                            <option value="level">Level Rules</option>
+                            <option value="airdrop">Airdrop Rules</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rule Content</label>
+                        <textarea id="ruleContentInput" placeholder="Write rules here..." rows="4"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="updateRule()"><i class="fas fa-save"></i> Update Rule</button>
+                </div>
+            </div>
+
+            <!-- Video Watch -->
+            <div class="page" id="pageVideo">
+                <div class="page-header">📺 Video Watch Configuration</div>
+                <div class="card">
+                    <h3><i class="fas fa-video"></i> Video Watch Settings</h3>
+                    <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Configure video watch system for users.</p>
+                    <div id="videoConfigContainer">
+                        <div class="video-config-item"><div class="config-key">Status</div><div class="config-value" id="vc-enabled">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">Total Videos Per Day</div><div class="config-value" id="vc-totalVideos">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">Reward Per Video (Coins)</div><div class="config-value" id="vc-rewardPerVideo">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">Title</div><div class="config-value" id="vc-title">Loading...</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-edit"></i> Edit Video Config</h3>
+                    <div class="form-group">
+                        <label>Enabled</label>
+                        <select id="videoEnabled">
+                            <option value="true">✅ Enabled</option>
+                            <option value="false">❌ Disabled</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Total Videos Per Day</label>
+                            <input type="number" id="videoTotal" value="5" min="1" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Reward Per Video (Coins)</label>
+                            <input type="number" id="videoReward" value="10" min="1" max="1000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="videoTitle" value="Watch Video & Earn" placeholder="Video watch title">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateVideoConfig()"><i class="fas fa-save"></i> Update Video Config</button>
                 </div>
             </div>
 
@@ -214,7 +296,6 @@
             <div class="page" id="pageSettings"><div class="page-header">⚙️ Settings</div>
                 <div class="card"><h3>💰 Conversion</h3><div class="form-group"><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
                 <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min ($)</label><input type="number" id="minWithdraw" value="10"></div><div class="form-group"><label>Methods</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
-                <div class="card"><h3>📺 Video</h3><div class="form-row"><div class="form-group"><label>Reward</label><input type="number" id="videoReward" value="10"></div><div class="form-group"><label>Limit</label><input type="number" id="videoDailyLimit" value="5"></div></div><button class="btn btn-primary" onclick="saveVideoSet()">💾 Save</button></div>
                 <div class="card"><h3>🔐 Admin</h3><div class="form-row"><div class="form-group"><input type="text" id="newAdminUser" placeholder="Username"></div><div class="form-group"><input type="password" id="newAdminPass" placeholder="Password"></div></div><button class="btn btn-warning" onclick="changeAdminCreds()">🔐 Update</button></div>
             </div>
         </div>
@@ -237,7 +318,7 @@
         function adminLogout() { document.getElementById('loginPage').style.display = 'flex'; document.getElementById('adminPanel').style.display = 'none'; }
         function changeAdminCreds() { const u = document.getElementById('newAdminUser').value.trim(), p = document.getElementById('newAdminPass').value.trim(); if (!u || !p) { toast('Fill all!', 'error'); return; } db.ref('admin/credentials').set({ username: u, password: p }); toast('✅ Updated!'); }
 
-        function switchPage(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); if (tp) tp.classList.add('active'); document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); if (el) el.classList.add('active'); if (p === 'dashboard') loadDash(); if (p === 'users') loadUsers(); if (p === 'mining') loadMining(); if (p === 'withdrawals') loadWithdrawals(); if (p === 'banAppeals') loadBanAppeals(); if (p === 'referral') loadReferralConfig(); if (p === 'tasks') loadTasks(); if (p === 'airdrop') { loadAirdropCfg(); loadLiveWatchers(); } if (p === 'levels') { clearLevelForm(); loadLevels(); } if (p === 'settings') loadSettings(); }
+        function switchPage(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); if (tp) tp.classList.add('active'); document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); if (el) el.classList.add('active'); if (p === 'dashboard') loadDash(); if (p === 'users') loadUsers(); if (p === 'mining') loadMining(); if (p === 'withdrawals') loadWithdrawals(); if (p === 'banAppeals') loadBanAppeals(); if (p === 'referral') loadReferralConfig(); if (p === 'tasks') loadTasks(); if (p === 'airdrop') { loadAirdropCfg(); loadLiveWatchers(); } if (p === 'levels') { clearLevelForm(); loadLevels(); } if (p === 'rules') loadRules(); if (p === 'video') loadVideoConfig(); if (p === 'settings') loadSettings(); }
 
         function loadDash() { db.ref('users').once('value', s => { let u = 0, c = 0, usd = 0, m = 0, b = 0; s.forEach(ch => { u++; const d = ch.val(); c += (d.balance || 0); usd += (d.usdBalance || 0); if (d.isCurrentlyMining) m++; if (d.banned) b++; }); document.getElementById('dashUsers').textContent = u; document.getElementById('dashCoins').textContent = c.toLocaleString(); document.getElementById('dashUSD').textContent = '$' + usd.toFixed(2); document.getElementById('dashMining').textContent = m; document.getElementById('dashBanned').textContent = b; }); db.ref('airdropVisitors').once('value', s => { document.getElementById('dashAirdropLive').textContent = s.exists() ? s.numChildren() : 0; }); loadAppealCount(); }
         function loadAppealCount() { db.ref('banAppeals').once('value', s => { let count = 0; if (s.exists()) s.forEach(ch => { if (ch.val().status === 'pending') count++; }); const badge = document.getElementById('appealBadge'); if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } else { badge.style.display = 'none'; } }); }
@@ -272,7 +353,7 @@
         function deleteTask(id) { if (confirm('Delete?')) { db.ref('tasks/' + id).remove(); loadTasks(); toast('🗑️ Deleted!'); } }
         function loadTasks() { db.ref('tasks').once('value', s => { const arr = []; if (s.exists()) s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); document.getElementById('tasksTableBody').innerHTML = arr.length ? arr.map(t => `<tr><td>${t.title}</td><td><span class="badge badge-info">${t.type}</span></td><td>+${t.reward}</td><td>${t.createdAt?new Date(t.createdAt).toLocaleDateString():'N/A'}</td><td><button class="btn btn-sm btn-info" onclick="editTask('${t.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteTask('${t.id}')">🗑️</button></td></tr>`).join('') : '<tr><td colspan="5">No tasks</td></tr>'; }); }
 
-        // ==================== AIRDROP WITH LIVE WATCHERS ====================
+        // ==================== AIRDROP ====================
         let airdropLiveInterval = null;
 
         function loadLiveWatchers() {
@@ -310,7 +391,7 @@
         function stopAirdrop() { if (!confirm('Stop airdrop?')) return; db.ref('airdropConfig').update({ endTime: Date.now(), active: false }); toast('⛔ Stopped!'); }
         function resetAirdropClaims() { if (!confirm('Reset all claims?')) return; db.ref('users').once('value', s => { s.forEach(ch => { db.ref('users/' + ch.key + '/airdropClaimed').set(false); }); }); toast('🔄 Reset!'); }
 
-        // ==================== LEVEL SYSTEM (FIXED HISTORY) ====================
+        // ==================== LEVELS ====================
         let currentLevelFilter = 'all', allLevelsData = [];
 
         function filterLevelTable(filter, btn) { currentLevelFilter = filter; document.querySelectorAll('.level-filter-tabs button').forEach(b => b.classList.remove('active')); if (btn) btn.classList.add('active'); renderLevelTable(); }
@@ -331,7 +412,6 @@
             saveOp.then(() => {
                 toast(`✅ Level ${l} ${ek ? 'updated' : 'saved'}!`);
                 clearLevelForm();
-                // Force reload after save
                 setTimeout(() => { loadLevels(); }, 500);
             }).catch((error) => {
                 toast('Error: ' + error.message, 'error');
@@ -431,12 +511,66 @@
             db.ref().update(updates, () => { toast('✅ All 101 levels configured!'); clearLevelForm(); loadLevels(); });
         }
 
-        function loadSettings() { db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 10; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); db.ref('videoSettings').once('value', s => { if (s.exists()) { document.getElementById('videoReward').value = s.val().reward || 10; document.getElementById('videoDailyLimit').value = s.val().dailyLimit || 5; } }); }
+        // ==================== RULES ====================
+        function loadRules() {
+            db.ref('rules').on('value', snap => {
+                const rules = snap.val() || {};
+                document.getElementById('rule-mining').textContent = rules.mining || 'No rules set.';
+                document.getElementById('rule-tasks').textContent = rules.tasks || 'No rules set.';
+                document.getElementById('rule-referral').textContent = rules.referral || 'No rules set.';
+                document.getElementById('rule-withdraw').textContent = rules.withdraw || 'No rules set.';
+                document.getElementById('rule-level').textContent = rules.level || 'No rules set.';
+                document.getElementById('rule-airdrop').textContent = rules.airdrop || 'No rules set.';
+            });
+            // Load initial rule content
+            db.ref('rules/mining').once('value', snap => {
+                document.getElementById('ruleContentInput').value = snap.val() || '';
+            });
+        }
+
+        function updateRule() {
+            const key = document.getElementById('ruleKeySelect').value;
+            const content = document.getElementById('ruleContentInput').value.trim();
+            if (!content) { toast('Please enter rule content!', 'error'); return; }
+            db.ref('rules/' + key).set(content, () => {
+                toast('✅ Rule updated!');
+                document.getElementById('ruleContentInput').value = '';
+            });
+        }
+
+        // ==================== VIDEO CONFIG ====================
+        function loadVideoConfig() {
+            db.ref('videoWatchConfig').on('value', snap => {
+                const cfg = snap.val() || { enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' };
+                document.getElementById('vc-enabled').innerHTML = cfg.enabled ? '<span class="status-dot on"></span> Enabled' : '<span class="status-dot off"></span> Disabled';
+                document.getElementById('vc-totalVideos').textContent = cfg.totalVideos;
+                document.getElementById('vc-rewardPerVideo').textContent = cfg.rewardPerVideo + ' Coins';
+                document.getElementById('vc-title').textContent = cfg.title;
+                document.getElementById('videoEnabled').value = cfg.enabled ? 'true' : 'false';
+                document.getElementById('videoTotal').value = cfg.totalVideos || 5;
+                document.getElementById('videoReward').value = cfg.rewardPerVideo || 10;
+                document.getElementById('videoTitle').value = cfg.title || 'Watch Video & Earn';
+            });
+        }
+
+        function updateVideoConfig() {
+            const data = {
+                enabled: document.getElementById('videoEnabled').value === 'true',
+                totalVideos: parseInt(document.getElementById('videoTotal').value) || 5,
+                rewardPerVideo: parseInt(document.getElementById('videoReward').value) || 10,
+                title: document.getElementById('videoTitle').value.trim() || 'Watch Video & Earn'
+            };
+            db.ref('videoWatchConfig').set(data, () => {
+                toast('✅ Video config updated!');
+            });
+        }
+
+        // ==================== SETTINGS ====================
+        function loadSettings() { db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 10; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); }
         function saveConv() { db.ref('conversionRate').set(+document.getElementById('conversionRate').value || 1000); toast('✅ Saved!'); }
         function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 10, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
-        function saveVideoSet() { db.ref('videoSettings').set({ reward: +document.getElementById('videoReward').value || 10, dailyLimit: +document.getElementById('videoDailyLimit').value || 5 }); toast('✅ Saved!'); }
 
-        function init() { db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 10, methods: ['Nagad','Rocket','bKash'] }); }); db.ref('videoSettings').once('value', s => { if (!s.exists()) db.ref('videoSettings').set({ reward: 10, dailyLimit: 5 }); }); db.ref('referralConfig').once('value', s => { if (!s.exists()) db.ref('referralConfig').set({ perReferralCoins: 50, xpPerReferral: 100, tier1: { count: 10, bonus: 50 }, tier2: { count: 25, bonus: 150 }, tier3: { count: 50, bonus: 300 }, tier4: { count: 100, bonus: 500 }, tier5: { count: 200, bonus: 1000 } }); }); }
+        function init() { db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 10, methods: ['Nagad','Rocket','bKash'] }); }); db.ref('referralConfig').once('value', s => { if (!s.exists()) db.ref('referralConfig').set({ perReferralCoins: 50, xpPerReferral: 100, tier1: { count: 10, bonus: 50 }, tier2: { count: 25, bonus: 150 }, tier3: { count: 50, bonus: 300 }, tier4: { count: 100, bonus: 500 }, tier5: { count: 200, bonus: 1000 } }); }); db.ref('videoWatchConfig').once('value', s => { if (!s.exists()) db.ref('videoWatchConfig').set({ enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' }); }); }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') adminLogin(); if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); }));
