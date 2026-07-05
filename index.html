@@ -112,7 +112,6 @@
             <div class="nav-item" onclick="switchPage('airdrop',this)"><i class="fas fa-parachute-box"></i> Airdrop <span id="airdropLiveBadge" class="badge badge-live" style="display:none;">0</span></div>
             <div class="nav-item" onclick="switchPage('levels',this)"><i class="fas fa-trophy"></i> Levels</div>
             <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i> Rules</div>
-            <!-- Updated Video Watch page -->
             <div class="nav-item" onclick="switchPage('video',this)"><i class="fas fa-video"></i> Video Watch</div>
             <div class="nav-item" onclick="switchPage('refill',this)"><i class="fas fa-sync-alt"></i> Refill Coins</div>
             <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i> Settings</div>
@@ -254,7 +253,7 @@
                 </div>
             </div>
 
-            <!-- VIDEO WATCH PAGE (UPDATED) -->
+            <!-- VIDEO WATCH PAGE -->
             <div class="page" id="pageVideo">
                 <div class="page-header">📺 Video Watch Configuration</div>
                 <div class="card">
@@ -294,16 +293,16 @@
                 </div>
             </div>
 
-            <!-- REFILL COINS PAGE (NEW) -->
+            <!-- REFILL COINS PAGE (UPDATED with full controls) -->
             <div class="page" id="pageRefill">
                 <div class="page-header">🔄 Refill Coins Configuration</div>
                 <div class="card">
                     <h3><i class="fas fa-sync-alt"></i> Refill Settings</h3>
                     <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Configure how many times users can refill their mining coins and how many coins they get per refill.</p>
                     <div id="refillConfigContainer">
-                        <div class="video-config-item"><div class="config-key">Status</div><div class="config-value" id="rc-enabled">Loading...</div></div>
-                        <div class="video-config-item"><div class="config-key">Total Refills Per Day</div><div class="config-value" id="rc-totalRefills">Loading...</div></div>
-                        <div class="video-config-item"><div class="config-key">Coins Per Refill</div><div class="config-value" id="rc-rewardCoins">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">📌 Status</div><div class="config-value" id="rc-enabled">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">📊 Total Refills Per Day</div><div class="config-value" id="rc-totalRefills">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">🪙 Coins Per Refill</div><div class="config-value" id="rc-rewardCoins">Loading...</div></div>
                     </div>
                 </div>
                 <div class="card">
@@ -318,14 +317,14 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Total Refills Per Day</label>
-                            <input type="number" id="refillTotal" value="5" min="1" max="50">
+                            <input type="number" id="refillTotal" value="5" min="0" max="50">
                         </div>
                         <div class="form-group">
                             <label>Coins Per Refill</label>
                             <input type="number" id="refillCoins" value="1000" min="100" max="10000">
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="updateRefillConfig()"><i class="fas fa-save"></i> Update Refill Config</button>
+                    <button class="btn btn-primary" onclick="updateRefillConfig()"><i class="fas fa-save"></i> 💾 Update Refill Config</button>
                 </div>
             </div>
 
@@ -574,7 +573,7 @@
             });
         }
 
-        // ==================== VIDEO CONFIG (UPDATED) ====================
+        // ==================== VIDEO CONFIG ====================
         function loadVideoConfig() {
             db.ref('videoWatchConfig').on('value', snap => {
                 const cfg = snap.val() || { enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' };
@@ -601,7 +600,7 @@
             });
         }
 
-        // ==================== REFILL CONFIG (NEW) ====================
+        // ==================== REFILL CONFIG (UPDATED - FULL CONTROL) ====================
         function loadRefillConfig() {
             db.ref('refillConfig').on('value', snap => {
                 const cfg = snap.val() || { enabled: true, totalRefills: 5, rewardCoins: 1000 };
