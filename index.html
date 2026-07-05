@@ -112,7 +112,9 @@
             <div class="nav-item" onclick="switchPage('airdrop',this)"><i class="fas fa-parachute-box"></i> Airdrop <span id="airdropLiveBadge" class="badge badge-live" style="display:none;">0</span></div>
             <div class="nav-item" onclick="switchPage('levels',this)"><i class="fas fa-trophy"></i> Levels</div>
             <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i> Rules</div>
+            <!-- Updated Video Watch page -->
             <div class="nav-item" onclick="switchPage('video',this)"><i class="fas fa-video"></i> Video Watch</div>
+            <div class="nav-item" onclick="switchPage('refill',this)"><i class="fas fa-sync-alt"></i> Refill Coins</div>
             <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i> Settings</div>
             <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
@@ -252,12 +254,12 @@
                 </div>
             </div>
 
-            <!-- Video Watch -->
+            <!-- VIDEO WATCH PAGE (UPDATED) -->
             <div class="page" id="pageVideo">
                 <div class="page-header">📺 Video Watch Configuration</div>
                 <div class="card">
                     <h3><i class="fas fa-video"></i> Video Watch Settings</h3>
-                    <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Configure video watch system for users.</p>
+                    <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Configure how many videos users can watch and how many coins they earn per video.</p>
                     <div id="videoConfigContainer">
                         <div class="video-config-item"><div class="config-key">Status</div><div class="config-value" id="vc-enabled">Loading...</div></div>
                         <div class="video-config-item"><div class="config-key">Total Videos Per Day</div><div class="config-value" id="vc-totalVideos">Loading...</div></div>
@@ -292,6 +294,41 @@
                 </div>
             </div>
 
+            <!-- REFILL COINS PAGE (NEW) -->
+            <div class="page" id="pageRefill">
+                <div class="page-header">🔄 Refill Coins Configuration</div>
+                <div class="card">
+                    <h3><i class="fas fa-sync-alt"></i> Refill Settings</h3>
+                    <p style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Configure how many times users can refill their mining coins and how many coins they get per refill.</p>
+                    <div id="refillConfigContainer">
+                        <div class="video-config-item"><div class="config-key">Status</div><div class="config-value" id="rc-enabled">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">Total Refills Per Day</div><div class="config-value" id="rc-totalRefills">Loading...</div></div>
+                        <div class="video-config-item"><div class="config-key">Coins Per Refill</div><div class="config-value" id="rc-rewardCoins">Loading...</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-edit"></i> Edit Refill Config</h3>
+                    <div class="form-group">
+                        <label>Enabled</label>
+                        <select id="refillEnabled">
+                            <option value="true">✅ Enabled</option>
+                            <option value="false">❌ Disabled</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Total Refills Per Day</label>
+                            <input type="number" id="refillTotal" value="5" min="1" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Coins Per Refill</label>
+                            <input type="number" id="refillCoins" value="1000" min="100" max="10000">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="updateRefillConfig()"><i class="fas fa-save"></i> Update Refill Config</button>
+                </div>
+            </div>
+
             <!-- Settings -->
             <div class="page" id="pageSettings"><div class="page-header">⚙️ Settings</div>
                 <div class="card"><h3>💰 Conversion</h3><div class="form-group"><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
@@ -318,7 +355,7 @@
         function adminLogout() { document.getElementById('loginPage').style.display = 'flex'; document.getElementById('adminPanel').style.display = 'none'; }
         function changeAdminCreds() { const u = document.getElementById('newAdminUser').value.trim(), p = document.getElementById('newAdminPass').value.trim(); if (!u || !p) { toast('Fill all!', 'error'); return; } db.ref('admin/credentials').set({ username: u, password: p }); toast('✅ Updated!'); }
 
-        function switchPage(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); if (tp) tp.classList.add('active'); document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); if (el) el.classList.add('active'); if (p === 'dashboard') loadDash(); if (p === 'users') loadUsers(); if (p === 'mining') loadMining(); if (p === 'withdrawals') loadWithdrawals(); if (p === 'banAppeals') loadBanAppeals(); if (p === 'referral') loadReferralConfig(); if (p === 'tasks') loadTasks(); if (p === 'airdrop') { loadAirdropCfg(); loadLiveWatchers(); } if (p === 'levels') { clearLevelForm(); loadLevels(); } if (p === 'rules') loadRules(); if (p === 'video') loadVideoConfig(); if (p === 'settings') loadSettings(); }
+        function switchPage(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); if (tp) tp.classList.add('active'); document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); if (el) el.classList.add('active'); if (p === 'dashboard') loadDash(); if (p === 'users') loadUsers(); if (p === 'mining') loadMining(); if (p === 'withdrawals') loadWithdrawals(); if (p === 'banAppeals') loadBanAppeals(); if (p === 'referral') loadReferralConfig(); if (p === 'tasks') loadTasks(); if (p === 'airdrop') { loadAirdropCfg(); loadLiveWatchers(); } if (p === 'levels') { clearLevelForm(); loadLevels(); } if (p === 'rules') loadRules(); if (p === 'video') loadVideoConfig(); if (p === 'refill') loadRefillConfig(); if (p === 'settings') loadSettings(); }
 
         function loadDash() { db.ref('users').once('value', s => { let u = 0, c = 0, usd = 0, m = 0, b = 0; s.forEach(ch => { u++; const d = ch.val(); c += (d.balance || 0); usd += (d.usdBalance || 0); if (d.isCurrentlyMining) m++; if (d.banned) b++; }); document.getElementById('dashUsers').textContent = u; document.getElementById('dashCoins').textContent = c.toLocaleString(); document.getElementById('dashUSD').textContent = '$' + usd.toFixed(2); document.getElementById('dashMining').textContent = m; document.getElementById('dashBanned').textContent = b; }); db.ref('airdropVisitors').once('value', s => { document.getElementById('dashAirdropLive').textContent = s.exists() ? s.numChildren() : 0; }); loadAppealCount(); }
         function loadAppealCount() { db.ref('banAppeals').once('value', s => { let count = 0; if (s.exists()) s.forEach(ch => { if (ch.val().status === 'pending') count++; }); const badge = document.getElementById('appealBadge'); if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } else { badge.style.display = 'none'; } }); }
@@ -522,7 +559,6 @@
                 document.getElementById('rule-level').textContent = rules.level || 'No rules set.';
                 document.getElementById('rule-airdrop').textContent = rules.airdrop || 'No rules set.';
             });
-            // Load initial rule content
             db.ref('rules/mining').once('value', snap => {
                 document.getElementById('ruleContentInput').value = snap.val() || '';
             });
@@ -538,7 +574,7 @@
             });
         }
 
-        // ==================== VIDEO CONFIG ====================
+        // ==================== VIDEO CONFIG (UPDATED) ====================
         function loadVideoConfig() {
             db.ref('videoWatchConfig').on('value', snap => {
                 const cfg = snap.val() || { enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' };
@@ -565,12 +601,36 @@
             });
         }
 
+        // ==================== REFILL CONFIG (NEW) ====================
+        function loadRefillConfig() {
+            db.ref('refillConfig').on('value', snap => {
+                const cfg = snap.val() || { enabled: true, totalRefills: 5, rewardCoins: 1000 };
+                document.getElementById('rc-enabled').innerHTML = cfg.enabled ? '<span class="status-dot on"></span> Enabled' : '<span class="status-dot off"></span> Disabled';
+                document.getElementById('rc-totalRefills').textContent = cfg.totalRefills;
+                document.getElementById('rc-rewardCoins').textContent = cfg.rewardCoins + ' Coins';
+                document.getElementById('refillEnabled').value = cfg.enabled ? 'true' : 'false';
+                document.getElementById('refillTotal').value = cfg.totalRefills || 5;
+                document.getElementById('refillCoins').value = cfg.rewardCoins || 1000;
+            });
+        }
+
+        function updateRefillConfig() {
+            const data = {
+                enabled: document.getElementById('refillEnabled').value === 'true',
+                totalRefills: parseInt(document.getElementById('refillTotal').value) || 5,
+                rewardCoins: parseInt(document.getElementById('refillCoins').value) || 1000
+            };
+            db.ref('refillConfig').set(data, () => {
+                toast('✅ Refill config updated!');
+            });
+        }
+
         // ==================== SETTINGS ====================
         function loadSettings() { db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 10; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); }
         function saveConv() { db.ref('conversionRate').set(+document.getElementById('conversionRate').value || 1000); toast('✅ Saved!'); }
         function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 10, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
 
-        function init() { db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 10, methods: ['Nagad','Rocket','bKash'] }); }); db.ref('referralConfig').once('value', s => { if (!s.exists()) db.ref('referralConfig').set({ perReferralCoins: 50, xpPerReferral: 100, tier1: { count: 10, bonus: 50 }, tier2: { count: 25, bonus: 150 }, tier3: { count: 50, bonus: 300 }, tier4: { count: 100, bonus: 500 }, tier5: { count: 200, bonus: 1000 } }); }); db.ref('videoWatchConfig').once('value', s => { if (!s.exists()) db.ref('videoWatchConfig').set({ enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' }); }); }
+        function init() { db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 10, methods: ['Nagad','Rocket','bKash'] }); }); db.ref('referralConfig').once('value', s => { if (!s.exists()) db.ref('referralConfig').set({ perReferralCoins: 50, xpPerReferral: 100, tier1: { count: 10, bonus: 50 }, tier2: { count: 25, bonus: 150 }, tier3: { count: 50, bonus: 300 }, tier4: { count: 100, bonus: 500 }, tier5: { count: 200, bonus: 1000 } }); }); db.ref('videoWatchConfig').once('value', s => { if (!s.exists()) db.ref('videoWatchConfig').set({ enabled: true, totalVideos: 5, rewardPerVideo: 10, title: 'Watch Video & Earn' }); }); db.ref('refillConfig').once('value', s => { if (!s.exists()) db.ref('refillConfig').set({ enabled: true, totalRefills: 5, rewardCoins: 1000 }); }); }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') adminLogin(); if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
         document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); }));
