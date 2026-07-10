@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* আপনার দেওয়া CSS ঠিক আছে, কোনো পরিবর্তন নেই */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0f172a; color: #e2e8f0; display: flex; min-height: 100vh; }
         .sidebar { width: 280px; background: #1e293b; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid #334155; z-index: 100; }
@@ -89,7 +88,6 @@
     </style>
 </head>
 <body>
-    <!-- আপনার দেওয়া HTML ঠিক আছে। শুধু জাভাস্ক্রিপ্ট অংশে কিছু ফিক্স করা হয়েছে। নিচের স্ক্রিপ্টে পরিবর্তন দেখুন। -->
     <div id="loginPage" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
         <div class="login-container">
             <h2>🔐 CoinQuest Admin</h2>
@@ -185,7 +183,7 @@
                     <h3><span class="live-dot"></span> Live Airdrop Status</h3>
                     <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;">
                         <div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:#10b981;" id="liveWatchersCount">0</div><div style="font-size:12px;color:#94a3b8;">👥 Live Watchers</div></div>
-                        <div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:#fbbf24;" id="livePoolAmount">$50.00</div><div style="font-size:12px;color:#94a3b8;">💰 Pool</div></div>
+                        <div style="text-align:center;"><div style="font-size:36px;font-weight:900;color:#fbbf24;" id="livePoolAmount">$50.000</div><div style="font-size:12px;color:#94a3b8;">💰 Pool</div></div>
                         <div style="text-align:center;"><div style="font-size:20px;font-weight:bold;color:#94a3b8;" id="liveAirdropStatus">⏳ Not Active</div><div style="font-size:12px;color:#94a3b8;">📡 Status</div></div>
                         <div style="text-align:center;"><div style="font-size:16px;font-weight:bold;color:#fbbf24;" id="liveAirdropTimer">--:--:--</div><div style="font-size:12px;color:#94a3b8;">⏱️ Timer</div></div>
                     </div>
@@ -196,8 +194,8 @@
                     </div>
                 </div>
                 <div class="card"><h3>⚙️ Configure Airdrop</h3>
-                    <div class="form-row"><div class="form-group"><label>Pool ($)</label><input type="number" id="airdropPool" value="50" step="0.01"></div><div class="form-group"><label>Min ($)</label><input type="number" id="airdropMin" value="0.5" step="0.01"></div></div>
-                    <div class="form-row"><div class="form-group"><label>Max ($)</label><input type="number" id="airdropMax" value="2" step="0.01"></div><div class="form-group"><label>Duration (min)</label><input type="number" id="airdropDuration" value="5"></div></div>
+                    <div class="form-row"><div class="form-group"><label>Pool ($)</label><input type="number" id="airdropPool" value="50" step="0.001"></div><div class="form-group"><label>Min ($)</label><input type="number" id="airdropMin" value="0.5" step="0.001"></div></div>
+                    <div class="form-row"><div class="form-group"><label>Max ($)</label><input type="number" id="airdropMax" value="2" step="0.001"></div><div class="form-group"><label>Duration (min)</label><input type="number" id="airdropDuration" value="5"></div></div>
                     <div class="form-row"><div class="form-group"><label>Start Time</label><input type="datetime-local" id="airdropStartTime"></div><div class="form-group"><label>End Time</label><input type="datetime-local" id="airdropEndTime"></div></div>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="saveAirdrop()">💾 Save</button><button class="btn btn-success" onclick="startAirdropNow()">🚀 Start</button><button class="btn btn-warning" onclick="stopAirdrop()">⏹️ Stop</button><button class="btn btn-danger" onclick="resetAirdropClaims()">🔄 Reset</button></div>
                 </div>
@@ -333,14 +331,14 @@
             <!-- Settings -->
             <div class="page" id="pageSettings"><div class="page-header">⚙️ Settings</div>
                 <div class="card"><h3>💰 Conversion</h3><div class="form-group"><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
-                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min ($)</label><input type="number" id="minWithdraw" value="10"></div><div class="form-group"><label>Methods</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
+                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min ($)</label><input type="number" id="minWithdraw" value="10" step="0.001"></div><div class="form-group"><label>Methods</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
                 <div class="card"><h3>🔐 Admin</h3><div class="form-row"><div class="form-group"><input type="text" id="newAdminUser" placeholder="Username"></div><div class="form-group"><input type="password" id="newAdminPass" placeholder="Password"></div></div><button class="btn btn-warning" onclick="changeAdminCreds()">🔐 Update</button></div>
             </div>
         </div>
     </div>
 
     <!-- Edit User Modal -->
-    <div class="modal-overlay" id="editUserModal"><div class="modal-box"><h3>✏️ Edit User</h3><input type="hidden" id="editUserId"><div class="form-group"><label>Balance</label><input type="number" id="editBalance"></div><div class="form-group"><label>USD</label><input type="number" id="editUsd" step="0.01"></div><div class="form-group"><label>XP</label><input type="number" id="editXp"></div><div class="form-group"><label>Coins Left</label><input type="number" id="editProgress"></div><div class="modal-buttons"><button class="btn btn-primary" onclick="saveUserEdit()">💾 Save</button><button class="btn btn-info" onclick="closeModal('editUserModal')">Cancel</button></div></div></div>
+    <div class="modal-overlay" id="editUserModal"><div class="modal-box"><h3>✏️ Edit User</h3><input type="hidden" id="editUserId"><div class="form-group"><label>Balance</label><input type="number" id="editBalance"></div><div class="form-group"><label>USD</label><input type="number" id="editUsd" step="0.001"></div><div class="form-group"><label>XP</label><input type="number" id="editXp"></div><div class="form-group"><label>Coins Left</label><input type="number" id="editProgress"></div><div class="modal-buttons"><button class="btn btn-primary" onclick="saveUserEdit()">💾 Save</button><button class="btn btn-info" onclick="closeModal('editUserModal')">Cancel</button></div></div></div>
     <div class="modal-overlay" id="cancelModal"><div class="modal-box"><h3>❌ Cancel Withdrawal</h3><input type="hidden" id="cancelId"><div class="form-group"><label>Reason</label><textarea id="cancelReason" rows="3"></textarea></div><p style="color:#fbbf24;font-size:12px;">⚠️ Amount refunded.</p><div class="modal-buttons"><button class="btn btn-danger" onclick="confirmCancel()">❌ Cancel & Refund</button><button class="btn btn-info" onclick="closeModal('cancelModal')">Back</button></div></div></div>
     <div class="modal-overlay" id="appealResponseModal"><div class="modal-box"><h3>📩 Respond to Appeal</h3><input type="hidden" id="appealUserId"><div class="form-group"><label>Response</label><textarea id="appealResponse" rows="3"></textarea></div><div class="modal-buttons"><button class="btn btn-success" onclick="approveAppeal()">✅ Unban</button><button class="btn btn-danger" onclick="rejectAppeal()">❌ Reject</button><button class="btn btn-info" onclick="closeModal('appealResponseModal')">Close</button></div></div></div>
     <div class="toast" id="adminToast"></div>
@@ -439,7 +437,7 @@
                 }); 
                 document.getElementById('dashUsers').textContent = u; 
                 document.getElementById('dashCoins').textContent = c.toLocaleString(); 
-                document.getElementById('dashUSD').textContent = '$' + usd.toFixed(2); 
+                document.getElementById('dashUSD').textContent = '$' + usd.toFixed(3); 
                 document.getElementById('dashMining').textContent = m; 
                 document.getElementById('dashBanned').textContent = b; 
             }); 
@@ -504,7 +502,7 @@
                     const d = ch.val(), id = ch.key; 
                     const lvl = calcUserLevel(d.xpPoints || -1000); 
                     const banned = d.banned || false; 
-                    h += `<tr class="${banned ? 'banned-row' : ''}"><td title="${id}">${id.substring(0,8)}</td><td>${d.fullName||d.username||'User'}</td><td>${(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(2)}</td><td>${d.xpPoints||-1000}</td><td>${lvl.tierEmoji} Lv.${lvl.level}</td><td>${d.progressCoins||1000}</td><td>${d.isCurrentlyMining?'<span class="badge badge-mining">⛏️</span>':'<span class="badge">Idle</span>'}</td><td>${d.referCount||0}</td><td>${banned?'<span class="badge badge-danger">🚫</span>':'<span class="badge badge-success">✅</span>'}</td><td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button><button class="btn btn-sm ${banned?'btn-success':'btn-danger'}" onclick="toggleBan('${id}',${!banned})">${banned?'✅':'🚫'}</button><button class="btn btn-sm btn-warning" onclick="delUser('${id}')">🗑️</button></td></tr>`; 
+                    h += `<tr class="${banned ? 'banned-row' : ''}"><td title="${id}">${id.substring(0,8)}</td><td>${d.fullName||d.username||'User'}</td><td>${(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(3)}</td><td>${d.xpPoints||-1000}</td><td>${lvl.tierEmoji} Lv.${lvl.level}</td><td>${d.progressCoins||1000}</td><td>${d.isCurrentlyMining?'<span class="badge badge-mining">⛏️</span>':'<span class="badge">Idle</span>'}</td><td>${d.referCount||0}</td><td>${banned?'<span class="badge badge-danger">🚫</span>':'<span class="badge badge-success">✅</span>'}</td><td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button><button class="btn btn-sm ${banned?'btn-success':'btn-danger'}" onclick="toggleBan('${id}',${!banned})">${banned?'✅':'🚫'}</button><button class="btn btn-sm btn-warning" onclick="delUser('${id}')">🗑️</button></td></tr>`; 
                 }); 
                 document.getElementById('usersTable').innerHTML = h + '</table>'; 
             }); 
@@ -519,7 +517,7 @@
                     const d = ch.val(), id = ch.key; 
                     if (id.toLowerCase().includes(q) || (d.fullName||d.username||'').toLowerCase().includes(q)) { 
                         f = true; 
-                        h += `<tr><td>${id}</td><td>${d.fullName||d.username||'User'}</td><td>${(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(2)}</td><td>${d.banned?'🚫':'✅'}</td><td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button><button class="btn btn-sm ${d.banned?'btn-success':'btn-danger'}" onclick="toggleBan('${id}',${!d.banned})">${d.banned?'Unban':'Ban'}</button></td></tr>`; 
+                        h += `<tr><td>${id}</td><td>${d.fullName||d.username||'User'}</td><td>${(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(3)}</td><td>${d.banned?'🚫':'✅'}</td><td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button><button class="btn btn-sm ${d.banned?'btn-success':'btn-danger'}" onclick="toggleBan('${id}',${!d.banned})">${d.banned?'Unban':'Ban'}</button></td></tr>`; 
                     } 
                 }); 
                 if (!f) h += '<tr><td colspan="6">No match</td></tr>'; 
@@ -600,7 +598,7 @@
                 s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); 
                 arr.sort((a, b) => (b.requestedAt || 0) - (a.requestedAt || 0)); 
                 arr.forEach(d => { 
-                    h += `<tr><td>${d.username||d.userId}</td><td>$${(d.amount||0).toFixed(2)}</td><td>${d.method}</td><td>${d.account}</td><td><span class="badge ${d.status==='approved'?'badge-success':d.status==='cancelled'?'badge-danger':'badge-warning'}">${d.status}</span></td><td style="font-size:11px;">${d.cancelReason||'-'}</td><td>${d.requestedAt?new Date(d.requestedAt).toLocaleDateString():''}</td><td>${d.status==='pending'?`<button class="btn btn-sm btn-success" onclick="apprWith('${d.id}')">✅</button><button class="btn btn-sm btn-danger" onclick="openCancel('${d.id}')">❌</button>`:'Done'}</td></tr>`; 
+                    h += `<tr><td>${d.username||d.userId}</td><td>$${(d.amount||0).toFixed(3)}</td><td>${d.method}</td><td>${d.account}</td><td><span class="badge ${d.status==='approved'?'badge-success':d.status==='cancelled'?'badge-danger':'badge-warning'}">${d.status}</span></td><td style="font-size:11px;">${d.cancelReason||'-'}</td><td>${d.requestedAt?new Date(d.requestedAt).toLocaleDateString():''}</td><td>${d.status==='pending'?`<button class="btn btn-sm btn-success" onclick="apprWith('${d.id}')">✅</button><button class="btn btn-sm btn-danger" onclick="openCancel('${d.id}')">❌</button>`:'Done'}</td></tr>`; 
                 }); 
                 document.getElementById('withdrawalsTable').innerHTML = h + '</table>'; 
             }); 
@@ -807,7 +805,7 @@
                       timerEl = document.getElementById('liveAirdropTimer'), 
                       startEl = document.getElementById('liveStartTime'), 
                       endEl = document.getElementById('liveEndTime');
-                if (poolEl) poolEl.textContent = '$' + (c.poolAmount || 50).toFixed(2);
+                if (poolEl) poolEl.textContent = '$' + (c.poolAmount || 50).toFixed(3);
                 if (c.startTime && c.endTime) {
                     const now = Date.now(), endTime = c.endTime, remaining = Math.max(0, endTime - now);
                     if (remaining > 0 && c.active) {
@@ -853,7 +851,7 @@
                 s.forEach(ch => claims.push(ch.val())); 
                 claims.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); 
                 tbody.innerHTML = claims.map(c => 
-                    `<tr><td>${c.username || c.userId || 'Unknown'}</td><td>$${(c.amount || 0).toFixed(2)}</td><td>+${c.coins || 0} 🪙</td><td style="font-size:10px;">${c.timestamp ? new Date(c.timestamp).toLocaleTimeString() : ''}</td></tr>`
+                    `<tr><td>${c.username || c.userId || 'Unknown'}</td><td>$${(c.amount || 0).toFixed(3)}</td><td>+${c.coins || 0} 🪙</td><td style="font-size:10px;">${c.timestamp ? new Date(c.timestamp).toLocaleTimeString() : ''}</td></tr>`
                 ).join(''); 
             });
         }
