@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinQuest - Admin Panel (bKash, Nagad, Rocket)</title>
+    <title>CoinQuest - Admin Panel (Full Updated)</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -105,6 +105,7 @@
             <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i> Rules</div>
             <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i> Settings</div>
             <div class="nav-item" onclick="switchPage('paymentConfig',this)"><i class="fas fa-credit-card"></i> Payment Config</div>
+            <div class="nav-item" onclick="switchPage('messaging',this)"><i class="fas fa-envelope"></i> Messaging</div>
             <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i> Logout</div>
         </div>
 
@@ -280,10 +281,37 @@
                 <div class="card"><h3>🔐 Admin</h3><div class="form-row"><div class="form-group"><input type="text" id="newAdminUser" placeholder="Username"></div><div class="form-group"><input type="password" id="newAdminPass" placeholder="Password"></div></div><button class="btn btn-warning" onclick="changeAdminCreds()">🔐 Update</button></div>
             </div>
 
-            <!-- Payment Config (Only bKash, Nagad, Rocket) -->
+            <!-- Payment Config -->
             <div class="page" id="pagePaymentConfig">
                 <div class="page-header">📱 Payment Configuration</div>
                 
+                <div class="card">
+                    <h3>📱 Payment Methods (ON/OFF)</h3>
+                    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Enable/disable payment methods for users.</p>
+                    <div class="form-group">
+                        <label>bKash</label>
+                        <select id="bkashStatus">
+                            <option value="on">ON</option>
+                            <option value="off">OFF</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nagad</label>
+                        <select id="nagadStatus">
+                            <option value="on">ON</option>
+                            <option value="off">OFF</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rocket</label>
+                        <select id="rocketStatus">
+                            <option value="on">ON</option>
+                            <option value="off">OFF</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="savePaymentMethodsStatus()">💾 Save Status</button>
+                </div>
+
                 <div class="card">
                     <h3>📱 bKash / Nagad / Rocket Numbers</h3>
                     <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Users will see these numbers when they choose a payment method.</p>
@@ -303,9 +331,65 @@
                 </div>
 
                 <div class="card">
-                    <h3>📊 Payment Requests (Pending)</h3>
+                    <h3>📊 Payment Requests</h3>
                     <div class="table-container" id="paymentRequestsContainer">
                         <p style="color:#94a3b8;text-align:center;">Loading payment requests...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messaging -->
+            <div class="page" id="pageMessaging">
+                <div class="page-header">📨 Messaging</div>
+                
+                <div class="card">
+                    <h3>📩 Send Notification</h3>
+                    
+                    <div class="form-group">
+                        <label>Recipient</label>
+                        <select id="notifyRecipient">
+                            <option value="all">All Users</option>
+                            <option value="specific">Specific User</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="specificUserGroup" style="display:none;">
+                        <label>User ID</label>
+                        <input type="text" id="notifyUserId" placeholder="Enter user ID...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notification Type</label>
+                        <select id="notifyType">
+                            <option value="info">ℹ️ Info</option>
+                            <option value="success">✅ Success</option>
+                            <option value="warning">⚠️ Warning</option>
+                            <option value="error">❌ Error</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="notifyTitle" placeholder="Notification Title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="notifyMessage" rows="4" placeholder="Write your message here..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Action Link (Optional)</label>
+                        <input type="text" id="notifyLink" placeholder="https://...">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="sendNotification()"><i class="fas fa-paper-plane"></i> Send Notification</button>
+                </div>
+                
+                <div class="card">
+                    <h3>📋 Sent Notifications History</h3>
+                    <div class="table-container" id="notificationHistoryTable">
+                        <p style="color:#94a3b8;text-align:center;">Loading history...</p>
                     </div>
                 </div>
             </div>
@@ -365,7 +449,9 @@
             loadAppealCount(); 
             loadMaintenanceStatus(); 
             loadPaymentConfig(); 
-            loadPaymentRequests(); // Load pending requests
+            loadPaymentRequests();
+            loadNotificationHistory();
+            listenPaymentRequests();
         }
         function adminLogout() { 
             document.getElementById('loginPage').style.display = 'flex'; 
@@ -397,6 +483,7 @@
             if (p === 'rules') loadRules(); 
             if (p === 'settings') loadSettings(); 
             if (p === 'paymentConfig') { loadPaymentConfig(); loadPaymentRequests(); }
+            if (p === 'messaging') { loadNotificationHistory(); }
         }
 
         // ================== DASHBOARD ===============================
@@ -930,6 +1017,14 @@
 
         // ================== PAYMENT CONFIG ===========================
         function loadPaymentConfig() {
+            // Payment Methods Status
+            db.ref('paymentConfig/methodsStatus').once('value', s => {
+                const data = s.val() || { bkash: 'on', nagad: 'on', rocket: 'on' };
+                document.getElementById('bkashStatus').value = data.bkash || 'on';
+                document.getElementById('nagadStatus').value = data.nagad || 'on';
+                document.getElementById('rocketStatus').value = data.rocket || 'on';
+            });
+
             // Manual Numbers
             db.ref('paymentConfig/manualNumbers').once('value', s => {
                 const data = s.val() || {};
@@ -937,6 +1032,16 @@
                 document.getElementById('nagadNumber').value = data.nagad || '';
                 document.getElementById('rocketNumber').value = data.rocket || '';
             });
+        }
+
+        function savePaymentMethodsStatus() {
+            const data = {
+                bkash: document.getElementById('bkashStatus').value,
+                nagad: document.getElementById('nagadStatus').value,
+                rocket: document.getElementById('rocketStatus').value
+            };
+            db.ref('paymentConfig/methodsStatus').set(data);
+            toast('✅ Payment methods status saved!');
         }
 
         function saveManualPaymentNumbers() {
@@ -1002,7 +1107,6 @@
                 const data = snap.val();
                 if (!data) return;
                 
-                // Update status
                 db.ref('paymentRequests/' + requestId).update({
                     status: 'approved',
                     approvedAt: Date.now()
@@ -1021,7 +1125,6 @@
                 const data = snap.val();
                 if (!data) return;
                 
-                // Update status
                 db.ref('paymentRequests/' + requestId).update({
                     status: 'cancelled',
                     cancelReason: reason,
@@ -1031,6 +1134,122 @@
                 toast('❌ Payment rejected!');
                 loadPaymentRequests();
             });
+        }
+
+        // ================== ADMIN PAYMENT REQUEST NOTIFICATION ======
+        function listenPaymentRequests() {
+            db.ref('paymentRequests').orderByChild('requestedAt').limitToLast(1).on('child_added', snap => {
+                const data = snap.val();
+                if (data && data.status === 'pending') {
+                    toast(`📩 New payment request from ${data.username || data.userId} (${data.amount} BDT via ${data.method})`, 'info');
+                    
+                    db.ref('notifications').push({
+                        type: 'info',
+                        title: 'New Payment Request',
+                        message: `User ${data.username || data.userId} sent ${data.amount} BDT via ${data.method}. Transaction ID: ${data.transactionId}`,
+                        recipient: 'admin',
+                        recipientUserId: 'admin',
+                        createdAt: Date.now(),
+                        read: false,
+                        link: '#paymentRequests'
+                    });
+                    
+                    if (document.getElementById('pagePaymentConfig').classList.contains('active')) {
+                        loadPaymentRequests();
+                    }
+                }
+            });
+        }
+
+        // ================== MESSAGING / NOTIFICATION ================
+        function loadNotificationHistory() {
+            db.ref('notifications').orderByChild('createdAt').limitToLast(50).on('value', snap => {
+                const container = document.getElementById('notificationHistoryTable');
+                if (!snap.exists()) {
+                    container.innerHTML = '<p style="color:#94a3b8;text-align:center;">No notifications sent yet.</p>';
+                    return;
+                }
+                
+                let html = '<table><tr><th>Title</th><th>Message</th><th>Type</th><th>Recipient</th><th>Date</th></tr>';
+                const notifications = [];
+                snap.forEach(child => {
+                    const data = child.val();
+                    notifications.push({ id: child.key, ...data });
+                });
+                
+                notifications.sort((a, b) => b.createdAt - a.createdAt);
+                
+                notifications.forEach(notif => {
+                    const time = notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'N/A';
+                    const recipient = notif.recipient === 'all' ? 'All Users' : notif.recipientUserId || 'Specific';
+                    const typeClass = notif.type === 'success' ? 'badge-success' :
+                                     notif.type === 'warning' ? 'badge-warning' :
+                                     notif.type === 'error' ? 'badge-danger' : 'badge-info';
+                    
+                    html += `<tr>
+                        <td>${notif.title || 'N/A'}</td>
+                        <td style="font-size:11px;">${notif.message || ''}</td>
+                        <td><span class="badge ${typeClass}">${notif.type}</span></td>
+                        <td>${recipient}</td>
+                        <td style="font-size:10px;">${time}</td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                container.innerHTML = html;
+            });
+        }
+
+        function sendNotification() {
+            const recipient = document.getElementById('notifyRecipient').value;
+            const userId = document.getElementById('notifyUserId').value.trim();
+            const type = document.getElementById('notifyType').value;
+            const title = document.getElementById('notifyTitle').value.trim();
+            const message = document.getElementById('notifyMessage').value.trim();
+            const link = document.getElementById('notifyLink').value.trim();
+            
+            if (!message) {
+                toast('⚠️ Please write a message!', 'error');
+                return;
+            }
+            
+            if (recipient === 'specific' && !userId) {
+                toast('⚠️ Please enter a user ID!', 'error');
+                return;
+            }
+            
+            const notificationData = {
+                type: type,
+                title: title || 'New Notification',
+                message: message,
+                link: link || '',
+                recipient: recipient,
+                recipientUserId: userId || '',
+                createdAt: Date.now(),
+                read: false
+            };
+            
+            if (recipient === 'all') {
+                db.ref('notifications').push(notificationData).then(() => {
+                    toast('✅ Notification sent to all users!');
+                    document.getElementById('notifyTitle').value = '';
+                    document.getElementById('notifyMessage').value = '';
+                    document.getElementById('notifyLink').value = '';
+                    loadNotificationHistory();
+                });
+            } else {
+                db.ref('notifications').push({
+                    ...notificationData,
+                    recipientUserId: userId
+                }).then(() => {
+                    toast(`✅ Notification sent to user ${userId}!`);
+                    document.getElementById('notifyTitle').value = '';
+                    document.getElementById('notifyMessage').value = '';
+                    document.getElementById('notifyLink').value = '';
+                    document.getElementById('notifyUserId').value = '';
+                    loadNotificationHistory();
+                });
+            }
         }
 
         // ================== INIT ====================================
@@ -1069,7 +1288,22 @@
             db.ref('paymentConfig').once('value', s => {
                 if (!s.exists()) {
                     db.ref('paymentConfig').set({
+                        methodsStatus: { bkash: 'on', nagad: 'on', rocket: 'on' },
                         manualNumbers: { bkash: '', nagad: '', rocket: '' }
+                    });
+                }
+            });
+            // Init Notifications
+            db.ref('notifications').once('value', s => {
+                if (!s.exists()) {
+                    db.ref('notifications').push({
+                        type: 'info',
+                        title: 'Welcome to CoinQuest Admin',
+                        message: 'You can send notifications to users from the Messaging page.',
+                        recipient: 'admin',
+                        recipientUserId: 'admin',
+                        createdAt: Date.now(),
+                        read: false
                     });
                 }
             });
