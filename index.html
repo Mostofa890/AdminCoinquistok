@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinQuest - Admin Panel (Full Payment)</title>
+    <title>CoinQuest - Admin Panel (Real Payment)</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -285,14 +285,18 @@
                 <div class="page-header">💳 Payment Configuration</div>
                 
                 <div class="card">
-                    <h3>💳 Stripe Checkout (Visa)</h3>
+                    <h3>💳 Stripe Checkout (Visa, Mastercard, Amex)</h3>
                     <div class="form-group">
                         <label>Stripe Publishable Key</label>
                         <input type="text" id="stripePublishableKey" placeholder="pk_test_...">
                     </div>
                     <div class="form-group">
-                        <label>Stripe Secret Key (Optional for server-side)</label>
+                        <label>Stripe Secret Key</label>
                         <input type="text" id="stripeSecretKey" placeholder="sk_test_...">
+                    </div>
+                    <div class="form-group">
+                        <label>Stripe Webhook Secret (for IPN)</label>
+                        <input type="text" id="stripeWebhookSecret" placeholder="whsec_...">
                     </div>
                     <button class="btn btn-primary" onclick="saveStripeConfig()">💾 Save Stripe</button>
                 </div>
@@ -311,7 +315,31 @@
                 </div>
 
                 <div class="card">
-                    <h3>📱 bKash / Nagad / Rocket (Manual)</h3>
+                    <h3>📱 SSLCOMMERZ (bKash, Nagad, Rocket, Visa, Mastercard)</h3>
+                    <div class="form-group">
+                        <label>Store ID</label>
+                        <input type="text" id="sslStoreId" placeholder="your_store_id">
+                    </div>
+                    <div class="form-group">
+                        <label>Store Password</label>
+                        <input type="text" id="sslStorePassword" placeholder="your_store_password">
+                    </div>
+                    <div class="form-group">
+                        <label>SSLCOMMERZ API URL (Sandbox/Live)</label>
+                        <select id="sslApiUrl">
+                            <option value="https://sandbox.sslcommerz.com/gwprocess/v4/api.php">Sandbox (Test)</option>
+                            <option value="https://securepay.sslcommerz.com/gwprocess/v4/api.php">Live (Production)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>IPN URL (Where SSLCOMMERZ will send payment status)</label>
+                        <input type="text" id="sslIpnUrl" placeholder="https://yourdomain.com/api/sslcommerz-ipn">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSSLCommerzConfig()">💾 Save SSLCOMMERZ</button>
+                </div>
+
+                <div class="card">
+                    <h3>📱 bKash / Nagad / Rocket (Manual Fallback)</h3>
                     <div class="form-group">
                         <label>bKash Number</label>
                         <input type="text" id="bkashNumber" placeholder="017XXXXXXXX">
@@ -331,7 +359,7 @@
                     <h3>📊 Payment Method Selector (User Panel)</h3>
                     <div class="form-group">
                         <label>Available Methods (comma separated)</label>
-                        <input type="text" id="paymentMethodsList" value="Visa,Telegram Stars,bKash,Nagad,Rocket">
+                        <input type="text" id="paymentMethodsList" value="Visa,Mastercard,Amex,Telegram Stars,bKash,Nagad,Rocket">
                     </div>
                     <button class="btn btn-primary" onclick="savePaymentMethods()">💾 Save Methods</button>
                 </div>
@@ -954,13 +982,14 @@
         function saveConv() { db.ref('conversionRate').set(+document.getElementById('conversionRate').value || 1000); toast('✅ Saved!'); }
         function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 10, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
 
-        // ================== NEW PAYMENT CONFIG ========================
+        // ================== PAYMENT CONFIG ===========================
         function loadPaymentConfig() {
             // Stripe
             db.ref('paymentConfig/stripe').once('value', s => {
                 const data = s.val() || {};
                 document.getElementById('stripePublishableKey').value = data.publishableKey || '';
                 document.getElementById('stripeSecretKey').value = data.secretKey || '';
+                document.getElementById('stripeWebhookSecret').value = data.webhookSecret || '';
             });
 
             // Telegram
@@ -968,6 +997,15 @@
                 const data = s.val() || {};
                 document.getElementById('telegramBotToken').value = data.botToken || '';
                 document.getElementById('telegramInvoiceLink').value = data.invoiceLink || '';
+            });
+
+            // SSLCOMMERZ
+            db.ref('paymentConfig/sslcommerz').once('value', s => {
+                const data = s.val() || {};
+                document.getElementById('sslStoreId').value = data.storeId || '';
+                document.getElementById('sslStorePassword').value = data.storePassword || '';
+                document.getElementById('sslApiUrl').value = data.apiUrl || 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php';
+                document.getElementById('sslIpnUrl').value = data.ipnUrl || '';
             });
 
             // Manual Numbers
@@ -980,7 +1018,7 @@
 
             // Payment Methods List
             db.ref('paymentConfig/methods').once('value', s => {
-                const data = s.val() || ['Visa','Telegram Stars','bKash','Nagad','Rocket'];
+                const data = s.val() || ['Visa','Mastercard','Amex','Telegram Stars','bKash','Nagad','Rocket'];
                 document.getElementById('paymentMethodsList').value = data.join(',');
             });
         }
@@ -988,7 +1026,8 @@
         function saveStripeConfig() {
             const pub = document.getElementById('stripePublishableKey').value.trim();
             const sec = document.getElementById('stripeSecretKey').value.trim();
-            db.ref('paymentConfig/stripe').set({ publishableKey: pub, secretKey: sec });
+            const webhook = document.getElementById('stripeWebhookSecret').value.trim();
+            db.ref('paymentConfig/stripe').set({ publishableKey: pub, secretKey: sec, webhookSecret: webhook });
             toast('✅ Stripe config saved!');
         }
 
@@ -997,6 +1036,15 @@
             const link = document.getElementById('telegramInvoiceLink').value.trim();
             db.ref('paymentConfig/telegram').set({ botToken: token, invoiceLink: link });
             toast('✅ Telegram config saved!');
+        }
+
+        function saveSSLCommerzConfig() {
+            const storeId = document.getElementById('sslStoreId').value.trim();
+            const storePassword = document.getElementById('sslStorePassword').value.trim();
+            const apiUrl = document.getElementById('sslApiUrl').value;
+            const ipnUrl = document.getElementById('sslIpnUrl').value.trim();
+            db.ref('paymentConfig/sslcommerz').set({ storeId, storePassword, apiUrl, ipnUrl });
+            toast('✅ SSLCOMMERZ config saved!');
         }
 
         function saveManualPaymentNumbers() {
@@ -1049,10 +1097,11 @@
             db.ref('paymentConfig').once('value', s => {
                 if (!s.exists()) {
                     db.ref('paymentConfig').set({
-                        stripe: { publishableKey: '', secretKey: '' },
+                        stripe: { publishableKey: '', secretKey: '', webhookSecret: '' },
                         telegram: { botToken: '', invoiceLink: '' },
+                        sslcommerz: { storeId: '', storePassword: '', apiUrl: 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php', ipnUrl: '' },
                         manualNumbers: { bkash: '', nagad: '', rocket: '' },
-                        methods: ['Visa','Telegram Stars','bKash','Nagad','Rocket']
+                        methods: ['Visa','Mastercard','Amex','Telegram Stars','bKash','Nagad','Rocket']
                     });
                 }
             });
