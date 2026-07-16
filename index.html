@@ -221,6 +221,12 @@
                     <div class="form-group"><label>Cooldown (Minutes)</label><input type="number" id="mysteryBoxDuration" value="30"></div>
                     <button class="btn btn-primary" onclick="saveMysteryBox()">💾 Save</button>
                 </div>
+                
+                <div class="card">
+                    <h3>🎮 Individual Game Settings</h3>
+                    <div id="gameConfigGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+                    <button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All Games</button>
+                </div>
             </div>
 
             <!-- Spin Config -->
@@ -288,8 +294,8 @@
             <!-- Settings -->
             <div class="page" id="pageSettings">
                 <div class="page-header">⚙️ Settings</div>
-                <div class="card"><h3>💰 Conversion</h3><div class="form-group"><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
-                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min ($)</label><input type="number" id="minWithdraw" value="10" step="0.001"></div><div class="form-group"><label>Methods</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
+                <div class="card"><h3>💰 Conversion</h3><div class="form-group"><label>1 USD = ? Coins</label><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
+                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min Withdraw ($)</label><input type="number" id="minWithdraw" value="1" step="0.001"></div><div class="form-group"><label>Methods (comma separated)</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
                 <div class="card"><h3>🔐 Admin</h3><div class="form-row"><div class="form-group"><input type="text" id="newAdminUser" placeholder="Username"></div><div class="form-group"><input type="password" id="newAdminPass" placeholder="Password"></div></div><button class="btn btn-warning" onclick="changeAdminCreds()">🔐 Update</button></div>
             </div>
 
@@ -597,10 +603,41 @@
             db.ref('config/dailyBonus').once('value', s => { const d = s.val() || { min: 50, max: 100 }; document.getElementById('dailyBonusMin').value = d.min || 50; document.getElementById('dailyBonusMax').value = d.max || 100; });
             db.ref('config/speedBoost').once('value', s => { const d = s.val() || { min: 50, max: 60, cooldown: 3600000 }; document.getElementById('speedBoostMin').value = d.min || 50; document.getElementById('speedBoostMax').value = d.max || 60; document.getElementById('speedBoostCooldown').value = Math.floor((d.cooldown || 3600000) / 3600000); });
             db.ref('config/mysteryBox').once('value', s => { const d = s.val() || { min: 20, max: 100, duration: 1800000 }; document.getElementById('mysteryBoxMin').value = d.min || 20; document.getElementById('mysteryBoxMax').value = d.max || 100; document.getElementById('mysteryBoxDuration').value = Math.floor((d.duration || 1800000) / 60000); });
+            
+            // Load individual game configs
+            db.ref('gameConfigs').once('value', snap => {
+                const configs = snap.val() || {};
+                const games = ['xo', 'dice', 'target', 'card', 'memory', 'flappy', 'puzzle'];
+                let html = '';
+                games.forEach(game => {
+                    const c = configs[game] || { minEntry: 100, maxEntry: 500, bonus: 10 };
+                    html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);">
+                        <h4 style="color:#fbbf24;margin-bottom:8px;">🎮 ${game.charAt(0).toUpperCase()+game.slice(1)}</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Min Entry</label><input type="number" id="gm_${game}_min" value="${c.minEntry||100}"></div>
+                            <div class="form-group"><label>Max Entry</label><input type="number" id="gm_${game}_max" value="${c.maxEntry||500}"></div>
+                            <div class="form-group"><label>Win %</label><input type="number" id="gm_${game}_bonus" value="${c.bonus||10}"></div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('gameConfigGrid').innerHTML = html;
+            });
         }
         function saveDailyBonus() { db.ref('config/dailyBonus').set({ min: +document.getElementById('dailyBonusMin').value || 50, max: +document.getElementById('dailyBonusMax').value || 100 }); toast('✅ Saved!'); }
         function saveSpeedBoost() { db.ref('config/speedBoost').set({ min: +document.getElementById('speedBoostMin').value || 50, max: +document.getElementById('speedBoostMax').value || 60, cooldown: (+document.getElementById('speedBoostCooldown').value || 1) * 3600000 }); toast('✅ Saved!'); }
         function saveMysteryBox() { db.ref('config/mysteryBox').set({ min: +document.getElementById('mysteryBoxMin').value || 20, max: +document.getElementById('mysteryBoxMax').value || 100, duration: (+document.getElementById('mysteryBoxDuration').value || 30) * 60000 }); toast('✅ Saved!'); }
+        function saveAllGameConfigs() {
+            const games = ['xo', 'dice', 'target', 'card', 'memory', 'flappy', 'puzzle'];
+            const configs = {};
+            games.forEach(game => {
+                configs[game] = {
+                    minEntry: +document.getElementById(`gm_${game}_min`).value || 100,
+                    maxEntry: +document.getElementById(`gm_${game}_max`).value || 500,
+                    bonus: +document.getElementById(`gm_${game}_bonus`).value || 10
+                };
+            });
+            db.ref('gameConfigs').set(configs, () => { toast('✅ All game configs saved!'); });
+        }
 
         // ================== SPIN CONFIG ==============================
         function loadSpinConfigPage() {
@@ -662,10 +699,10 @@
         // ================== SETTINGS ================================
         function loadSettings() { 
             db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); 
-            db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 10; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); 
+            db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 1; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); 
         }
         function saveConv() { db.ref('conversionRate').set(+document.getElementById('conversionRate').value || 1000); toast('✅ Saved!'); }
-        function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 10, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
+        function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 1, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
         function changeAdminCreds() { const u = document.getElementById('newAdminUser').value.trim(), p = document.getElementById('newAdminPass').value.trim(); if (!u || !p) { toast('Fill all!', 'error'); return; } db.ref('admin/credentials').set({ username: u, password: p }); toast('✅ Updated!'); }
 
         // ================== PAYMENT CONFIG ===========================
@@ -730,7 +767,7 @@
         function init() { 
             db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); 
             db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); 
-            db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 10, methods: ['Nagad','Rocket','bKash'] }); }); 
+            db.ref('withdrawSettings').once('value', s => { if (!s.exists()) db.ref('withdrawSettings').set({ minAmount: 1, methods: ['Nagad','Rocket','bKash'] }); }); 
             db.ref('referralConfig').once('value', s => { if (!s.exists()) db.ref('referralConfig').set({ perReferralCoins: 50, xpPerReferral: 100, tier1:{count:10,bonus:50}, tier2:{count:25,bonus:150}, tier3:{count:50,bonus:300}, tier4:{count:100,bonus:500}, tier5:{count:200,bonus:1000} }); }); 
             db.ref('config/dailyBonus').once('value', s => { if (!s.exists()) db.ref('config/dailyBonus').set({ min: 50, max: 100 }); }); 
             db.ref('config/speedBoost').once('value', s => { if (!s.exists()) db.ref('config/speedBoost').set({ min: 50, max: 60, cooldown: 3600000 }); }); 
@@ -738,6 +775,7 @@
             db.ref('spinConfig').once('value', s => { if (!s.exists()) db.ref('spinConfig').set({ usdPrizes: [0.08, 0.05, 0.02, 0.01, 0], coinPrizes: [500, 200, 150, 100, 90, 70, 50, 20, 10, 0], spinCountLimit: 20, cooldown: 15 }); }); 
             db.ref('maintenance').once('value', s => { if (!s.exists()) db.ref('maintenance').set({ enabled: false, message: 'We are currently updating the app. Please come back later.' }); }); 
             db.ref('paymentConfig').once('value', s => { if (!s.exists()) db.ref('paymentConfig').set({ methodsStatus: { bkash: 'on', nagad: 'on', rocket: 'on' }, manualNumbers: { bkash: '', nagad: '', rocket: '' } }); }); 
+            db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, flappy:{minEntry:100,maxEntry:500,bonus:20}, puzzle:{minEntry:100,maxEntry:500,bonus:18} }); }); 
         }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') adminLogin(); if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
