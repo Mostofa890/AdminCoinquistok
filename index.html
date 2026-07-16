@@ -550,11 +550,11 @@
                 document.getElementById('withdrawalsTable').innerHTML = h + '</table>'; 
             }); 
         }
-        function apprWith(id) { db.ref('withdrawRequests/' + id).update({ status: 'approved' }); loadWithdrawals(); toast('✅ Approved!'); }
+        function apprWith(id) { db.ref('withdrawRequests/' + id).update({ status: 'approved', approvedAt: Date.now() }); loadWithdrawals(); toast('✅ Approved!'); }
         function openCancel(id) { document.getElementById('cancelId').value = id; document.getElementById('cancelReason').value = ''; document.getElementById('cancelModal').classList.add('show'); }
         function confirmCancel() { 
-            const id = document.getElementById('cancelId').value, reason = document.getElementById('cancelReason').value.trim() || 'Cancelled'; 
-            db.ref('withdrawRequests/' + id).once('value', s => { const d = s.val(); if (d && d.userId) { db.ref('users/' + d.userId).transaction(u => ({ ...(u||{}), usdBalance: (u?.usdBalance||0) + (d.amount||0) })); db.ref('withdrawRequests/' + id).update({ status: 'cancelled', cancelReason: reason }); } }); 
+            const id = document.getElementById('cancelId').value, reason = document.getElementById('cancelReason').value.trim() || 'Cancelled by Admin'; 
+            db.ref('withdrawRequests/' + id).once('value', s => { const d = s.val(); if (d && d.userId) { db.ref('users/' + d.userId).transaction(u => ({ ...(u||{}), usdBalance: (u?.usdBalance||0) + (d.amount||0) })); db.ref('withdrawRequests/' + id).update({ status: 'cancelled', cancelReason: reason, cancelledAt: Date.now() }); } }); 
             closeModal('cancelModal'); loadWithdrawals(); toast('❌ Cancelled & Refunded!'); 
         }
 
