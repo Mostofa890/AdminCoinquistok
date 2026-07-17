@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinQuest - Admin Panel (Full Updated)</title>
+    <title>CoinQuest - Admin Panel V2</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,12 +16,12 @@
         .sidebar .nav-item:hover, .sidebar .nav-item.active { background: rgba(251,191,36,0.1); color: #fbbf24; }
         .main-content { margin-left: 280px; flex: 1; padding: 24px; }
         .page { display: none; } .page.active { display: block; }
-        .page-header { font-size: 26px; font-weight: 800; margin-bottom: 24px; color: #fbbf24; display: flex; align-items: center; gap: 12px; }
+        .page-header { font-size: 26px; font-weight: 800; margin-bottom: 24px; color: #fbbf24; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .live-indicator { width: 12px; height: 12px; background: #10b981; border-radius: 50%; animation: livePulse 1.5s infinite; display: inline-block; }
         @keyframes livePulse { 0%,100%{opacity:1;box-shadow:0 0 10px #10b981}50%{opacity:0.3} }
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
-        .stat-card .value { font-size: 28px; font-weight: 900; color: #fbbf24; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .stat-card .value { font-size: 24px; font-weight: 900; color: #fbbf24; }
         .stat-card .label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
         .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
         .card h3 { margin-bottom: 16px; color: #fff; font-size: 18px; display: flex; align-items: center; gap: 8px; }
@@ -33,7 +33,7 @@
         .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 13px; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background: #fbbf24; color: #000; } .btn-danger { background: #ef4444; color: #fff; }
         .btn-success { background: #10b981; color: #fff; } .btn-info { background: #3b82f6; color: #fff; }
-        .btn-warning { background: #f59e0b; color: #000; }
+        .btn-warning { background: #f59e0b; color: #000; } .btn-purple { background: #8b5cf6; color: #fff; }
         .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 6px; }
         .btn:hover { transform: translateY(-2px); opacity: 0.9; }
         .table-container { overflow-x: auto; max-height: 600px; overflow-y: auto; border-radius: 8px; }
@@ -41,30 +41,30 @@
         th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #334155; }
         th { color: #94a3b8; font-weight: 600; position: sticky; top: 0; background: #1e293b; z-index: 10; }
         tr:hover { background: rgba(255,255,255,0.03); }
-        tr.banned-row { background: rgba(239,68,68,0.08); }
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; display: inline-block; }
         .badge-success { background: rgba(16,185,129,0.2); color: #10b981; }
         .badge-warning { background: rgba(251,191,36,0.2); color: #fbbf24; }
         .badge-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
         .badge-info { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .badge-purple { background: rgba(139,92,246,0.2); color: #8b5cf6; }
         .badge-mining { background: rgba(16,185,129,0.2); color: #10b981; animation: miningBadge 2s infinite; }
         .badge-new { background: rgba(239,68,68,0.3); color: #fff; animation: pulse 1.5s infinite; }
         @keyframes miningBadge { 0%,100%{opacity:1}50%{opacity:0.5} }
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.6} }
-        .search-box { display: flex; gap: 10px; margin-bottom: 16px; }
-        .search-box input { flex: 1; padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-box input { flex: 1; min-width: 150px; padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; }
         .modal-overlay.show { display: flex; }
         .modal-box { background: #1e293b; padding: 24px; border-radius: 16px; width: 90%; max-width: 500px; border: 1px solid #334155; max-height: 80vh; overflow-y: auto; }
         .modal-box h3 { color: #fbbf24; margin-bottom: 16px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 16px; }
-        .toast { position: fixed; top: 20px; right: 20px; padding: 14px 24px; border-radius: 12px; color: #fff; font-weight: 600; z-index: 99999; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 14px 24px; border-radius: 12px; color: #fff; font-weight: 600; z-index: 99999; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); max-width: 90%; }
         .toast.show { display: block; animation: slideIn 0.3s ease; }
-        .toast.success { background: #10b981; } .toast.error { background: #ef4444; }
+        .toast.success { background: #10b981; } .toast.error { background: #ef4444; } .toast.info { background: #3b82f6; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .login-container { max-width: 420px; margin: 100px auto; padding: 40px; background: rgba(255,255,255,0.05); border-radius: 20px; text-align: center; }
         .login-container h2 { color: #fbbf24; margin-bottom: 24px; font-size: 28px; }
-        .mining-user-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .mining-user-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px; }
         .mining-user-card.active-mining { border-color: #10b981; background: rgba(16,185,129,0.05); }
         .rules-text { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; margin-top: 12px; border: 1px solid rgba(255,255,255,0.05); }
         .rules-text .rule-title { font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
@@ -75,16 +75,36 @@
         .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
         .status-dot.on { background: #10b981; }
         .status-dot.off { background: #ef4444; }
-        .maintenance-banner { background: #ef4444; color: #fff; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; border: 2px solid rgba(239,68,68,0.4); }
-        .spin-prize-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
-        .spin-prize-item input { flex: 1; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 13px; }
+        .maintenance-banner { background: #ef4444; color: #fff; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; border: 2px solid rgba(239,68,68,0.4); flex-wrap: wrap; gap: 10px; }
+        .spin-prize-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; flex-wrap: wrap; }
+        .spin-prize-item input { flex: 1; min-width: 60px; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 13px; }
         .spin-prize-item .remove-btn { background: #ef4444; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
         .appeal-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.08); }
         .appeal-card h4 { color: #fbbf24; margin-bottom: 8px; }
         .appeal-card p { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+        .online-players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+        .online-player-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(16,185,129,0.2); }
+        .online-player-card .name { font-size: 13px; font-weight: 600; color: #fff; }
+        .online-player-card .status { font-size: 10px; color: #10b981; }
+        .sidebar-section-title { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 15px 16px 8px; }
+        .tab-buttons { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #334155; background: transparent; color: #94a3b8; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .tab-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
+        .tab-btn:hover { border-color: #fbbf24; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; padding: 12px; }
+            .sidebar h2 { font-size: 14px; }
+            .sidebar .nav-item span { display: none; }
+            .sidebar .nav-item { justify-content: center; padding: 10px; }
+            .main-content { margin-left: 60px; padding: 12px; }
+            .form-row { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
+    <!-- LOGIN -->
     <div id="loginPage" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
         <div class="login-container">
             <h2>🔐 CoinQuest Admin</h2>
@@ -92,122 +112,167 @@
             <div class="form-group"><input type="password" id="adminPass" placeholder="Password"></div>
             <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;padding:12px;">🚀 Login</button>
             <p id="loginError" style="color:#ef4444;margin-top:12px;display:none;"></p>
-            <p style="color:#94a3b8;font-size:11px;margin-top:15px;">Default: admin / coinquest2024</p>
         </div>
     </div>
 
+    <!-- ADMIN PANEL -->
     <div id="adminPanel" style="display:none;">
         <div class="sidebar">
             <h2>🪙 CoinQuest</h2>
-            <div class="nav-item active" onclick="switchPage('dashboard',this)"><i class="fas fa-chart-pie"></i> Dashboard</div>
-            <div class="nav-item" onclick="switchPage('maintenance',this)"><i class="fas fa-tools"></i> Maintenance <span id="maintenanceBadge" class="badge badge-danger" style="display:none;">ON</span></div>
-            <div class="nav-item" onclick="switchPage('users',this)"><i class="fas fa-users"></i> Users</div>
-            <div class="nav-item" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i> Mining Monitor</div>
-            <div class="nav-item" onclick="switchPage('withdrawals',this)"><i class="fas fa-money-bill-wave"></i> Withdrawals</div>
-            <div class="nav-item" onclick="switchPage('banAppeals',this)"><i class="fas fa-gavel"></i> Ban Appeals <span id="appealBadge" class="badge badge-new" style="display:none;">0</span></div>
-            <div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-link"></i> Referral System</div>
-            <div class="nav-item" onclick="switchPage('tasks',this)"><i class="fas fa-tasks"></i> Tasks</div>
-            <div class="nav-item" onclick="switchPage('gameConfig',this)"><i class="fas fa-gamepad"></i> Game Config</div>
-            <div class="nav-item" onclick="switchPage('spinConfig',this)"><i class="fas fa-dharmachakra"></i> Spin Config</div>
-            <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i> Rules</div>
-            <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i> Settings</div>
-            <div class="nav-item" onclick="switchPage('paymentConfig',this)"><i class="fas fa-credit-card"></i> Payment Config</div>
-            <div class="nav-item" onclick="switchPage('messaging',this)"><i class="fas fa-envelope"></i> Messaging</div>
-            <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            <div class="nav-item active" onclick="switchPage('dashboard',this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
+            <div class="nav-item" onclick="switchPage('maintenance',this)"><i class="fas fa-tools"></i><span>Maintenance</span> <span id="maintenanceBadge" class="badge badge-danger" style="display:none;">ON</span></div>
+            <div class="nav-item" onclick="switchPage('users',this)"><i class="fas fa-users"></i><span>Users</span></div>
+            <div class="nav-item" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i><span>Mining Live</span></div>
+            <div class="nav-item" onclick="switchPage('withdrawals',this)"><i class="fas fa-money-bill-wave"></i><span>Withdrawals</span></div>
+            <div class="nav-item" onclick="switchPage('banAppeals',this)"><i class="fas fa-gavel"></i><span>Ban Appeals</span> <span id="appealBadge" class="badge badge-new" style="display:none;">0</span></div>
+            <div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-link"></i><span>Referral</span></div>
+            <div class="nav-item" onclick="switchPage('tasks',this)"><i class="fas fa-tasks"></i><span>Tasks</span></div>
+            <div class="nav-item" onclick="switchPage('gameConfig',this)"><i class="fas fa-gamepad"></i><span>Game Config</span></div>
+            <div class="nav-item" onclick="switchPage('spinConfig',this)"><i class="fas fa-dharmachakra"></i><span>Spin Config</span></div>
+            <div class="nav-item" onclick="switchPage('rules',this)"><i class="fas fa-gavel"></i><span>Rules</span></div>
+            <div class="nav-item" onclick="switchPage('settings',this)"><i class="fas fa-cog"></i><span>Settings</span></div>
+            <div class="nav-item" onclick="switchPage('paymentConfig',this)"><i class="fas fa-credit-card"></i><span>Payment</span></div>
+            <div class="nav-item" onclick="switchPage('messaging',this)"><i class="fas fa-envelope"></i><span>Messaging</span></div>
+            <div class="nav-item" onclick="switchPage('airdrop',this)"><i class="fas fa-gift"></i><span>Airdrop</span></div>
+            <div class="nav-item" onclick="switchPage('aviatrix',this)"><i class="fas fa-plane"></i><span>Aviatrix</span></div>
+            <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
         </div>
 
         <div class="main-content">
-            <!-- Dashboard -->
+            <!-- DASHBOARD -->
             <div class="page active" id="pageDashboard">
                 <div class="page-header"><span class="live-indicator"></span> Live Dashboard</div>
-                <div class="stat-grid">
-                    <div class="stat-card"><div class="label">👥 Total Users</div><div class="value" id="dashUsers">-</div></div>
-                    <div class="stat-card"><div class="label">⛏️ Active Mining</div><div class="value" id="dashMining" style="color:#10b981;">-</div></div>
-                    <div class="stat-card"><div class="label">💰 Total Coins</div><div class="value" id="dashCoins">-</div></div>
-                    <div class="stat-card"><div class="label">💵 Total USD</div><div class="value" id="dashUSD" style="color:#10b981;">-</div></div>
-                    <div class="stat-card"><div class="label">🚫 Banned</div><div class="value" id="dashBanned" style="color:#ef4444;">-</div></div>
+                <div class="stat-grid" id="dashStats"></div>
+                <div class="card">
+                    <h3>👥 Recent Users</h3>
+                    <div class="table-container" id="recentUsersTable"></div>
                 </div>
             </div>
 
-            <!-- Maintenance -->
+            <!-- MAINTENANCE -->
             <div class="page" id="pageMaintenance">
-                <div class="page-header">🛠️ Maintenance Mode</div>
+                <div class="page-header">🛠️ Maintenance</div>
                 <div class="maintenance-banner" id="maintenanceBanner">
                     <span><i class="fas fa-exclamation-triangle"></i> Maintenance is OFF</span>
                     <button class="btn btn-danger btn-sm" id="toggleMaintenanceBtn" onclick="toggleMaintenance()">🔴 Turn ON</button>
                 </div>
                 <div class="card">
                     <h3>⚙️ Maintenance Settings</h3>
-                    <div class="form-group">
-                        <label>Maintenance Message (Users will see this)</label>
-                        <textarea id="maintenanceMessage" rows="3" placeholder="We are currently updating the app. Please come back later."></textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveMaintenanceMessage()">💾 Save Message</button>
+                    <div class="form-group"><label>Message (Users will see)</label><textarea id="maintenanceMessage" rows="3"></textarea></div>
+                    <button class="btn btn-primary" onclick="saveMaintenanceMessage()">💾 Save</button>
                 </div>
             </div>
 
-            <!-- Users -->
+            <!-- USERS -->
             <div class="page" id="pageUsers">
-                <div class="page-header">👥 User Management</div>
-                <div class="search-box"><input type="text" id="userSearch" placeholder="🔍 Search..." onkeyup="searchUsers()"><button class="btn btn-primary" onclick="loadUsers()">🔄</button></div>
+                <div class="page-header">👥 Users</div>
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="🔍 Search..." onkeyup="searchUsers()">
+                    <button class="btn btn-primary" onclick="loadUsers()">🔄 Refresh</button>
+                    <button class="btn btn-info" onclick="exportUsersCSV()">📥 CSV</button>
+                </div>
                 <div class="card"><h3>All Users</h3><div class="table-container" id="usersTable"></div></div>
             </div>
 
-            <!-- Mining Monitor -->
-            <div class="page" id="pageMining"><div class="page-header"><span class="live-indicator"></span> Live Mining</div><div class="card"><div id="miningMonitorGrid"></div></div></div>
+            <!-- MINING LIVE -->
+            <div class="page" id="pageMining">
+                <div class="page-header"><span class="live-indicator"></span> Live Mining</div>
+                <div class="stat-grid" id="miningStats"></div>
+                <div class="card"><h3>⛏️ Active Miners</h3><div id="miningMonitorGrid"></div></div>
+            </div>
 
-            <!-- Withdrawals -->
-            <div class="page" id="pageWithdrawals"><div class="page-header">💳 Withdrawals</div><div class="card"><div class="table-container" id="withdrawalsTable"></div></div></div>
+            <!-- WITHDRAWALS -->
+            <div class="page" id="pageWithdrawals">
+                <div class="page-header">💳 Withdrawals</div>
+                <div class="stat-grid" id="withdrawStats"></div>
+                <div class="card"><div class="table-container" id="withdrawalsTable"></div></div>
+            </div>
 
-            <!-- Ban Appeals -->
-            <div class="page" id="pageBanAppeals"><div class="page-header">⚖️ Ban Appeals</div><div class="card"><h3>📩 Pending Appeals</h3><div id="banAppealsContainer"></div></div><div class="card"><h3>🚫 Banned Users</h3><div class="table-container" id="bannedUsersTable"></div></div></div>
+            <!-- BAN APPEALS -->
+            <div class="page" id="pageBanAppeals">
+                <div class="page-header">⚖️ Ban Appeals</div>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchBanTab('pending',this)">📩 Pending</button>
+                    <button class="tab-btn" onclick="switchBanTab('resolved',this)">✅ Resolved</button>
+                </div>
+                <div id="banAppealsContainer"></div>
+            </div>
 
-            <!-- Referral System -->
+            <!-- REFERRAL -->
             <div class="page" id="pageReferral">
-                <div class="page-header">👥 Referral System</div>
-                <div class="card"><h3>🔗 Referral Configuration</h3>
-                    <div class="form-row"><div class="form-group"><label>Coins per Referral</label><input type="number" id="refPerReferral" value="50"></div><div class="form-group"><label>XP per Referral</label><input type="number" id="refXpPerReferral" value="100"></div></div>
-                    <h4 style="color:#fbbf24;margin:15px 0 10px 0;">🎁 Tier Bonuses</h4>
-                    <div class="form-row"><div class="form-group"><label>T1 Count</label><input type="number" id="refT1Count" value="10"></div><div class="form-group"><label>T1 Bonus</label><input type="number" id="refT1Bonus" value="50"></div></div>
-                    <div class="form-row"><div class="form-group"><label>T2 Count</label><input type="number" id="refT2Count" value="25"></div><div class="form-group"><label>T2 Bonus</label><input type="number" id="refT2Bonus" value="150"></div></div>
-                    <div class="form-row"><div class="form-group"><label>T3 Count</label><input type="number" id="refT3Count" value="50"></div><div class="form-group"><label>T3 Bonus</label><input type="number" id="refT3Bonus" value="300"></div></div>
-                    <div class="form-row"><div class="form-group"><label>T4 Count</label><input type="number" id="refT4Count" value="100"></div><div class="form-group"><label>T4 Bonus</label><input type="number" id="refT4Bonus" value="500"></div></div>
-                    <div class="form-row"><div class="form-group"><label>T5 Count</label><input type="number" id="refT5Count" value="200"></div><div class="form-group"><label>T5 Bonus</label><input type="number" id="refT5Bonus" value="1000"></div></div>
-                    <button class="btn btn-primary" onclick="saveReferralConfig()">💾 Save Config</button>
+                <div class="page-header">👥 Referral</div>
+                <div class="card">
+                    <h3>🔗 Referral Config</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Coins per Referral</label><input type="number" id="refPerReferral" value="50"></div>
+                        <div class="form-group"><label>XP per Referral</label><input type="number" id="refXpPerReferral" value="100"></div>
+                    </div>
+                    <h4 style="color:#fbbf24;margin:15px 0 10px;">🎁 Tier Bonuses</h4>
+                    <div class="form-row">
+                        <div class="form-group"><label>T1 Count</label><input type="number" id="refT1Count" value="10"></div>
+                        <div class="form-group"><label>T1 Bonus</label><input type="number" id="refT1Bonus" value="50"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>T2 Count</label><input type="number" id="refT2Count" value="25"></div>
+                        <div class="form-group"><label>T2 Bonus</label><input type="number" id="refT2Bonus" value="150"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>T3 Count</label><input type="number" id="refT3Count" value="50"></div>
+                        <div class="form-group"><label>T3 Bonus</label><input type="number" id="refT3Bonus" value="300"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>T4 Count</label><input type="number" id="refT4Count" value="100"></div>
+                        <div class="form-group"><label>T4 Bonus</label><input type="number" id="refT4Bonus" value="500"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>T5 Count</label><input type="number" id="refT5Count" value="200"></div>
+                        <div class="form-group"><label>T5 Bonus</label><input type="number" id="refT5Bonus" value="1000"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveReferralConfig()">💾 Save</button>
                 </div>
-                <div class="card"><h3>📊 Referral Stats</h3><div class="table-container" id="referralStatsTable"></div></div>
+                <div class="card"><h3>📊 Referrals</h3><div class="table-container" id="referralStatsTable"></div></div>
             </div>
 
-            <!-- Tasks -->
+            <!-- TASKS -->
             <div class="page" id="pageTasks">
-                <div class="page-header">📋 Task Management</div>
-                <div class="card"><h3 id="taskFormTitle">➕ Add Task</h3><input type="hidden" id="editingTaskId" value="">
+                <div class="page-header">📋 Tasks</div>
+                <div class="card">
+                    <h3 id="taskFormTitle">➕ Add Task</h3>
+                    <input type="hidden" id="editingTaskId">
                     <div class="form-group"><input type="text" id="taskTitle" placeholder="Task Title"></div>
-                    <div class="form-row"><div class="form-group"><input type="number" id="taskReward" value="50" placeholder="Reward"></div><div class="form-group"><select id="taskType"><option value="link">🔗 Link</option><option value="video">📺 Video</option></select></div></div>
+                    <div class="form-row">
+                        <div class="form-group"><input type="number" id="taskReward" placeholder="Reward" value="50"></div>
+                        <div class="form-group"><select id="taskType"><option value="link">🔗 Link</option><option value="video">📺 Video</option></select></div>
+                    </div>
                     <div class="form-group"><input type="text" id="taskLink" placeholder="URL (for link tasks)"></div>
-                    <div class="form-group"><input type="number" id="taskLimit" value="1" placeholder="Daily Limit"></div>
-                    <div class="form-group"><input type="number" id="taskWaitTime" value="60" placeholder="Wait Time (seconds)"></div>
-                    <div style="display:flex;gap:10px;"><button class="btn btn-primary" onclick="saveTask()">💾 Save</button><button class="btn btn-info" onclick="clearTaskForm()">🔄 Clear</button></div>
+                    <div class="form-row">
+                        <div class="form-group"><input type="number" id="taskLimit" placeholder="Daily Limit" value="1"></div>
+                        <div class="form-group"><input type="number" id="taskWaitTime" placeholder="Wait Time (s)" value="60"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="saveTask()">💾 Save</button>
+                        <button class="btn btn-info" onclick="clearTaskForm()">🔄 Clear</button>
+                    </div>
                 </div>
-                <div class="card"><h3>📊 Task History</h3><div class="table-container"><table><thead><tr><th>Title</th><th>Type</th><th>Reward</th><th>Limit</th><th>Created</th><th>Actions</th></tr></thead><tbody id="tasksTableBody"></tbody></table></div></div>
+                <div class="card"><h3>📋 Tasks List</h3><div class="table-container"><table><thead><tr><th>Title</th><th>Type</th><th>Reward</th><th>Limit</th><th>Created</th><th>Actions</th></tr></thead><tbody id="tasksTableBody"></tbody></table></div></div>
             </div>
 
-            <!-- Game Config -->
+            <!-- GAME CONFIG -->
             <div class="page" id="pageGameConfig">
-                <div class="page-header">🎮 Game Configuration</div>
+                <div class="page-header">🎮 Game Config</div>
                 <div class="card">
                     <h3>🎁 Daily Bonus</h3>
                     <div class="form-row">
-                        <div class="form-group"><label>Min Coins</label><input type="number" id="dailyBonusMin" value="50"></div>
-                        <div class="form-group"><label>Max Coins</label><input type="number" id="dailyBonusMax" value="100"></div>
+                        <div class="form-group"><label>Min</label><input type="number" id="dailyBonusMin" value="50"></div>
+                        <div class="form-group"><label>Max</label><input type="number" id="dailyBonusMax" value="100"></div>
                     </div>
                     <button class="btn btn-primary" onclick="saveDailyBonus()">💾 Save</button>
                 </div>
                 <div class="card">
                     <h3>🚀 Speed Boost</h3>
                     <div class="form-row">
-                        <div class="form-group"><label>Min Coins</label><input type="number" id="speedBoostMin" value="50"></div>
-                        <div class="form-group"><label>Max Coins</label><input type="number" id="speedBoostMax" value="60"></div>
+                        <div class="form-group"><label>Min</label><input type="number" id="speedBoostMin" value="50"></div>
+                        <div class="form-group"><label>Max</label><input type="number" id="speedBoostMax" value="60"></div>
                     </div>
                     <div class="form-group"><label>Cooldown (Hours)</label><input type="number" id="speedBoostCooldown" value="1"></div>
                     <button class="btn btn-primary" onclick="saveSpeedBoost()">💾 Save</button>
@@ -215,114 +280,100 @@
                 <div class="card">
                     <h3>🎁 Mystery Box</h3>
                     <div class="form-row">
-                        <div class="form-group"><label>Min Coins</label><input type="number" id="mysteryBoxMin" value="20"></div>
-                        <div class="form-group"><label>Max Coins</label><input type="number" id="mysteryBoxMax" value="100"></div>
+                        <div class="form-group"><label>Min</label><input type="number" id="mysteryBoxMin" value="20"></div>
+                        <div class="form-group"><label>Max</label><input type="number" id="mysteryBoxMax" value="100"></div>
                     </div>
                     <div class="form-group"><label>Cooldown (Minutes)</label><input type="number" id="mysteryBoxDuration" value="30"></div>
                     <button class="btn btn-primary" onclick="saveMysteryBox()">💾 Save</button>
                 </div>
-                
                 <div class="card">
-                    <h3>🎮 Individual Game Settings</h3>
-                    <div id="gameConfigGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
-                    <button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All Games</button>
+                    <h3>🎮 Games</h3>
+                    <div id="gameConfigGrid"></div>
+                    <button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All</button>
                 </div>
             </div>
 
-            <!-- Spin Config -->
+            <!-- SPIN CONFIG -->
             <div class="page" id="pageSpinConfig">
-                <div class="page-header">🎰 Spin Wheel Configuration</div>
+                <div class="page-header">🎰 Spin Config</div>
                 <div class="card">
                     <h3>🪙 Coin Prizes</h3>
-                    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Set the coin prizes for the spin wheel.</p>
                     <div id="coinPrizesContainer"></div>
-                    <button class="btn btn-info btn-sm" onclick="addCoinPrize()" style="margin-bottom:10px;">➕ Add Coin Prize</button>
-                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;">💾 Save Spin Config</button>
+                    <button class="btn btn-info btn-sm" onclick="addCoinPrize()">➕ Add</button>
+                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;margin-top:10px;">💾 Save</button>
                 </div>
                 <div class="card">
                     <h3>💵 USD Prizes</h3>
-                    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Set the USD prizes for the spin wheel.</p>
                     <div id="usdPrizesContainer"></div>
-                    <button class="btn btn-info btn-sm" onclick="addUSDPrize()" style="margin-bottom:10px;">➕ Add USD Prize</button>
-                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;">💾 Save Spin Config</button>
+                    <button class="btn btn-info btn-sm" onclick="addUSDPrize()">➕ Add</button>
+                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;margin-top:10px;">💾 Save</button>
                 </div>
                 <div class="card">
-                    <h3>⚙️ Spin Settings</h3>
+                    <h3>⚙️ Settings</h3>
                     <div class="form-row">
                         <div class="form-group"><label>Max Spins</label><input type="number" id="spinCountLimit" value="20"></div>
-                        <div class="form-group"><label>Button Cooldown (Seconds)</label><input type="number" id="spinCooldown" value="15"></div>
+                        <div class="form-group"><label>Cooldown (sec)</label><input type="number" id="spinCooldown" value="15"></div>
                     </div>
-                    <button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save Settings</button>
+                    <button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save</button>
                 </div>
             </div>
 
-            <!-- Rules -->
+            <!-- RULES -->
             <div class="page" id="pageRules">
-                <div class="page-header">📋 Rules Management</div>
+                <div class="page-header">📋 Rules</div>
                 <div class="card">
-                    <h3><i class="fas fa-gavel"></i> Rules Configuration</h3>
+                    <h3>📖 Current Rules</h3>
                     <div id="rulesContainer">
-                        <div class="rule-item"><div class="rule-key">📋 Mining Rules</div><div class="rule-value" id="rule-mining">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Task Rules</div><div class="rule-value" id="rule-tasks">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Referral Rules</div><div class="rule-value" id="rule-referral">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Withdraw Rules</div><div class="rule-value" id="rule-withdraw">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Level Rules</div><div class="rule-value" id="rule-level">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Airdrop Rules</div><div class="rule-value" id="rule-airdrop">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Mining</div><div class="rule-value" id="rule-mining">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Tasks</div><div class="rule-value" id="rule-tasks">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Referral</div><div class="rule-value" id="rule-referral">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Withdraw</div><div class="rule-value" id="rule-withdraw">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Level</div><div class="rule-value" id="rule-level">Loading...</div></div>
+                        <div class="rule-item"><div class="rule-key">📋 Airdrop</div><div class="rule-value" id="rule-airdrop">Loading...</div></div>
                     </div>
                 </div>
                 <div class="card">
-                    <h3><i class="fas fa-edit"></i> Edit Rule</h3>
-                    <div class="form-group">
-                        <label>Rule Key</label>
-                        <select id="ruleKeySelect" onchange="loadRuleContent()">
-                            <option value="mining">Mining Rules</option>
-                            <option value="tasks">Task Rules</option>
-                            <option value="referral">Referral Rules</option>
-                            <option value="withdraw">Withdraw Rules</option>
-                            <option value="level">Level Rules</option>
-                            <option value="airdrop">Airdrop Rules</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Rule Content</label>
-                        <textarea id="ruleContentInput" placeholder="Write rules here..." rows="4"></textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="updateRule()"><i class="fas fa-save"></i> Update Rule</button>
+                    <h3>✏️ Edit Rule</h3>
+                    <div class="form-group"><label>Rule Key</label><select id="ruleKeySelect" onchange="loadRuleContent()"><option value="mining">Mining</option><option value="tasks">Tasks</option><option value="referral">Referral</option><option value="withdraw">Withdraw</option><option value="level">Level</option><option value="airdrop">Airdrop</option></select></div>
+                    <div class="form-group"><label>Content</label><textarea id="ruleContentInput" rows="4"></textarea></div>
+                    <button class="btn btn-primary" onclick="updateRule()">💾 Update</button>
                 </div>
             </div>
 
-            <!-- Settings -->
+            <!-- SETTINGS -->
             <div class="page" id="pageSettings">
                 <div class="page-header">⚙️ Settings</div>
                 <div class="card"><h3>💰 Conversion</h3><div class="form-group"><label>1 USD = ? Coins</label><input type="number" id="conversionRate" value="1000"></div><button class="btn btn-primary" onclick="saveConv()">💾 Save</button></div>
-                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min Withdraw ($)</label><input type="number" id="minWithdraw" value="1" step="0.001"></div><div class="form-group"><label>Methods (comma separated)</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
+                <div class="card"><h3>💳 Withdraw</h3><div class="form-row"><div class="form-group"><label>Min ($)</label><input type="number" id="minWithdraw" value="1" step="0.001"></div><div class="form-group"><label>Methods (comma)</label><input type="text" id="withdrawMethods" value="Nagad,Rocket,bKash"></div></div><button class="btn btn-primary" onclick="saveWithdrawSet()">💾 Save</button></div>
                 <div class="card"><h3>🔐 Admin</h3><div class="form-row"><div class="form-group"><input type="text" id="newAdminUser" placeholder="Username"></div><div class="form-group"><input type="password" id="newAdminPass" placeholder="Password"></div></div><button class="btn btn-warning" onclick="changeAdminCreds()">🔐 Update</button></div>
             </div>
 
-            <!-- Payment Config -->
+            <!-- PAYMENT CONFIG -->
             <div class="page" id="pagePaymentConfig">
-                <div class="page-header">📱 Payment Configuration</div>
+                <div class="page-header">📱 Payment</div>
                 <div class="card">
-                    <h3>📱 Payment Methods (ON/OFF)</h3>
-                    <div class="form-group"><label>bKash</label><select id="bkashStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
-                    <div class="form-group"><label>Nagad</label><select id="nagadStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
+                    <h3>📱 Methods (ON/OFF)</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>bKash</label><select id="bkashStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
+                        <div class="form-group"><label>Nagad</label><select id="nagadStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
+                    </div>
                     <div class="form-group"><label>Rocket</label><select id="rocketStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
-                    <button class="btn btn-primary" onclick="savePaymentMethodsStatus()">💾 Save Status</button>
+                    <button class="btn btn-primary" onclick="savePaymentMethodsStatus()">💾 Save</button>
                 </div>
                 <div class="card">
                     <h3>📱 Payment Numbers</h3>
-                    <div class="form-group"><label>bKash Number</label><input type="text" id="bkashNumber" placeholder="017XXXXXXXX"></div>
-                    <div class="form-group"><label>Nagad Number</label><input type="text" id="nagadNumber" placeholder="017XXXXXXXX"></div>
-                    <div class="form-group"><label>Rocket Number</label><input type="text" id="rocketNumber" placeholder="017XXXXXXXX"></div>
-                    <button class="btn btn-primary" onclick="saveManualPaymentNumbers()">💾 Save Numbers</button>
+                    <div class="form-group"><label>bKash</label><input type="text" id="bkashNumber" placeholder="017XXXXXXXX"></div>
+                    <div class="form-group"><label>Nagad</label><input type="text" id="nagadNumber" placeholder="017XXXXXXXX"></div>
+                    <div class="form-group"><label>Rocket</label><input type="text" id="rocketNumber" placeholder="017XXXXXXXX"></div>
+                    <button class="btn btn-primary" onclick="saveManualPaymentNumbers()">💾 Save</button>
                 </div>
                 <div class="card">
                     <h3>📊 Payment Requests</h3>
-                    <div class="table-container" id="paymentRequestsContainer"><p style="color:#94a3b8;text-align:center;">Loading...</p></div>
+                    <div class="table-container" id="paymentRequestsContainer"></div>
                 </div>
             </div>
 
-            <!-- Messaging -->
+            <!-- MESSAGING -->
             <div class="page" id="pageMessaging">
                 <div class="page-header">📨 Messaging</div>
                 <div class="card">
@@ -330,24 +381,71 @@
                     <div class="form-group"><label>Recipient</label><select id="notifyRecipient" onchange="toggleSpecificUser()"><option value="all">All Users</option><option value="specific">Specific User</option></select></div>
                     <div class="form-group" id="specificUserGroup" style="display:none;"><label>User ID</label><input type="text" id="notifyUserId" placeholder="Enter user ID..."></div>
                     <div class="form-group"><label>Type</label><select id="notifyType"><option value="info">ℹ️ Info</option><option value="success">✅ Success</option><option value="warning">⚠️ Warning</option><option value="error">❌ Error</option></select></div>
-                    <div class="form-group"><label>Title</label><input type="text" id="notifyTitle" placeholder="Notification Title"></div>
-                    <div class="form-group"><label>Message</label><textarea id="notifyMessage" rows="4" placeholder="Write your message here..."></textarea></div>
+                    <div class="form-group"><label>Title</label><input type="text" id="notifyTitle" placeholder="Title"></div>
+                    <div class="form-group"><label>Message</label><textarea id="notifyMessage" rows="4"></textarea></div>
                     <button class="btn btn-primary" onclick="sendNotification()"><i class="fas fa-paper-plane"></i> Send</button>
                 </div>
-                <div class="card"><h3>📋 Sent History</h3><div class="table-container" id="notificationHistoryTable"><p style="color:#94a3b8;text-align:center;">Loading...</p></div></div>
+                <div class="card"><h3>📋 History</h3><div class="table-container" id="notificationHistoryTable"></div></div>
+            </div>
+
+            <!-- AIRDROP -->
+            <div class="page" id="pageAirdrop">
+                <div class="page-header">🎁 Airdrop</div>
+                <div class="card">
+                    <h3>🎁 Airdrop Config</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label>Pool Amount ($)</label><input type="number" id="airdropPool" value="50" step="0.001"></div>
+                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="airdropDuration" value="5"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveAirdropConfig()">💾 Save</button>
+                    <button class="btn btn-success" onclick="startAirdropNow()" style="margin-top:10px;">🚀 Start Airdrop Now</button>
+                    <button class="btn btn-danger" onclick="stopAirdropNow()" style="margin-top:5px;">⏹️ Stop Airdrop</button>
+                </div>
+                <div class="card"><h3>📊 Airdrop History</h3><div class="table-container" id="airdropHistoryTable"></div></div>
+            </div>
+
+            <!-- AVIATRIX -->
+            <div class="page" id="pageAviatrix">
+                <div class="page-header">✈️ Aviatrix</div>
+                <div class="card">
+                    <h3>🎯 Crash Points</h3>
+                    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Enter crash points (comma separated) - e.g., 1.5,2.0,2.5</p>
+                    <div class="form-group"><input type="text" id="aviatrixCrashPoints" placeholder="1.5,2.0,2.5,3.0..."></div>
+                    <button class="btn btn-primary" onclick="saveAviatrixConfig()">💾 Save</button>
+                </div>
+                <div class="card">
+                    <h3>👥 Live Players</h3>
+                    <div id="aviatrixLivePlayers"><p style="color:#94a3b8;">Loading...</p></div>
+                </div>
+                <div class="card">
+                    <h3>📊 Flight History</h3>
+                    <div class="table-container" id="aviatrixHistoryTable"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal-overlay" id="editUserModal"><div class="modal-box"><h3>✏️ Edit User</h3><input type="hidden" id="editUserId"><div class="form-group"><label>Balance</label><input type="number" id="editBalance"></div><div class="form-group"><label>USD</label><input type="number" id="editUsd" step="0.001"></div><div class="form-group"><label>XP</label><input type="number" id="editXp"></div><div class="form-group"><label>Coins Left</label><input type="number" id="editProgress"></div><div class="modal-buttons"><button class="btn btn-primary" onclick="saveUserEdit()">💾 Save</button><button class="btn btn-info" onclick="closeModal('editUserModal')">Cancel</button></div></div></div>
-    <div class="modal-overlay" id="cancelModal"><div class="modal-box"><h3>❌ Cancel Withdrawal</h3><input type="hidden" id="cancelId"><div class="form-group"><label>Reason</label><textarea id="cancelReason" rows="3"></textarea></div><div class="modal-buttons"><button class="btn btn-danger" onclick="confirmCancel()">❌ Cancel & Refund</button><button class="btn btn-info" onclick="closeModal('cancelModal')">Back</button></div></div></div>
-    <div class="modal-overlay" id="appealResponseModal"><div class="modal-box"><h3>📩 Respond to Appeal</h3><input type="hidden" id="appealUserId"><div class="form-group"><label>Response</label><textarea id="appealResponse" rows="3"></textarea></div><div class="modal-buttons"><button class="btn btn-success" onclick="approveAppeal()">✅ Unban</button><button class="btn btn-danger" onclick="rejectAppeal()">❌ Reject</button><button class="btn btn-info" onclick="closeModal('appealResponseModal')">Close</button></div></div></div>
+    <!-- MODALS -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal-box"><h3>✏️ Edit User</h3><input type="hidden" id="editUserId">
+            <div class="form-group"><label>Balance</label><input type="number" id="editBalance"></div>
+            <div class="form-group"><label>USD</label><input type="number" id="editUsd" step="0.001"></div>
+            <div class="form-group"><label>XP</label><input type="number" id="editXp"></div>
+            <div class="form-group"><label>Coins Left</label><input type="number" id="editProgress"></div>
+            <div class="modal-buttons"><button class="btn btn-primary" onclick="saveUserEdit()">💾 Save</button><button class="btn btn-info" onclick="closeModal('editUserModal')">Cancel</button></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-box"><h3>❌ Cancel Withdrawal</h3><input type="hidden" id="cancelId"><div class="form-group"><label>Reason</label><textarea id="cancelReason" rows="3"></textarea></div><div class="modal-buttons"><button class="btn btn-danger" onclick="confirmCancel()">❌ Cancel</button><button class="btn btn-info" onclick="closeModal('cancelModal')">Back</button></div></div>
+    </div>
+    <div class="modal-overlay" id="appealResponseModal">
+        <div class="modal-box"><h3>📩 Respond</h3><input type="hidden" id="appealUserId"><div class="form-group"><label>Response</label><textarea id="appealResponse" rows="3"></textarea></div><div class="modal-buttons"><button class="btn btn-success" onclick="approveAppeal()">✅ Unban</button><button class="btn btn-danger" onclick="rejectAppeal()">❌ Reject</button><button class="btn btn-info" onclick="closeModal('appealResponseModal')">Close</button></div></div>
+    </div>
     <div class="toast" id="adminToast"></div>
 
     <script>
         // ============================================================
-        // ================== FIREBASE CONFIG ==========================
+        // ================== FIREBASE ==================================
         // ============================================================
         const fc = { 
             apiKey: "AIzaSyAqCNHhu9oaBDea85tAH-iHucHczZnR7nY", 
@@ -360,31 +458,30 @@
         };
         firebase.initializeApp(fc); 
         const db = firebase.database();
+        const ADMIN_CREDS = { username: 'admin', password: 'coinquest2024' };
 
         function toast(m, t = 'success') { 
             const el = document.getElementById('adminToast'); 
             el.textContent = m; 
             el.className = `toast show ${t}`; 
-            setTimeout(() => el.classList.remove('show'), 3000); 
+            clearTimeout(el._timer);
+            el._timer = setTimeout(() => el.classList.remove('show'), 3000); 
         }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-        // ================== ADMIN LOGIN =============================
+        // ============================================================
+        // ================== ADMIN LOGIN ==============================
+        // ============================================================
         function adminLogin() { 
             const u = document.getElementById('adminUser').value.trim(), p = document.getElementById('adminPass').value.trim(); 
             if (!u || !p) { document.getElementById('loginError').style.display = 'block'; return; } 
             db.ref('admin/credentials').once('value', s => { 
                 const c = s.val(); 
-                if (!c) { 
-                    db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); 
-                    if (u === 'admin' && p === 'coinquest2024') loginOk(); 
-                    else document.getElementById('loginError').style.display = 'block'; 
-                } else { 
-                    if (u === c.username && p === c.password) loginOk(); 
-                    else document.getElementById('loginError').style.display = 'block'; 
-                } 
+                if (!c) { db.ref('admin/credentials').set(ADMIN_CREDS); if (u === ADMIN_CREDS.username && p === ADMIN_CREDS.password) loginOk(); else showLoginError(); } 
+                else { if (u === c.username && p === c.password) loginOk(); else showLoginError(); } 
             }); 
         }
+        function showLoginError() { document.getElementById('loginError').style.display = 'block'; }
         function loginOk() { 
             document.getElementById('loginPage').style.display = 'none'; 
             document.getElementById('adminPanel').style.display = 'flex'; 
@@ -392,53 +489,77 @@
         }
         function adminLogout() { document.getElementById('loginPage').style.display = 'flex'; document.getElementById('adminPanel').style.display = 'none'; }
 
-        // ================== PAGE SWITCH =============================
+        // ============================================================
+        // ================== PAGE SWITCH ==============================
+        // ============================================================
         function switchPage(p, el) { 
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); 
             const tp = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1)); 
             if (tp) tp.classList.add('active'); 
             document.querySelectorAll('.sidebar .nav-item').forEach(x => x.classList.remove('active')); 
             if (el) el.classList.add('active'); 
-            if (p === 'dashboard') loadDash(); 
-            if (p === 'maintenance') loadMaintenanceStatus(); 
-            if (p === 'users') loadUsers(); 
-            if (p === 'mining') loadMining(); 
-            if (p === 'withdrawals') loadWithdrawals(); 
-            if (p === 'banAppeals') loadBanAppeals(); 
-            if (p === 'referral') loadReferralConfig(); 
-            if (p === 'tasks') loadTasks(); 
-            if (p === 'gameConfig') loadGameConfig(); 
-            if (p === 'spinConfig') loadSpinConfigPage(); 
-            if (p === 'rules') loadRules(); 
-            if (p === 'settings') loadSettings(); 
-            if (p === 'paymentConfig') { loadPaymentConfig(); loadPaymentRequests(); }
-            if (p === 'messaging') loadNotificationHistory(); 
+            const loaders = {
+                'dashboard': loadDash,
+                'maintenance': loadMaintenanceStatus,
+                'users': loadUsers,
+                'mining': loadMining,
+                'withdrawals': loadWithdrawals,
+                'banAppeals': loadBanAppeals,
+                'referral': loadReferralConfig,
+                'tasks': loadTasks,
+                'gameConfig': loadGameConfig,
+                'spinConfig': loadSpinConfigPage,
+                'rules': loadRules,
+                'settings': loadSettings,
+                'paymentConfig': () => { loadPaymentConfig(); loadPaymentRequests(); },
+                'messaging': loadNotificationHistory,
+                'airdrop': loadAirdropConfig,
+                'aviatrix': loadAviatrixConfig
+            };
+            if (loaders[p]) loaders[p]();
         }
 
-        // ================== DASHBOARD ===============================
+        // ============================================================
+        // ================== DASHBOARD ================================
+        // ============================================================
         function loadDash() { 
             db.ref('users').once('value', s => { 
                 let u = 0, c = 0, usd = 0, m = 0, b = 0; 
-                s.forEach(ch => { u++; const d = ch.val(); c += (d.balance || 0); usd += (d.usdBalance || 0); if (d.isCurrentlyMining) m++; if (d.banned) b++; }); 
-                document.getElementById('dashUsers').textContent = u; 
-                document.getElementById('dashCoins').textContent = Math.floor(c).toLocaleString(); 
-                document.getElementById('dashUSD').textContent = '$' + usd.toFixed(4); 
-                document.getElementById('dashMining').textContent = m; 
-                document.getElementById('dashBanned').textContent = b; 
+                const users = [];
+                s.forEach(ch => { 
+                    u++; const d = ch.val(); 
+                    c += (d.balance || 0); usd += (d.usdBalance || 0); 
+                    if (d.isCurrentlyMining) m++; 
+                    if (d.banned) b++; 
+                    users.push({ id: ch.key, ...d });
+                }); 
+                document.getElementById('dashStats').innerHTML = `
+                    <div class="stat-card"><div class="label">👥 Total Users</div><div class="value">${u}</div></div>
+                    <div class="stat-card"><div class="label">⛏️ Active Mining</div><div class="value" style="color:#10b981;">${m}</div></div>
+                    <div class="stat-card"><div class="label">💰 Total Coins</div><div class="value">${Math.floor(c).toLocaleString()}</div></div>
+                    <div class="stat-card"><div class="label">💵 Total USD</div><div class="value" style="color:#10b981;">$${usd.toFixed(4)}</div></div>
+                    <div class="stat-card"><div class="label">🚫 Banned</div><div class="value" style="color:#ef4444;">${b}</div></div>
+                `;
+                // Recent users
+                const recent = users.sort((a,b) => (b.lastLogin||0) - (a.lastLogin||0)).slice(0,10);
+                let h = '<table><tr><th>User</th><th>Balance</th><th>USD</th><th>Status</th></tr>';
+                recent.forEach(u => h += `<tr><td>${u.fullName||u.username||u.id}</td><td>${Math.floor(u.balance||0).toLocaleString()}</td><td>$${(u.usdBalance||0).toFixed(4)}</td><td>${u.banned?'🚫':'✅'}</td></tr>`);
+                document.getElementById('recentUsersTable').innerHTML = h + '</table>';
             }); 
             loadAppealCount(); 
         }
-
         function loadAppealCount() { 
-            db.ref('banAppeals').once('value', s => { 
-                let count = 0; s.forEach(ch => { if (ch.val().status === 'pending') count++; }); 
+            db.ref('banAppeals').orderByChild('status').equalTo('pending').once('value', s => { 
+                const count = s.numChildren(); 
                 const badge = document.getElementById('appealBadge'); 
                 if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } 
                 else badge.style.display = 'none'; 
             }); 
         }
 
-        // ================== MAINTENANCE =============================
+        // ============================================================
+        // ================== MAINTENANCE ==============================
+        // ============================================================
         function loadMaintenanceStatus() {
             db.ref('maintenance').on('value', snap => {
                 const m = snap.val() || { enabled: false, message: 'We are currently updating the app.' };
@@ -457,7 +578,9 @@
         function toggleMaintenance() { db.ref('maintenance').once('value', snap => { const m = snap.val() || { enabled: false }; db.ref('maintenance').update({ enabled: !m.enabled }); toast(m.enabled ? '✅ OFF' : '🔴 ON'); }); }
         function saveMaintenanceMessage() { db.ref('maintenance').update({ message: document.getElementById('maintenanceMessage').value }); toast('✅ Saved!'); }
 
-        // ================== USERS ===================================
+        // ============================================================
+        // ================== USERS ====================================
+        // ============================================================
         function loadUsers() { 
             db.ref('users').once('value', s => { 
                 let h = '<table><tr><th>ID</th><th>Name</th><th>Balance</th><th>USD</th><th>XP</th><th>Level</th><th>Coins</th><th>Mining</th><th>Refs</th><th>Status</th><th>Actions</th></tr>'; 
@@ -466,7 +589,7 @@
                     const d = ch.val(), id = ch.key; 
                     const lvl = calcUserLevel(d.xpPoints || -5000); 
                     const banned = d.banned || false; 
-                    h += `<tr class="${banned ? 'banned-row' : ''}"><td title="${id}">${id.substring(0,8)}</td><td>${d.fullName||d.username||'User'}</td><td>${Math.floor(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(4)}</td><td>${d.xpPoints||-5000}</td><td>${lvl.tierEmoji} Lv.${lvl.level}</td><td>${d.progressCoins||1000}</td><td>${d.isCurrentlyMining?'<span class="badge badge-mining">⛏️</span>':'<span class="badge">Idle</span>'}</td><td>${d.referCount||0}</td><td>${banned?'<span class="badge badge-danger">🚫</span>':'<span class="badge badge-success">✅</span>'}</td><td><button class="btn btn-sm btn-info" onclick="editUser('${id}')">✏️</button><button class="btn btn-sm ${banned?'btn-success':'btn-danger'}" onclick="toggleBan('${id}',${!banned})">${banned?'✅':'🚫'}</button><button class="btn btn-sm btn-warning" onclick="delUser('${id}')">🗑️</button></td></tr>`; 
+                    h += `<tr class="${banned ? 'banned-row' : ''}"><td title="${id}">${id.substring(0,8)}</td><td>${d.fullName||d.username||'User'}</td><td>${Math.floor(d.balance||0).toLocaleString()}</td><td>$${(d.usdBalance||0).toFixed(4)}</td><td>${d.xpPoints||-5000}</td><td>${lvl.tierEmoji} Lv.${lvl.level}</td><td>${d.progressCoins||1000}</td><td>${d.isCurrentlyMining?'<span class="badge badge-mining">⛏️</span>':'<span class="badge badge-info">Idle</span>'}</td><td>${d.referCount||0}</td><td>${banned?'<span class="badge badge-danger">🚫</span>':'<span class="badge badge-success">✅</span>'}</td><td><button class="btn btn-sm btn-info" onclick="editUser(\'${id}\')">✏️</button><button class="btn btn-sm ${banned?'btn-success':'btn-danger'}" onclick="toggleBan(\'${id}\',${!banned})">${banned?'✅':'🚫'}</button><button class="btn btn-sm btn-warning" onclick="delUser(\'${id}\')">🗑️</button></td></tr>`; 
                 }); 
                 document.getElementById('usersTable').innerHTML = h + '</table>'; 
             }); 
@@ -480,6 +603,20 @@
                 if (!f) h += '<tr><td colspan="6">No match</td></tr>'; 
                 document.getElementById('usersTable').innerHTML = h + '</table>'; 
             }); 
+        }
+        function exportUsersCSV() {
+            db.ref('users').once('value', s => {
+                let csv = 'ID,Name,Balance,USD,XP,Level,Coins,Mining,Refs,Banned\n';
+                s.forEach(ch => {
+                    const d = ch.val();
+                    const lvl = calcUserLevel(d.xpPoints || -5000);
+                    csv += `${ch.key},${d.fullName||d.username||'User'},${d.balance||0},${d.usdBalance||0},${d.xpPoints||-5000},${lvl.level},${d.progressCoins||1000},${d.isCurrentlyMining?'Yes':'No'},${d.referCount||0},${d.banned?'Yes':'No'}\n`;
+                });
+                const blob = new Blob([csv], {type: 'text/csv'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'users.csv'; a.click();
+                toast('📥 Exported!');
+            });
         }
         function editUser(uid) { 
             db.ref('users/' + uid).once('value', s => { const d = s.val() || {}; 
@@ -512,40 +649,44 @@
 
         function calcUserLevel(xp) {
             xp = xp || -5000;
-            if (xp < 0) {
-                const baseXP = 5000;
-                return { level: 0, progress: Math.min(100, Math.floor((xp + baseXP) / baseXP * 100)), tierEmoji: '🔒', tierName: 'Unlocking' };
-            }
+            if (xp < 0) { const baseXP = 5000; return { level: 0, progress: Math.min(100, Math.floor((xp + baseXP) / baseXP * 100)), tierEmoji: '🔒', tierName: 'Unlocking' }; }
             let level = 1, xpNeeded = 1800, totalXP = 0;
-            while (level <= 100) {
-                if (xp < totalXP + xpNeeded) break;
-                totalXP += xpNeeded; level++;
-                if (level > 100) break;
-                xpNeeded = 1800 * Math.pow(2, level - 1);
-            }
+            while (level <= 100) { if (xp < totalXP + xpNeeded) break; totalXP += xpNeeded; level++; if (level > 100) break; xpNeeded = 1800 * Math.pow(2, level - 1); }
             let te = '🥉', tn = 'Bronze';
-            if (level > 20) { te = '🥈'; tn = 'Silver'; }
-            if (level > 40) { te = '🥇'; tn = 'Gold'; }
-            if (level > 60) { te = '💎'; tn = 'Platinum'; }
-            if (level > 80) { te = '👑'; tn = 'Diamond'; }
+            if (level > 20) { te = '🥈'; tn = 'Silver'; } if (level > 40) { te = '🥇'; tn = 'Gold'; } if (level > 60) { te = '💎'; tn = 'Platinum'; } if (level > 80) { te = '👑'; tn = 'Diamond'; }
             return { level, progress: Math.min(100, Math.floor(((xp - totalXP) / xpNeeded) * 100)), tierEmoji: te, tierName: tn };
         }
 
-        // ================== MINING MONITOR ==========================
+        // ============================================================
+        // ================== MINING ===================================
+        // ============================================================
         function loadMining() { 
             db.ref('users').on('value', s => { 
                 let h = '', a = 0, i = 0; 
                 s.forEach(ch => { const d = ch.val(); if (d.banned) return; const act = d.isCurrentlyMining || false; if (act) a++; else i++; h += `<div class="mining-user-card ${act?'active-mining':''}"><div><b>${d.fullName||d.username||ch.key.substring(0,8)}</b><br><small>Bal: ${Math.floor(d.balance||0).toLocaleString()} | Left: ${d.progressCoins||1000}</small></div><span class="badge ${act?'badge-mining':''}">${act?'⛏️ MINING':'😴 IDLE'}</span></div>`; }); 
-                document.getElementById('miningMonitorGrid').innerHTML = `<div style="margin-bottom:10px;display:flex;gap:10px;"><span class="badge badge-mining">⛏️ ${a} Active</span><span class="badge badge-info">😴 ${i} Idle</span></div>` + h; 
+                document.getElementById('miningStats').innerHTML = `
+                    <div class="stat-card"><div class="label">⛏️ Active</div><div class="value" style="color:#10b981;">${a}</div></div>
+                    <div class="stat-card"><div class="label">😴 Idle</div><div class="value" style="color:#94a3b8;">${i}</div></div>
+                `;
+                document.getElementById('miningMonitorGrid').innerHTML = h || '<p style="color:#94a3b8;">No miners</p>'; 
             }); 
         }
 
+        // ============================================================
         // ================== WITHDRAWALS ==============================
+        // ============================================================
         function loadWithdrawals() { 
             db.ref('withdrawRequests').once('value', s => { 
                 let h = '<table><tr><th>User</th><th>Amount</th><th>Method</th><th>Account</th><th>Status</th><th>Reason</th><th>Date</th><th>Actions</th></tr>'; 
                 const arr = []; s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); 
                 arr.sort((a, b) => (b.requestedAt || 0) - (a.requestedAt || 0)); 
+                let pending=0, approved=0, cancelled=0;
+                arr.forEach(d => { if(d.status==='pending') pending++; if(d.status==='approved') approved++; if(d.status==='cancelled') cancelled++; });
+                document.getElementById('withdrawStats').innerHTML = `
+                    <div class="stat-card"><div class="label">⏳ Pending</div><div class="value" style="color:#fbbf24;">${pending}</div></div>
+                    <div class="stat-card"><div class="label">✅ Approved</div><div class="value" style="color:#10b981;">${approved}</div></div>
+                    <div class="stat-card"><div class="label">❌ Cancelled</div><div class="value" style="color:#ef4444;">${cancelled}</div></div>
+                `;
                 arr.forEach(d => h += `<tr><td>${d.username||d.userId}</td><td>$${(d.amount||0).toFixed(4)}</td><td>${d.method}</td><td>${d.account}</td><td><span class="badge ${d.status==='approved'?'badge-success':d.status==='cancelled'?'badge-danger':'badge-warning'}">${d.status}</span></td><td style="font-size:11px;">${d.cancelReason||'-'}</td><td>${d.requestedAt?new Date(d.requestedAt).toLocaleDateString():''}</td><td>${d.status==='pending'?`<button class="btn btn-sm btn-success" onclick="apprWith('${d.id}')">✅</button><button class="btn btn-sm btn-danger" onclick="openCancel('${d.id}')">❌</button>`:'Done'}</td></tr>`); 
                 document.getElementById('withdrawalsTable').innerHTML = h + '</table>'; 
             }); 
@@ -554,22 +695,26 @@
         function openCancel(id) { document.getElementById('cancelId').value = id; document.getElementById('cancelReason').value = ''; document.getElementById('cancelModal').classList.add('show'); }
         function confirmCancel() { 
             const id = document.getElementById('cancelId').value, reason = document.getElementById('cancelReason').value.trim() || 'Cancelled by Admin'; 
-            db.ref('withdrawRequests/' + id).once('value', s => { const d = s.val(); if (d && d.userId) { db.ref('users/' + d.userId).transaction(u => ({ ...(u||{}), usdBalance: (u?.usdBalance||0) + (d.amount||0) })); db.ref('withdrawRequests/' + id).update({ status: 'cancelled', cancelReason: reason, cancelledAt: Date.now() }); } }); 
-            closeModal('cancelModal'); loadWithdrawals(); toast('❌ Cancelled & Refunded!'); 
+            db.ref('withdrawRequests/' + id).once('value', s => { const d = s.val(); if (d && d.userId) { db.ref('users/' + d.userId).transaction(u => ({ ...(u||{}), usdBalance: (u?.usdBalance||0) + (d.amount||0) })); } }); 
+            db.ref('withdrawRequests/' + id).update({ status: 'cancelled', cancelReason: reason, cancelledAt: Date.now() }); 
+            closeModal('cancelModal'); loadWithdrawals(); toast('❌ Cancelled!'); 
         }
 
+        // ============================================================
         // ================== BAN APPEALS ==============================
+        // ============================================================
+        let banTab = 'pending';
+        function switchBanTab(tab, el) {
+            banTab = tab;
+            document.querySelectorAll('.tab-buttons .tab-btn').forEach(b => b.classList.remove('active'));
+            if (el) el.classList.add('active');
+            loadBanAppeals();
+        }
         function loadBanAppeals() { 
-            db.ref('banAppeals').orderByChild('status').equalTo('pending').once('value', s => { 
+            db.ref('banAppeals').orderByChild('status').equalTo(banTab).once('value', s => { 
                 const c = document.getElementById('banAppealsContainer'); 
-                if (!s.exists()) c.innerHTML = '<p style="color:#94a3b8;">✅ No pending appeals</p>'; 
-                else { let h = ''; s.forEach(ch => { const a = ch.val(); h += `<div class="appeal-card"><h4>📩 ${a.username||a.userId}</h4><p><b>ID:</b> ${a.userId}</p><p><b>Reason:</b> ${a.banReason||'N/A'}</p><p><b>Message:</b> "${a.message}"</p><p style="font-size:10px;">📅 ${new Date(a.createdAt).toLocaleString()}</p><button class="btn btn-sm btn-success" onclick="respondAppeal('${a.userId}')">📩 Respond</button></div>`; }); c.innerHTML = h; } 
-            }); 
-            db.ref('users').orderByChild('banned').equalTo(true).once('value', s => { 
-                let h = '<table><tr><th>User ID</th><th>Name</th><th>Reason</th><th>Banned At</th><th>Appeal</th><th>Actions</th></tr>'; 
-                if (!s.exists()) h += '<tr><td colspan="6">No banned</td></tr>'; 
-                else s.forEach(ch => { const d = ch.val(), id = ch.key; h += `<tr><td>${id.substring(0,10)}</td><td>${d.fullName||d.username||'User'}</td><td>${d.banReason||'N/A'}</td><td>${d.bannedAt?new Date(d.bannedAt).toLocaleString():'N/A'}</td><td>${d.banAppealSubmitted?'<span class="badge badge-warning">Appealed</span>':'<span class="badge">None</span>'}</td><td><button class="btn btn-sm btn-success" onclick="toggleBan('${id}',false)">✅ Unban</button></td></tr>`; }); 
-                document.getElementById('bannedUsersTable').innerHTML = h + '</table>'; 
+                if (!s.exists()) c.innerHTML = '<p style="color:#94a3b8;">✅ No appeals</p>'; 
+                else { let h = ''; s.forEach(ch => { const a = ch.val(); h += `<div class="appeal-card"><h4>📩 ${a.username||a.userId}</h4><p><b>ID:</b> ${a.userId}</p><p><b>Reason:</b> ${a.banReason||'N/A'}</p><p><b>Message:</b> "${a.message||'No message'}"</p><p style="font-size:10px;">📅 ${new Date(a.createdAt).toLocaleString()}</p>${banTab==='pending'?`<button class="btn btn-sm btn-success" onclick="respondAppeal('${a.userId}')">📩 Respond</button>`:`<p><b>Response:</b> ${a.adminResponse||'N/A'}</p><p><b>Resolved:</b> ${a.resolvedAt?new Date(a.resolvedAt).toLocaleString():'N/A'}</p>`}</div>`; }); c.innerHTML = h; } 
             }); 
             loadAppealCount(); 
         }
@@ -577,14 +722,25 @@
         function approveAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Approved'; db.ref('users/' + uid).update({ banned: false, banReason: null, bannedAt: null, banAppealSubmitted: false }); db.ref('banAppeals/' + uid).update({ status: 'approved', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); loadUsers(); loadDash(); loadAppealCount(); toast('✅ Unbanned!'); }
         function rejectAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Rejected'; db.ref('banAppeals/' + uid).update({ status: 'rejected', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); loadAppealCount(); toast('❌ Rejected!'); }
 
-        // ================== REFERRAL SYSTEM =========================
+        // ============================================================
+        // ================== REFERRAL =================================
+        // ============================================================
         function loadReferralConfig() { 
-            db.ref('referralConfig').once('value', s => { const c = s.val() || {}; document.getElementById('refPerReferral').value = c.perReferralCoins || 50; document.getElementById('refXpPerReferral').value = c.xpPerReferral || 100; document.getElementById('refT1Count').value = c.tier1?.count || 10; document.getElementById('refT1Bonus').value = c.tier1?.bonus || 50; document.getElementById('refT2Count').value = c.tier2?.count || 25; document.getElementById('refT2Bonus').value = c.tier2?.bonus || 150; document.getElementById('refT3Count').value = c.tier3?.count || 50; document.getElementById('refT3Bonus').value = c.tier3?.bonus || 300; document.getElementById('refT4Count').value = c.tier4?.count || 100; document.getElementById('refT4Bonus').value = c.tier4?.bonus || 500; document.getElementById('refT5Count').value = c.tier5?.count || 200; document.getElementById('refT5Bonus').value = c.tier5?.bonus || 1000; }); 
+            db.ref('referralConfig').once('value', s => { const c = s.val() || {}; 
+                document.getElementById('refPerReferral').value = c.perReferralCoins || 50; document.getElementById('refXpPerReferral').value = c.xpPerReferral || 100; 
+                document.getElementById('refT1Count').value = c.tier1?.count || 10; document.getElementById('refT1Bonus').value = c.tier1?.bonus || 50; 
+                document.getElementById('refT2Count').value = c.tier2?.count || 25; document.getElementById('refT2Bonus').value = c.tier2?.bonus || 150; 
+                document.getElementById('refT3Count').value = c.tier3?.count || 50; document.getElementById('refT3Bonus').value = c.tier3?.bonus || 300; 
+                document.getElementById('refT4Count').value = c.tier4?.count || 100; document.getElementById('refT4Bonus').value = c.tier4?.bonus || 500; 
+                document.getElementById('refT5Count').value = c.tier5?.count || 200; document.getElementById('refT5Bonus').value = c.tier5?.bonus || 1000; 
+            }); 
             db.ref('referrals').once('value', s => { let h = '<table><tr><th>User</th><th>Referred By</th><th>Username</th><th>Bonus</th><th>Date</th></tr>'; if (s.exists()) { const arr = []; s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); arr.sort((a, b) => (b.referredAt || 0) - (a.referredAt || 0)); arr.forEach(r => h += `<tr><td>${r.id}</td><td>${r.referredBy}</td><td>${r.username||'User'}</td><td>+${r.bonus||50}</td><td>${r.referredAt?new Date(r.referredAt).toLocaleDateString():''}</td></tr>`); } else h += '<tr><td colspan="5">No referrals</td></tr>'; document.getElementById('referralStatsTable').innerHTML = h + '</table>'; }); 
         }
         function saveReferralConfig() { db.ref('referralConfig').set({ perReferralCoins: +document.getElementById('refPerReferral').value || 50, xpPerReferral: +document.getElementById('refXpPerReferral').value || 100, tier1: { count: +document.getElementById('refT1Count').value || 10, bonus: +document.getElementById('refT1Bonus').value || 50 }, tier2: { count: +document.getElementById('refT2Count').value || 25, bonus: +document.getElementById('refT2Bonus').value || 150 }, tier3: { count: +document.getElementById('refT3Count').value || 50, bonus: +document.getElementById('refT3Bonus').value || 300 }, tier4: { count: +document.getElementById('refT4Count').value || 100, bonus: +document.getElementById('refT4Bonus').value || 500 }, tier5: { count: +document.getElementById('refT5Count').value || 200, bonus: +document.getElementById('refT5Bonus').value || 1000 } }); toast('✅ Saved!'); }
 
-        // ================== TASKS ===================================
+        // ============================================================
+        // ================== TASKS ====================================
+        // ============================================================
         function saveTask() { 
             const tid = document.getElementById('editingTaskId').value; 
             const t = { title: document.getElementById('taskTitle').value, reward: +document.getElementById('taskReward').value || 50, type: document.getElementById('taskType').value, link: document.getElementById('taskLink').value, limit: +document.getElementById('taskLimit').value || 1, waitTime: +document.getElementById('taskWaitTime').value || 60, updatedAt: Date.now() }; 
@@ -598,24 +754,25 @@
         function deleteTask(id) { if (confirm('Delete?')) { db.ref('tasks/' + id).remove(); loadTasks(); toast('🗑️ Deleted!'); } }
         function loadTasks() { db.ref('tasks').once('value', s => { const arr = []; if (s.exists()) s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); document.getElementById('tasksTableBody').innerHTML = arr.length ? arr.map(t => `<tr><td>${t.title}</td><td><span class="badge badge-info">${t.type}</span></td><td>+${t.reward}</td><td>${t.limit||1}/day</td><td>${t.createdAt?new Date(t.createdAt).toLocaleDateString():'N/A'}</td><td><button class="btn btn-sm btn-info" onclick="editTask('${t.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteTask('${t.id}')">🗑️</button></td></tr>`).join('') : '<tr><td colspan="6">No tasks</td></tr>'; }); }
 
+        // ============================================================
         // ================== GAME CONFIG ==============================
+        // ============================================================
         function loadGameConfig() {
             db.ref('config/dailyBonus').once('value', s => { const d = s.val() || { min: 50, max: 100 }; document.getElementById('dailyBonusMin').value = d.min || 50; document.getElementById('dailyBonusMax').value = d.max || 100; });
             db.ref('config/speedBoost').once('value', s => { const d = s.val() || { min: 50, max: 60, cooldown: 3600000 }; document.getElementById('speedBoostMin').value = d.min || 50; document.getElementById('speedBoostMax').value = d.max || 60; document.getElementById('speedBoostCooldown').value = Math.floor((d.cooldown || 3600000) / 3600000); });
             db.ref('config/mysteryBox').once('value', s => { const d = s.val() || { min: 20, max: 100, duration: 1800000 }; document.getElementById('mysteryBoxMin').value = d.min || 20; document.getElementById('mysteryBoxMax').value = d.max || 100; document.getElementById('mysteryBoxDuration').value = Math.floor((d.duration || 1800000) / 60000); });
             
-            // Load individual game configs
             db.ref('gameConfigs').once('value', snap => {
                 const configs = snap.val() || {};
                 const games = ['xo', 'dice', 'target', 'card', 'memory', 'flappy', 'puzzle'];
                 let html = '';
                 games.forEach(game => {
                     const c = configs[game] || { minEntry: 100, maxEntry: 500, bonus: 10 };
-                    html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);">
+                    html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);margin-bottom:10px;">
                         <h4 style="color:#fbbf24;margin-bottom:8px;">🎮 ${game.charAt(0).toUpperCase()+game.slice(1)}</h4>
                         <div class="form-row">
-                            <div class="form-group"><label>Min Entry</label><input type="number" id="gm_${game}_min" value="${c.minEntry||100}"></div>
-                            <div class="form-group"><label>Max Entry</label><input type="number" id="gm_${game}_max" value="${c.maxEntry||500}"></div>
+                            <div class="form-group"><label>Min</label><input type="number" id="gm_${game}_min" value="${c.minEntry||100}"></div>
+                            <div class="form-group"><label>Max</label><input type="number" id="gm_${game}_max" value="${c.maxEntry||500}"></div>
                             <div class="form-group"><label>Win %</label><input type="number" id="gm_${game}_bonus" value="${c.bonus||10}"></div>
                         </div>
                     </div>`;
@@ -636,10 +793,12 @@
                     bonus: +document.getElementById(`gm_${game}_bonus`).value || 10
                 };
             });
-            db.ref('gameConfigs').set(configs, () => { toast('✅ All game configs saved!'); });
+            db.ref('gameConfigs').set(configs, () => { toast('✅ All saved!'); });
         }
 
+        // ============================================================
         // ================== SPIN CONFIG ==============================
+        // ============================================================
         function loadSpinConfigPage() {
             db.ref('spinConfig').once('value', snap => {
                 const config = snap.val() || { usdPrizes: [0.08, 0.05, 0.02, 0.01, 0], coinPrizes: [500, 200, 150, 100, 90, 70, 50, 20, 10, 0] };
@@ -657,22 +816,24 @@
             const container = document.getElementById('usdPrizesContainer');
             container.innerHTML = prizes.map((p, i) => `<div class="spin-prize-item"><span style="color:#10b981;">💵</span><input type="number" step="0.01" value="${p}" data-index="${i}" class="usd-prize-input"><button class="remove-btn" onclick="removeUSDPrize(${i})">✕</button></div>`).join('');
         }
-        function addCoinPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.coin-prize-input'); if (inputs.length > 0) { inputs[inputs.length - 1].value = 50; inputs[inputs.length - 1].focus(); } }, 100); }
-        function addUSDPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.usd-prize-input'); if (inputs.length > 0) { inputs[inputs.length - 1].value = 0.01; inputs[inputs.length - 1].focus(); } }, 100); }
+        function addCoinPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.coin-prize-input'); if (inputs.length) { inputs[inputs.length-1].value = 50; } }, 100); }
+        function addUSDPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.usd-prize-input'); if (inputs.length) { inputs[inputs.length-1].value = 0.01; } }, 100); }
         function removeCoinPrize(index) { db.ref('spinConfig').once('value', snap => { const config = snap.val() || {}; config.coinPrizes = (config.coinPrizes || [500,200,150,100,90,70,50,20,10,0]).filter((_, i) => i !== index); db.ref('spinConfig').set(config); renderCoinPrizes(config.coinPrizes); }); }
         function removeUSDPrize(index) { db.ref('spinConfig').once('value', snap => { const config = snap.val() || {}; config.usdPrizes = (config.usdPrizes || [0.08,0.05,0.02,0.01,0]).filter((_, i) => i !== index); db.ref('spinConfig').set(config); renderUSDPrizes(config.usdPrizes); }); }
         function saveSpinConfig() {
             const coinPrizes = Array.from(document.querySelectorAll('.coin-prize-input')).map(el => +el.value || 0).filter(v => v >= 0);
             const usdPrizes = Array.from(document.querySelectorAll('.usd-prize-input')).map(el => +el.value || 0).filter(v => v >= 0);
             db.ref('spinConfig').update({ coinPrizes, usdPrizes });
-            toast('✅ Spin prizes saved!');
+            toast('✅ Saved!');
         }
         function saveSpinSettings() {
             db.ref('spinConfig').update({ spinCountLimit: +document.getElementById('spinCountLimit').value || 20, cooldown: +document.getElementById('spinCooldown').value || 15 });
-            toast('✅ Spin settings saved!');
+            toast('✅ Saved!');
         }
 
-        // ================== RULES ===================================
+        // ============================================================
+        // ================== RULES ====================================
+        // ============================================================
         function loadRules() {
             db.ref('rules').on('value', snap => {
                 const rules = snap.val() || {};
@@ -692,11 +853,13 @@
         function updateRule() {
             const key = document.getElementById('ruleKeySelect').value;
             const content = document.getElementById('ruleContentInput').value.trim();
-            if (!content) { toast('Please enter rule content!', 'error'); return; }
-            db.ref('rules/' + key).set(content, () => { toast('✅ Rule updated!'); document.getElementById('ruleContentInput').value = ''; });
+            if (!content) { toast('Enter content!', 'error'); return; }
+            db.ref('rules/' + key).set(content, () => { toast('✅ Updated!'); document.getElementById('ruleContentInput').value = ''; });
         }
 
-        // ================== SETTINGS ================================
+        // ============================================================
+        // ================== SETTINGS =================================
+        // ============================================================
         function loadSettings() { 
             db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); 
             db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 1; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); 
@@ -705,25 +868,25 @@
         function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 1, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
         function changeAdminCreds() { const u = document.getElementById('newAdminUser').value.trim(), p = document.getElementById('newAdminPass').value.trim(); if (!u || !p) { toast('Fill all!', 'error'); return; } db.ref('admin/credentials').set({ username: u, password: p }); toast('✅ Updated!'); }
 
+        // ============================================================
         // ================== PAYMENT CONFIG ===========================
+        // ============================================================
         function loadPaymentConfig() {
             db.ref('paymentConfig/methodsStatus').once('value', s => { const d = s.val() || { bkash: 'on', nagad: 'on', rocket: 'on' }; document.getElementById('bkashStatus').value = d.bkash || 'on'; document.getElementById('nagadStatus').value = d.nagad || 'on'; document.getElementById('rocketStatus').value = d.rocket || 'on'; });
             db.ref('paymentConfig/manualNumbers').once('value', s => { const d = s.val() || {}; document.getElementById('bkashNumber').value = d.bkash || ''; document.getElementById('nagadNumber').value = d.nagad || ''; document.getElementById('rocketNumber').value = d.rocket || ''; });
         }
         function savePaymentMethodsStatus() { db.ref('paymentConfig/methodsStatus').set({ bkash: document.getElementById('bkashStatus').value, nagad: document.getElementById('nagadStatus').value, rocket: document.getElementById('rocketStatus').value }); toast('✅ Saved!'); }
         function saveManualPaymentNumbers() { db.ref('paymentConfig/manualNumbers').set({ bkash: document.getElementById('bkashNumber').value.trim(), nagad: document.getElementById('nagadNumber').value.trim(), rocket: document.getElementById('rocketNumber').value.trim() }); toast('✅ Saved!'); }
-
-        // ================== PAYMENT REQUESTS =========================
         function loadPaymentRequests() {
             db.ref('paymentRequests').orderByChild('requestedAt').limitToLast(50).on('value', snap => {
                 const container = document.getElementById('paymentRequestsContainer');
-                if (!snap.exists()) { container.innerHTML = '<p style="color:#94a3b8;text-align:center;">No requests found.</p>'; return; }
+                if (!snap.exists()) { container.innerHTML = '<p style="color:#94a3b8;text-align:center;">No requests.</p>'; return; }
                 let html = '<table><tr><th>User</th><th>Method</th><th>Amount</th><th>TX ID</th><th>Type</th><th>Status</th><th>Time</th><th>Actions</th></tr>';
                 const requests = []; snap.forEach(child => requests.push({ id: child.key, ...child.val() }));
-                requests.sort((a, b) => b.requestedAt - a.requestedAt);
+                requests.sort((a, b) => (b.requestedAt||0) - (a.requestedAt||0));
                 requests.forEach(req => {
                     const statusClass = req.status === 'approved' ? 'badge-success' : req.status === 'cancelled' ? 'badge-danger' : 'badge-warning';
-                    html += `<tr><td>${req.username||req.userId}</td><td>${req.method}</td><td>${req.amount} BDT</td><td style="font-size:11px;">${req.transactionId}</td><td>${req.type==='coins'?`${req.coins} Coins`:req.type==='subscription'?`Sub (${req.plan})`:req.type==='level'?`Lv.${req.level}`:'N/A'}</td><td><span class="badge ${statusClass}">${req.status}</span></td><td style="font-size:10px;">${req.requestedAt?new Date(req.requestedAt).toLocaleString():'N/A'}</td><td>${req.status==='pending'?`<button class="btn btn-sm btn-success" onclick="approvePayment('${req.id}')">✅</button><button class="btn btn-sm btn-danger" onclick="rejectPayment('${req.id}')">❌</button>`:'Done'}</td></tr>`;
+                    html += `<tr><td>${req.username||req.userId}</td><td>${req.method}</td><td>${req.amount} BDT</td><td style="font-size:11px;">${req.transactionId}</td><td>${req.type||'N/A'}</td><td><span class="badge ${statusClass}">${req.status}</span></td><td style="font-size:10px;">${req.requestedAt?new Date(req.requestedAt).toLocaleString():'N/A'}</td><td>${req.status==='pending'?`<button class="btn btn-sm btn-success" onclick="approvePayment('${req.id}')">✅</button><button class="btn btn-sm btn-danger" onclick="rejectPayment('${req.id}')">❌</button>`:'Done'}</td></tr>`;
                 });
                 container.innerHTML = html + '</table>';
             });
@@ -731,18 +894,20 @@
         function approvePayment(id) { if (!confirm('Approve?')) return; db.ref('paymentRequests/' + id).update({ status: 'approved', approvedAt: Date.now() }); toast('✅ Approved!'); }
         function rejectPayment(id) { const reason = prompt('Reason:') || 'Cancelled'; if (!reason) return; db.ref('paymentRequests/' + id).update({ status: 'cancelled', cancelReason: reason, cancelledAt: Date.now() }); toast('❌ Rejected!'); }
 
+        // ============================================================
         // ================== MESSAGING ================================
+        // ============================================================
         function toggleSpecificUser() { document.getElementById('specificUserGroup').style.display = document.getElementById('notifyRecipient').value === 'specific' ? 'block' : 'none'; }
         function loadNotificationHistory() {
             db.ref('notifications').orderByChild('createdAt').limitToLast(50).on('value', snap => {
                 const container = document.getElementById('notificationHistoryTable');
-                if (!snap.exists()) { container.innerHTML = '<p style="color:#94a3b8;text-align:center;">No notifications sent.</p>'; return; }
+                if (!snap.exists()) { container.innerHTML = '<p style="color:#94a3b8;">No notifications.</p>'; return; }
                 let html = '<table><tr><th>Title</th><th>Message</th><th>Type</th><th>Recipient</th><th>Date</th></tr>';
                 const notifications = []; snap.forEach(child => notifications.push({ id: child.key, ...child.val() }));
-                notifications.sort((a, b) => b.createdAt - a.createdAt);
+                notifications.sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
                 notifications.forEach(n => {
                     const typeClass = n.type==='success'?'badge-success':n.type==='warning'?'badge-warning':n.type==='error'?'badge-danger':'badge-info';
-                    html += `<tr><td>${n.title||'N/A'}</td><td style="font-size:11px;">${n.message||''}</td><td><span class="badge ${typeClass}">${n.type}</span></td><td>${n.recipient==='all'?'All Users':n.recipientUserId||'Specific'}</td><td style="font-size:10px;">${n.createdAt?new Date(n.createdAt).toLocaleString():'N/A'}</td></tr>`;
+                    html += `<tr><td>${n.title||'N/A'}</td><td style="font-size:11px;">${n.message||''}</td><td><span class="badge ${typeClass}">${n.type}</span></td><td>${n.recipient==='all'?'All':n.recipientUserId||'Specific'}</td><td style="font-size:10px;">${n.createdAt?new Date(n.createdAt).toLocaleString():'N/A'}</td></tr>`;
                 });
                 container.innerHTML = html + '</table>';
             });
@@ -753,17 +918,110 @@
             const type = document.getElementById('notifyType').value;
             const title = document.getElementById('notifyTitle').value.trim();
             const message = document.getElementById('notifyMessage').value.trim();
-            if (!message) { toast('⚠️ Write message!', 'error'); return; }
-            if (recipient === 'specific' && !userId) { toast('⚠️ Enter user ID!', 'error'); return; }
+            if (!message) { toast('Write message!', 'error'); return; }
+            if (recipient === 'specific' && !userId) { toast('Enter user ID!', 'error'); return; }
             const data = { type, title: title || 'Notification', message, recipient, recipientUserId: userId || '', createdAt: Date.now(), read: false };
             if (recipient === 'all') {
                 db.ref('notifications').push(data).then(() => { toast('✅ Sent to all!'); document.getElementById('notifyTitle').value = ''; document.getElementById('notifyMessage').value = ''; });
             } else {
-                db.ref('notifications').push({ ...data, recipientUserId: userId }).then(() => { toast(`✅ Sent to ${userId}!`); document.getElementById('notifyTitle').value = ''; document.getElementById('notifyMessage').value = ''; document.getElementById('notifyUserId').value = ''; });
+                db.ref('notifications').push({ ...data, recipientUserId: userId }).then(() => { toast(`✅ Sent!`); document.getElementById('notifyTitle').value = ''; document.getElementById('notifyMessage').value = ''; document.getElementById('notifyUserId').value = ''; });
             }
         }
 
-        // ================== INIT ====================================
+        // ============================================================
+        // ================== AIRDROP ==================================
+        // ============================================================
+        function loadAirdropConfig() {
+            db.ref('airdropConfig').once('value', s => {
+                const c = s.val() || { poolAmount: 50, duration: 5, startTime: null, endTime: null };
+                document.getElementById('airdropPool').value = c.poolAmount || 50;
+                document.getElementById('airdropDuration').value = c.duration || 5;
+            });
+            loadAirdropHistory();
+        }
+        function saveAirdropConfig() {
+            db.ref('airdropConfig').update({ poolAmount: +document.getElementById('airdropPool').value || 50, duration: +document.getElementById('airdropDuration').value || 5 });
+            toast('✅ Saved!');
+        }
+        function startAirdropNow() {
+            const duration = +document.getElementById('airdropDuration').value || 5;
+            const start = Date.now();
+            const end = start + duration * 60000;
+            db.ref('airdropConfig').update({ startTime: start, endTime: end, poolAmount: +document.getElementById('airdropPool').value || 50, active: true });
+            toast('🚀 Airdrop started!');
+        }
+        function stopAirdropNow() {
+            db.ref('airdropConfig').update({ active: false, endTime: Date.now() });
+            toast('⏹️ Airdrop stopped!');
+        }
+        function loadAirdropHistory() {
+            db.ref('airdropList').orderByChild('timestamp').limitToLast(50).on('value', snap => {
+                const container = document.getElementById('airdropHistoryTable');
+                if (!snap.exists()) { container.innerHTML = '<p style="color:#94a3b8;">No history.</p>'; return; }
+                let html = '<table><tr><th>User</th><th>Amount</th><th>Coins</th><th>Date</th></tr>';
+                const arr = []; snap.forEach(ch => arr.push({ id: ch.key, ...ch.val() }));
+                arr.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+                arr.forEach(a => html += `<tr><td>${a.username||a.userId}</td><td>$${a.amount||0}</td><td>${a.coins||0}</td><td>${a.timestamp?new Date(a.timestamp).toLocaleString():'N/A'}</td></tr>`);
+                container.innerHTML = html + '</table>';
+            });
+        }
+
+        // ============================================================
+        // ================== AVIATRIX =================================
+        // ============================================================
+        function loadAviatrixConfig() {
+            db.ref('aviatrixConfig').once('value', s => {
+                const c = s.val() || { crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] };
+                document.getElementById('aviatrixCrashPoints').value = c.crashPoints ? c.crashPoints.join(',') : '';
+            });
+            // Live players
+            db.ref('aviatrixPlayers').on('value', snap => {
+                const players = snap.val() || {};
+                const container = document.getElementById('aviatrixLivePlayers');
+                let count = 0, html = '<div class="online-players-grid">';
+                for (let key in players) {
+                    if (players[key].online) { count++; html += `<div class="online-player-card"><div class="name">${players[key].username||key}</div><div class="status">🟢 Online</div></div>`; }
+                }
+                if (count === 0) html = '<p style="color:#94a3b8;">No players online</p>';
+                else html += '</div><p style="color:#10b981;margin-top:10px;">👥 ' + count + ' players online</p>';
+                container.innerHTML = html;
+            });
+            // History - read from aviatrixData in user DB
+            loadAviatrixHistory();
+        }
+        function saveAviatrixConfig() {
+            const points = document.getElementById('aviatrixCrashPoints').value.split(',').map(p => parseFloat(p.trim())).filter(p => !isNaN(p) && p > 1);
+            if (points.length === 0) { toast('Enter valid crash points!', 'error'); return; }
+            db.ref('aviatrixConfig').set({ crashPoints: points });
+            toast('✅ Saved!');
+        }
+        function loadAviatrixHistory() {
+            db.ref('users').once('value', snap => {
+                const container = document.getElementById('aviatrixHistoryTable');
+                const allHistory = [];
+                snap.forEach(ch => {
+                    const d = ch.val();
+                    if (d.aviatrixHistory && d.aviatrixHistory.length) {
+                        d.aviatrixHistory.forEach(h => {
+                            allHistory.push({ ...h, username: d.fullName || d.username || ch.key });
+                        });
+                    }
+                });
+                allHistory.sort((a,b) => (b.time||0) - (a.time||0));
+                const recent = allHistory.slice(0,30);
+                if (recent.length === 0) { container.innerHTML = '<p style="color:#94a3b8;">No flights yet.</p>'; return; }
+                let html = '<table><tr><th>User</th><th>Bet</th><th>Multiplier</th><th>Result</th><th>Reward</th><th>Time</th></tr>';
+                recent.forEach(h => {
+                    const resultClass = h.result === 'win' ? 'badge-success' : 'badge-danger';
+                    html += `<tr><td>${h.username||'User'}</td><td>${h.bet}</td><td>${h.multiplier.toFixed(2)}x</td><td><span class="badge ${resultClass}">${h.result}</span></td><td>${h.result==='win'?'+':''}${h.reward}</td><td style="font-size:10px;">${h.time?new Date(h.time).toLocaleString():'N/A'}</td></tr>`;
+                });
+                container.innerHTML = html + '</table>';
+            });
+        }
+
+        // ============================================================
+        // ================== INIT =====================================
+        // ============================================================
         function init() { 
             db.ref('admin/credentials').once('value', s => { if (!s.exists()) db.ref('admin/credentials').set({ username: 'admin', password: 'coinquest2024' }); }); 
             db.ref('conversionRate').once('value', s => { if (!s.exists()) db.ref('conversionRate').set(1000); }); 
@@ -773,9 +1031,11 @@
             db.ref('config/speedBoost').once('value', s => { if (!s.exists()) db.ref('config/speedBoost').set({ min: 50, max: 60, cooldown: 3600000 }); }); 
             db.ref('config/mysteryBox').once('value', s => { if (!s.exists()) db.ref('config/mysteryBox').set({ min: 20, max: 100, duration: 1800000 }); }); 
             db.ref('spinConfig').once('value', s => { if (!s.exists()) db.ref('spinConfig').set({ usdPrizes: [0.08, 0.05, 0.02, 0.01, 0], coinPrizes: [500, 200, 150, 100, 90, 70, 50, 20, 10, 0], spinCountLimit: 20, cooldown: 15 }); }); 
-            db.ref('maintenance').once('value', s => { if (!s.exists()) db.ref('maintenance').set({ enabled: false, message: 'We are currently updating the app. Please come back later.' }); }); 
+            db.ref('maintenance').once('value', s => { if (!s.exists()) db.ref('maintenance').set({ enabled: false, message: 'We are currently updating the app.' }); }); 
             db.ref('paymentConfig').once('value', s => { if (!s.exists()) db.ref('paymentConfig').set({ methodsStatus: { bkash: 'on', nagad: 'on', rocket: 'on' }, manualNumbers: { bkash: '', nagad: '', rocket: '' } }); }); 
             db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, flappy:{minEntry:100,maxEntry:500,bonus:20}, puzzle:{minEntry:100,maxEntry:500,bonus:18} }); }); 
+            db.ref('airdropConfig').once('value', s => { if (!s.exists()) db.ref('airdropConfig').set({ poolAmount: 50, duration: 5, active: false }); }); 
+            db.ref('aviatrixConfig').once('value', s => { if (!s.exists()) db.ref('aviatrixConfig').set({ crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] }); }); 
         }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') adminLogin(); if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
