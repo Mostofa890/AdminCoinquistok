@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoinQuest - Admin Panel V2</title>
+    <title>CoinQuest - Admin Panel V3</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -48,9 +48,7 @@
         .badge-info { background: rgba(59,130,246,0.2); color: #3b82f6; }
         .badge-purple { background: rgba(139,92,246,0.2); color: #8b5cf6; }
         .badge-mining { background: rgba(16,185,129,0.2); color: #10b981; animation: miningBadge 2s infinite; }
-        .badge-new { background: rgba(239,68,68,0.3); color: #fff; animation: pulse 1.5s infinite; }
         @keyframes miningBadge { 0%,100%{opacity:1}50%{opacity:0.5} }
-        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.6} }
         .search-box { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .search-box input { flex: 1; min-width: 150px; padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; }
@@ -92,6 +90,13 @@
         .tab-btn.active { background: #fbbf24; color: #000; border-color: #fbbf24; }
         .tab-btn:hover { border-color: #fbbf24; }
         .tab-content { display: none; } .tab-content.active { display: block; }
+        .feature-toggle { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .feature-toggle .toggle-label { font-size: 14px; color: #e2e8f0; flex: 1; }
+        .toggle-switch { position: relative; width: 48px; height: 24px; background: #334155; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .toggle-switch.active { background: #10b981; }
+        .toggle-switch .toggle-slider { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .toggle-switch.active .toggle-slider { left: 26px; }
+        .banned-row { opacity: 0.6; background: rgba(239,68,68,0.05); }
         @media (max-width: 768px) {
             .sidebar { width: 60px; padding: 12px; }
             .sidebar h2 { font-size: 14px; }
@@ -120,11 +125,12 @@
         <div class="sidebar">
             <h2>🪙 CoinQuest</h2>
             <div class="nav-item active" onclick="switchPage('dashboard',this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
-            <div class="nav-item" onclick="switchPage('maintenance',this)"><i class="fas fa-tools"></i><span>Maintenance</span> <span id="maintenanceBadge" class="badge badge-danger" style="display:none;">ON</span></div>
+            <div class="nav-item" onclick="switchPage('features',this)"><i class="fas fa-toggle-on"></i><span>Features</span></div>
+            <div class="nav-item" onclick="switchPage('maintenance',this)"><i class="fas fa-tools"></i><span>Maintenance</span></div>
             <div class="nav-item" onclick="switchPage('users',this)"><i class="fas fa-users"></i><span>Users</span></div>
             <div class="nav-item" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i><span>Mining Live</span></div>
             <div class="nav-item" onclick="switchPage('withdrawals',this)"><i class="fas fa-money-bill-wave"></i><span>Withdrawals</span></div>
-            <div class="nav-item" onclick="switchPage('banAppeals',this)"><i class="fas fa-gavel"></i><span>Ban Appeals</span> <span id="appealBadge" class="badge badge-new" style="display:none;">0</span></div>
+            <div class="nav-item" onclick="switchPage('banAppeals',this)"><i class="fas fa-gavel"></i><span>Ban Appeals</span></div>
             <div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-link"></i><span>Referral</span></div>
             <div class="nav-item" onclick="switchPage('tasks',this)"><i class="fas fa-tasks"></i><span>Tasks</span></div>
             <div class="nav-item" onclick="switchPage('gameConfig',this)"><i class="fas fa-gamepad"></i><span>Game Config</span></div>
@@ -134,7 +140,7 @@
             <div class="nav-item" onclick="switchPage('paymentConfig',this)"><i class="fas fa-credit-card"></i><span>Payment</span></div>
             <div class="nav-item" onclick="switchPage('messaging',this)"><i class="fas fa-envelope"></i><span>Messaging</span></div>
             <div class="nav-item" onclick="switchPage('airdrop',this)"><i class="fas fa-gift"></i><span>Airdrop</span></div>
-            <div class="nav-item" onclick="switchPage('aviatrix',this)"><i class="fas fa-plane"></i><span>Aviatrix</span></div>
+            <div class="nav-item" onclick="switchPage('aviator',this)"><i class="fas fa-plane"></i><span>Aviator</span></div>
             <div class="nav-item" onclick="adminLogout()" style="color:#ef4444;margin-top:20px;"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div>
         </div>
 
@@ -149,17 +155,23 @@
                 </div>
             </div>
 
+            <!-- FEATURES (ON/OFF) -->
+            <div class="page" id="pageFeatures">
+                <div class="page-header">🎛️ Features Control</div>
+                <div class="card">
+                    <h3>🔘 Toggle Features</h3>
+                    <div id="featuresContainer"></div>
+                </div>
+            </div>
+
             <!-- MAINTENANCE -->
             <div class="page" id="pageMaintenance">
                 <div class="page-header">🛠️ Maintenance</div>
-                <div class="maintenance-banner" id="maintenanceBanner">
-                    <span><i class="fas fa-exclamation-triangle"></i> Maintenance is OFF</span>
-                    <button class="btn btn-danger btn-sm" id="toggleMaintenanceBtn" onclick="toggleMaintenance()">🔴 Turn ON</button>
-                </div>
                 <div class="card">
-                    <h3>⚙️ Maintenance Settings</h3>
-                    <div class="form-group"><label>Message (Users will see)</label><textarea id="maintenanceMessage" rows="3"></textarea></div>
-                    <button class="btn btn-primary" onclick="saveMaintenanceMessage()">💾 Save</button>
+                    <h3>🔧 Maintenance Mode</h3>
+                    <div id="maintenanceControls"></div>
+                    <div class="form-group"><label>Message</label><textarea id="maintenanceMessage" rows="3"></textarea></div>
+                    <button class="btn btn-primary" onclick="saveMaintenanceMessage()">💾 Save Message</button>
                 </div>
             </div>
 
@@ -193,7 +205,8 @@
                 <div class="page-header">⚖️ Ban Appeals</div>
                 <div class="tab-buttons">
                     <button class="tab-btn active" onclick="switchBanTab('pending',this)">📩 Pending</button>
-                    <button class="tab-btn" onclick="switchBanTab('resolved',this)">✅ Resolved</button>
+                    <button class="tab-btn" onclick="switchBanTab('approved',this)">✅ Approved</button>
+                    <button class="tab-btn" onclick="switchBanTab('rejected',this)">❌ Rejected</button>
                 </div>
                 <div id="banAppealsContainer"></div>
             </div>
@@ -201,33 +214,13 @@
             <!-- REFERRAL -->
             <div class="page" id="pageReferral">
                 <div class="page-header">👥 Referral</div>
-                <div class="card">
-                    <h3>🔗 Referral Config</h3>
+                <div class="card"><h3>🔗 Referral Config</h3>
                     <div class="form-row">
                         <div class="form-group"><label>Coins per Referral</label><input type="number" id="refPerReferral" value="50"></div>
                         <div class="form-group"><label>XP per Referral</label><input type="number" id="refXpPerReferral" value="100"></div>
                     </div>
                     <h4 style="color:#fbbf24;margin:15px 0 10px;">🎁 Tier Bonuses</h4>
-                    <div class="form-row">
-                        <div class="form-group"><label>T1 Count</label><input type="number" id="refT1Count" value="10"></div>
-                        <div class="form-group"><label>T1 Bonus</label><input type="number" id="refT1Bonus" value="50"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>T2 Count</label><input type="number" id="refT2Count" value="25"></div>
-                        <div class="form-group"><label>T2 Bonus</label><input type="number" id="refT2Bonus" value="150"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>T3 Count</label><input type="number" id="refT3Count" value="50"></div>
-                        <div class="form-group"><label>T3 Bonus</label><input type="number" id="refT3Bonus" value="300"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>T4 Count</label><input type="number" id="refT4Count" value="100"></div>
-                        <div class="form-group"><label>T4 Bonus</label><input type="number" id="refT4Bonus" value="500"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>T5 Count</label><input type="number" id="refT5Count" value="200"></div>
-                        <div class="form-group"><label>T5 Bonus</label><input type="number" id="refT5Bonus" value="1000"></div>
-                    </div>
+                    <div id="referralTiersContainer"></div>
                     <button class="btn btn-primary" onclick="saveReferralConfig()">💾 Save</button>
                 </div>
                 <div class="card"><h3>📊 Referrals</h3><div class="table-container" id="referralStatsTable"></div></div>
@@ -260,84 +253,26 @@
             <!-- GAME CONFIG -->
             <div class="page" id="pageGameConfig">
                 <div class="page-header">🎮 Game Config</div>
-                <div class="card">
-                    <h3>🎁 Daily Bonus</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Min</label><input type="number" id="dailyBonusMin" value="50"></div>
-                        <div class="form-group"><label>Max</label><input type="number" id="dailyBonusMax" value="100"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveDailyBonus()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>🚀 Speed Boost</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Min</label><input type="number" id="speedBoostMin" value="50"></div>
-                        <div class="form-group"><label>Max</label><input type="number" id="speedBoostMax" value="60"></div>
-                    </div>
-                    <div class="form-group"><label>Cooldown (Hours)</label><input type="number" id="speedBoostCooldown" value="1"></div>
-                    <button class="btn btn-primary" onclick="saveSpeedBoost()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>🎁 Mystery Box</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Min</label><input type="number" id="mysteryBoxMin" value="20"></div>
-                        <div class="form-group"><label>Max</label><input type="number" id="mysteryBoxMax" value="100"></div>
-                    </div>
-                    <div class="form-group"><label>Cooldown (Minutes)</label><input type="number" id="mysteryBoxDuration" value="30"></div>
-                    <button class="btn btn-primary" onclick="saveMysteryBox()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>🎮 Games</h3>
-                    <div id="gameConfigGrid"></div>
-                    <button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All</button>
-                </div>
+                <div class="card"><h3>🎁 Daily Bonus</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="dailyBonusMin" value="50"></div><div class="form-group"><label>Max</label><input type="number" id="dailyBonusMax" value="100"></div></div><button class="btn btn-primary" onclick="saveDailyBonus()">💾 Save</button></div>
+                <div class="card"><h3>🚀 Speed Boost</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="speedBoostMin" value="50"></div><div class="form-group"><label>Max</label><input type="number" id="speedBoostMax" value="60"></div></div><div class="form-group"><label>Cooldown (Hours)</label><input type="number" id="speedBoostCooldown" value="1"></div><button class="btn btn-primary" onclick="saveSpeedBoost()">💾 Save</button></div>
+                <div class="card"><h3>🎁 Mystery Box</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="mysteryBoxMin" value="20"></div><div class="form-group"><label>Max</label><input type="number" id="mysteryBoxMax" value="100"></div></div><div class="form-group"><label>Cooldown (Minutes)</label><input type="number" id="mysteryBoxDuration" value="30"></div><button class="btn btn-primary" onclick="saveMysteryBox()">💾 Save</button></div>
+                <div class="card"><h3>🎮 Games</h3><div id="gameConfigGrid"></div><button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All</button></div>
             </div>
 
             <!-- SPIN CONFIG -->
             <div class="page" id="pageSpinConfig">
                 <div class="page-header">🎰 Spin Config</div>
-                <div class="card">
-                    <h3>🪙 Coin Prizes</h3>
-                    <div id="coinPrizesContainer"></div>
-                    <button class="btn btn-info btn-sm" onclick="addCoinPrize()">➕ Add</button>
-                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;margin-top:10px;">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>💵 USD Prizes</h3>
-                    <div id="usdPrizesContainer"></div>
-                    <button class="btn btn-info btn-sm" onclick="addUSDPrize()">➕ Add</button>
-                    <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;margin-top:10px;">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>⚙️ Settings</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Max Spins</label><input type="number" id="spinCountLimit" value="20"></div>
-                        <div class="form-group"><label>Cooldown (sec)</label><input type="number" id="spinCooldown" value="15"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save</button>
-                </div>
+                <div class="card"><h3>🪙 Coin Prizes</h3><div id="coinPrizesContainer"></div><button class="btn btn-info btn-sm" onclick="addCoinPrize()">➕ Add</button></div>
+                <div class="card"><h3>💵 USD Prizes</h3><div id="usdPrizesContainer"></div><button class="btn btn-info btn-sm" onclick="addUSDPrize()">➕ Add</button></div>
+                <div class="card"><h3>⚙️ Settings</h3><div class="form-row"><div class="form-group"><label>Max Spins</label><input type="number" id="spinCountLimit" value="20"></div><div class="form-group"><label>Cooldown (sec)</label><input type="number" id="spinCooldown" value="15"></div></div><button class="btn btn-primary" onclick="saveSpinSettings()">💾 Save</button></div>
+                <button class="btn btn-primary" onclick="saveSpinConfig()" style="width:100%;margin-top:10px;">💾 Save All Spin Config</button>
             </div>
 
             <!-- RULES -->
             <div class="page" id="pageRules">
                 <div class="page-header">📋 Rules</div>
-                <div class="card">
-                    <h3>📖 Current Rules</h3>
-                    <div id="rulesContainer">
-                        <div class="rule-item"><div class="rule-key">📋 Mining</div><div class="rule-value" id="rule-mining">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Tasks</div><div class="rule-value" id="rule-tasks">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Referral</div><div class="rule-value" id="rule-referral">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Withdraw</div><div class="rule-value" id="rule-withdraw">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Level</div><div class="rule-value" id="rule-level">Loading...</div></div>
-                        <div class="rule-item"><div class="rule-key">📋 Airdrop</div><div class="rule-value" id="rule-airdrop">Loading...</div></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>✏️ Edit Rule</h3>
-                    <div class="form-group"><label>Rule Key</label><select id="ruleKeySelect" onchange="loadRuleContent()"><option value="mining">Mining</option><option value="tasks">Tasks</option><option value="referral">Referral</option><option value="withdraw">Withdraw</option><option value="level">Level</option><option value="airdrop">Airdrop</option></select></div>
-                    <div class="form-group"><label>Content</label><textarea id="ruleContentInput" rows="4"></textarea></div>
-                    <button class="btn btn-primary" onclick="updateRule()">💾 Update</button>
-                </div>
+                <div class="card"><h3>📖 Current Rules</h3><div id="rulesContainer"></div></div>
+                <div class="card"><h3>✏️ Edit Rule</h3><div class="form-group"><label>Rule Key</label><select id="ruleKeySelect" onchange="loadRuleContent()"><option value="mining">Mining</option><option value="tasks">Tasks</option><option value="referral">Referral</option><option value="withdraw">Withdraw</option><option value="level">Level</option><option value="airdrop">Airdrop</option></select></div><div class="form-group"><label>Content</label><textarea id="ruleContentInput" rows="4"></textarea></div><button class="btn btn-primary" onclick="updateRule()">💾 Update</button></div>
             </div>
 
             <!-- SETTINGS -->
@@ -351,33 +286,15 @@
             <!-- PAYMENT CONFIG -->
             <div class="page" id="pagePaymentConfig">
                 <div class="page-header">📱 Payment</div>
-                <div class="card">
-                    <h3>📱 Methods (ON/OFF)</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>bKash</label><select id="bkashStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
-                        <div class="form-group"><label>Nagad</label><select id="nagadStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
-                    </div>
-                    <div class="form-group"><label>Rocket</label><select id="rocketStatus"><option value="on">ON</option><option value="off">OFF</option></select></div>
-                    <button class="btn btn-primary" onclick="savePaymentMethodsStatus()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>📱 Payment Numbers</h3>
-                    <div class="form-group"><label>bKash</label><input type="text" id="bkashNumber" placeholder="017XXXXXXXX"></div>
-                    <div class="form-group"><label>Nagad</label><input type="text" id="nagadNumber" placeholder="017XXXXXXXX"></div>
-                    <div class="form-group"><label>Rocket</label><input type="text" id="rocketNumber" placeholder="017XXXXXXXX"></div>
-                    <button class="btn btn-primary" onclick="saveManualPaymentNumbers()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>📊 Payment Requests</h3>
-                    <div class="table-container" id="paymentRequestsContainer"></div>
-                </div>
+                <div class="card"><h3>📱 Methods (ON/OFF)</h3><div id="paymentMethodsContainer"></div><button class="btn btn-primary" onclick="savePaymentMethodsStatus()">💾 Save</button></div>
+                <div class="card"><h3>📱 Payment Numbers</h3><div id="paymentNumbersContainer"></div><button class="btn btn-primary" onclick="saveManualPaymentNumbers()">💾 Save</button></div>
+                <div class="card"><h3>📊 Payment Requests</h3><div class="table-container" id="paymentRequestsContainer"></div></div>
             </div>
 
             <!-- MESSAGING -->
             <div class="page" id="pageMessaging">
                 <div class="page-header">📨 Messaging</div>
-                <div class="card">
-                    <h3>📩 Send Notification</h3>
+                <div class="card"><h3>📩 Send Notification</h3>
                     <div class="form-group"><label>Recipient</label><select id="notifyRecipient" onchange="toggleSpecificUser()"><option value="all">All Users</option><option value="specific">Specific User</option></select></div>
                     <div class="form-group" id="specificUserGroup" style="display:none;"><label>User ID</label><input type="text" id="notifyUserId" placeholder="Enter user ID..."></div>
                     <div class="form-group"><label>Type</label><select id="notifyType"><option value="info">ℹ️ Info</option><option value="success">✅ Success</option><option value="warning">⚠️ Warning</option><option value="error">❌ Error</option></select></div>
@@ -391,12 +308,8 @@
             <!-- AIRDROP -->
             <div class="page" id="pageAirdrop">
                 <div class="page-header">🎁 Airdrop</div>
-                <div class="card">
-                    <h3>🎁 Airdrop Config</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label>Pool Amount ($)</label><input type="number" id="airdropPool" value="50" step="0.001"></div>
-                        <div class="form-group"><label>Duration (minutes)</label><input type="number" id="airdropDuration" value="5"></div>
-                    </div>
+                <div class="card"><h3>🎁 Airdrop Config</h3>
+                    <div class="form-row"><div class="form-group"><label>Pool Amount ($)</label><input type="number" id="airdropPool" value="50" step="0.001"></div><div class="form-group"><label>Duration (minutes)</label><input type="number" id="airdropDuration" value="5"></div></div>
                     <button class="btn btn-primary" onclick="saveAirdropConfig()">💾 Save</button>
                     <button class="btn btn-success" onclick="startAirdropNow()" style="margin-top:10px;">🚀 Start Airdrop Now</button>
                     <button class="btn btn-danger" onclick="stopAirdropNow()" style="margin-top:5px;">⏹️ Stop Airdrop</button>
@@ -404,23 +317,12 @@
                 <div class="card"><h3>📊 Airdrop History</h3><div class="table-container" id="airdropHistoryTable"></div></div>
             </div>
 
-            <!-- AVIATRIX -->
-            <div class="page" id="pageAviatrix">
-                <div class="page-header">✈️ Aviatrix</div>
-                <div class="card">
-                    <h3>🎯 Crash Points</h3>
-                    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Enter crash points (comma separated) - e.g., 1.5,2.0,2.5</p>
-                    <div class="form-group"><input type="text" id="aviatrixCrashPoints" placeholder="1.5,2.0,2.5,3.0..."></div>
-                    <button class="btn btn-primary" onclick="saveAviatrixConfig()">💾 Save</button>
-                </div>
-                <div class="card">
-                    <h3>👥 Live Players</h3>
-                    <div id="aviatrixLivePlayers"><p style="color:#94a3b8;">Loading...</p></div>
-                </div>
-                <div class="card">
-                    <h3>📊 Flight History</h3>
-                    <div class="table-container" id="aviatrixHistoryTable"></div>
-                </div>
+            <!-- AVIATOR -->
+            <div class="page" id="pageAviator">
+                <div class="page-header">✈️ Aviator</div>
+                <div class="card"><h3>🎯 Crash Points</h3><p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Enter crash points (comma separated) - e.g., 1.5,2.0,2.5</p><div class="form-group"><input type="text" id="aviatorCrashPoints" placeholder="1.5,2.0,2.5,3.0..."></div><button class="btn btn-primary" onclick="saveAviatorConfig()">💾 Save</button></div>
+                <div class="card"><h3>👥 Live Players</h3><div id="aviatorLivePlayers"><p style="color:#94a3b8;">Loading...</p></div></div>
+                <div class="card"><h3>📊 Flight History</h3><div class="table-container" id="aviatorHistoryTable"></div></div>
             </div>
         </div>
     </div>
@@ -485,7 +387,7 @@
         function loginOk() { 
             document.getElementById('loginPage').style.display = 'none'; 
             document.getElementById('adminPanel').style.display = 'flex'; 
-            loadDash(); loadAppealCount(); loadMaintenanceStatus(); 
+            loadDash(); loadAppealCount(); 
         }
         function adminLogout() { document.getElementById('loginPage').style.display = 'flex'; document.getElementById('adminPanel').style.display = 'none'; }
 
@@ -500,6 +402,7 @@
             if (el) el.classList.add('active'); 
             const loaders = {
                 'dashboard': loadDash,
+                'features': loadFeatures,
                 'maintenance': loadMaintenanceStatus,
                 'users': loadUsers,
                 'mining': loadMining,
@@ -514,7 +417,7 @@
                 'paymentConfig': () => { loadPaymentConfig(); loadPaymentRequests(); },
                 'messaging': loadNotificationHistory,
                 'airdrop': loadAirdropConfig,
-                'aviatrix': loadAviatrixConfig
+                'aviator': loadAviatorConfig
             };
             if (loaders[p]) loaders[p]();
         }
@@ -540,10 +443,9 @@
                     <div class="stat-card"><div class="label">💵 Total USD</div><div class="value" style="color:#10b981;">$${usd.toFixed(4)}</div></div>
                     <div class="stat-card"><div class="label">🚫 Banned</div><div class="value" style="color:#ef4444;">${b}</div></div>
                 `;
-                // Recent users
                 const recent = users.sort((a,b) => (b.lastLogin||0) - (a.lastLogin||0)).slice(0,10);
                 let h = '<table><tr><th>User</th><th>Balance</th><th>USD</th><th>Status</th></tr>';
-                recent.forEach(u => h += `<tr><td>${u.fullName||u.username||u.id}</td><td>${Math.floor(u.balance||0).toLocaleString()}</td><td>$${(u.usdBalance||0).toFixed(4)}</td><td>${u.banned?'🚫':'✅'}</td></tr>`);
+                recent.forEach(u => h += `<tr><td>${u.fullName||u.username||u.id.substring(0,8)}</td><td>${Math.floor(u.balance||0).toLocaleString()}</td><td>$${(u.usdBalance||0).toFixed(4)}</td><td>${u.banned?'🚫 Banned':'✅ Active'}</td></tr>`);
                 document.getElementById('recentUsersTable').innerHTML = h + '</table>';
             }); 
             loadAppealCount(); 
@@ -551,10 +453,44 @@
         function loadAppealCount() { 
             db.ref('banAppeals').orderByChild('status').equalTo('pending').once('value', s => { 
                 const count = s.numChildren(); 
-                const badge = document.getElementById('appealBadge'); 
-                if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; } 
-                else badge.style.display = 'none'; 
+                const badge = document.querySelector('#pageBanAppeals .badge'); 
+                // update sidebar if needed
             }); 
+        }
+
+        // ============================================================
+        // ================== FEATURES (ON/OFF) ========================
+        // ============================================================
+        function loadFeatures() {
+            const features = ['games', 'spin', 'mining', 'mysterybox', 'speedboost', 'tasks', 'referral', 'airdrop', 'withdraw'];
+            const container = document.getElementById('featuresContainer');
+            let html = '';
+            features.forEach(f => {
+                const label = f.charAt(0).toUpperCase() + f.slice(1);
+                html += `<div class="feature-toggle">
+                    <span class="toggle-label">${label}</span>
+                    <div class="toggle-switch active" id="toggle_${f}" onclick="toggleFeature('${f}')"><div class="toggle-slider"></div></div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            // Load current states
+            db.ref('features').once('value', snap => {
+                const f = snap.val() || {};
+                features.forEach(key => {
+                    const toggle = document.getElementById('toggle_' + key);
+                    if (f[key] && !f[key].enabled) {
+                        toggle.classList.remove('active');
+                    } else {
+                        toggle.classList.add('active');
+                    }
+                });
+            });
+        }
+        function toggleFeature(feature) {
+            const toggle = document.getElementById('toggle_' + feature);
+            const isActive = toggle.classList.toggle('active');
+            db.ref('features/' + feature).set({ enabled: isActive });
+            toast(isActive ? `✅ ${feature} enabled` : `❌ ${feature} disabled`);
         }
 
         // ============================================================
@@ -563,27 +499,34 @@
         function loadMaintenanceStatus() {
             db.ref('maintenance').on('value', snap => {
                 const m = snap.val() || { enabled: false, message: 'We are currently updating the app.' };
-                const banner = document.getElementById('maintenanceBanner');
-                const badge = document.getElementById('maintenanceBadge');
-                if (m.enabled) {
-                    banner.innerHTML = `<span><i class="fas fa-exclamation-triangle"></i> 🔴 Maintenance is ON</span><button class="btn btn-success btn-sm" onclick="toggleMaintenance()">🟢 Turn OFF</button>`;
-                    badge.style.display = 'inline-block'; badge.textContent = 'ON';
-                } else {
-                    banner.innerHTML = `<span><i class="fas fa-check-circle"></i> Maintenance is OFF</span><button class="btn btn-danger btn-sm" onclick="toggleMaintenance()">🔴 Turn ON</button>`;
-                    badge.style.display = 'none';
-                }
+                const container = document.getElementById('maintenanceControls');
+                container.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+                        <span style="font-size:16px;">Status: <span style="color:${m.enabled?'#ef4444':'#10b981'};font-weight:700;">${m.enabled?'🔴 ON':'🟢 OFF'}</span></span>
+                        <button class="btn ${m.enabled?'btn-success':'btn-danger'}" onclick="toggleMaintenance()">${m.enabled?'🟢 Turn OFF':'🔴 Turn ON'}</button>
+                    </div>
+                `;
                 document.getElementById('maintenanceMessage').value = m.message || '';
             });
         }
-        function toggleMaintenance() { db.ref('maintenance').once('value', snap => { const m = snap.val() || { enabled: false }; db.ref('maintenance').update({ enabled: !m.enabled }); toast(m.enabled ? '✅ OFF' : '🔴 ON'); }); }
-        function saveMaintenanceMessage() { db.ref('maintenance').update({ message: document.getElementById('maintenanceMessage').value }); toast('✅ Saved!'); }
+        function toggleMaintenance() { 
+            db.ref('maintenance').once('value', snap => { 
+                const m = snap.val() || { enabled: false }; 
+                db.ref('maintenance').update({ enabled: !m.enabled }); 
+                toast(!m.enabled ? '🔴 Maintenance ON' : '🟢 Maintenance OFF'); 
+            }); 
+        }
+        function saveMaintenanceMessage() { 
+            db.ref('maintenance').update({ message: document.getElementById('maintenanceMessage').value }); 
+            toast('✅ Message saved!'); 
+        }
 
         // ============================================================
         // ================== USERS ====================================
         // ============================================================
         function loadUsers() { 
             db.ref('users').once('value', s => { 
-                let h = '<table><tr><th>ID</th><th>Name</th><th>Balance</th><th>USD</th><th>XP</th><th>Level</th><th>Coins</th><th>Mining</th><th>Refs</th><th>Status</th><th>Actions</th></tr>'; 
+                let h = '<table><tr><th>ID</th><th>Name</th><th>Balance</th><th>USD</th><th>XP</th><th>Level</th><th>Coins Left</th><th>Mining</th><th>Refs</th><th>Status</th><th>Actions</th></tr>'; 
                 if (!s.exists()) h += '<tr><td colspan="11">No users</td></tr>'; 
                 else s.forEach(ch => { 
                     const d = ch.val(), id = ch.key; 
@@ -639,13 +582,13 @@
             closeModal('editUserModal'); loadUsers(); toast('✅ Saved!'); 
         }
         function toggleBan(uid, ban) { 
-            const r = ban ? (prompt('Reason:') || 'Violation') : null; 
+            const r = ban ? (prompt('Ban reason:') || 'Violation') : null; 
             if (ban && !confirm(`Ban ${uid}?`)) return; 
-            db.ref('users/' + uid).update({ banned: ban, banReason: r, bannedAt: ban ? Date.now() : null, banAppealSubmitted: false }); 
-            if (!ban) db.ref('banAppeals/' + uid).update({ status: 'resolved', resolvedAt: Date.now() }); 
-            toast(ban ? '🚫 Banned!' : '✅ Unbanned!'); loadUsers(); loadDash(); loadAppealCount(); 
+            db.ref('users/' + uid).update({ banned: ban, banReason: r, bannedAt: ban ? Date.now() : null }); 
+            if (!ban) db.ref('banAppeals/' + uid).update({ status: 'approved', resolvedAt: Date.now() }); 
+            toast(ban ? '🚫 Banned!' : '✅ Unbanned!'); loadUsers(); loadDash(); 
         }
-        function delUser(uid) { if (confirm('Delete?')) { db.ref('users/' + uid).remove(); db.ref('referrals/' + uid).remove(); db.ref('banAppeals/' + uid).remove(); toast('🗑️ Deleted!'); loadUsers(); loadDash(); } }
+        function delUser(uid) { if (confirm('Delete user? This cannot be undone!')) { db.ref('users/' + uid).remove(); db.ref('referrals/' + uid).remove(); db.ref('banAppeals/' + uid).remove(); toast('🗑️ Deleted!'); loadUsers(); loadDash(); } }
 
         function calcUserLevel(xp) {
             xp = xp || -5000;
@@ -714,13 +657,12 @@
             db.ref('banAppeals').orderByChild('status').equalTo(banTab).once('value', s => { 
                 const c = document.getElementById('banAppealsContainer'); 
                 if (!s.exists()) c.innerHTML = '<p style="color:#94a3b8;">✅ No appeals</p>'; 
-                else { let h = ''; s.forEach(ch => { const a = ch.val(); h += `<div class="appeal-card"><h4>📩 ${a.username||a.userId}</h4><p><b>ID:</b> ${a.userId}</p><p><b>Reason:</b> ${a.banReason||'N/A'}</p><p><b>Message:</b> "${a.message||'No message'}"</p><p style="font-size:10px;">📅 ${new Date(a.createdAt).toLocaleString()}</p>${banTab==='pending'?`<button class="btn btn-sm btn-success" onclick="respondAppeal('${a.userId}')">📩 Respond</button>`:`<p><b>Response:</b> ${a.adminResponse||'N/A'}</p><p><b>Resolved:</b> ${a.resolvedAt?new Date(a.resolvedAt).toLocaleString():'N/A'}</p>`}</div>`; }); c.innerHTML = h; } 
+                else { let h = ''; s.forEach(ch => { const a = ch.val(); h += `<div class="appeal-card"><h4>📩 ${a.username||a.userId}</h4><p><b>ID:</b> ${a.userId}</p><p><b>Reason:</b> ${a.banReason||'N/A'}</p><p><b>Message:</b> "${a.message||'No message'}"</p><p style="font-size:10px;">📅 ${a.createdAt?new Date(a.createdAt).toLocaleString():'N/A'}</p>${banTab==='pending'?`<button class="btn btn-sm btn-success" onclick="respondAppeal('${a.userId}')">📩 Respond</button>`:`<p><b>Response:</b> ${a.adminResponse||'N/A'}</p><p><b>Resolved:</b> ${a.resolvedAt?new Date(a.resolvedAt).toLocaleString():'N/A'}</p>`}</div>`; }); c.innerHTML = h; } 
             }); 
-            loadAppealCount(); 
         }
         function respondAppeal(uid) { document.getElementById('appealUserId').value = uid; document.getElementById('appealResponse').value = ''; document.getElementById('appealResponseModal').classList.add('show'); }
-        function approveAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Approved'; db.ref('users/' + uid).update({ banned: false, banReason: null, bannedAt: null, banAppealSubmitted: false }); db.ref('banAppeals/' + uid).update({ status: 'approved', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); loadUsers(); loadDash(); loadAppealCount(); toast('✅ Unbanned!'); }
-        function rejectAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Rejected'; db.ref('banAppeals/' + uid).update({ status: 'rejected', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); loadAppealCount(); toast('❌ Rejected!'); }
+        function approveAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Approved'; db.ref('users/' + uid).update({ banned: false, banReason: null, bannedAt: null }); db.ref('banAppeals/' + uid).update({ status: 'approved', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); loadUsers(); loadDash(); toast('✅ Unbanned!'); }
+        function rejectAppeal() { const uid = document.getElementById('appealUserId').value, r = document.getElementById('appealResponse').value || 'Rejected'; db.ref('banAppeals/' + uid).update({ status: 'rejected', adminResponse: r, resolvedAt: Date.now() }); closeModal('appealResponseModal'); loadBanAppeals(); toast('❌ Rejected!'); }
 
         // ============================================================
         // ================== REFERRAL =================================
@@ -728,15 +670,35 @@
         function loadReferralConfig() { 
             db.ref('referralConfig').once('value', s => { const c = s.val() || {}; 
                 document.getElementById('refPerReferral').value = c.perReferralCoins || 50; document.getElementById('refXpPerReferral').value = c.xpPerReferral || 100; 
-                document.getElementById('refT1Count').value = c.tier1?.count || 10; document.getElementById('refT1Bonus').value = c.tier1?.bonus || 50; 
-                document.getElementById('refT2Count').value = c.tier2?.count || 25; document.getElementById('refT2Bonus').value = c.tier2?.bonus || 150; 
-                document.getElementById('refT3Count').value = c.tier3?.count || 50; document.getElementById('refT3Bonus').value = c.tier3?.bonus || 300; 
-                document.getElementById('refT4Count').value = c.tier4?.count || 100; document.getElementById('refT4Bonus').value = c.tier4?.bonus || 500; 
-                document.getElementById('refT5Count').value = c.tier5?.count || 200; document.getElementById('refT5Bonus').value = c.tier5?.bonus || 1000; 
+                const tiers = [
+                    { key: 'tier1', label: '🥉 Bronze', count: c.tier1?.count || 10, bonus: c.tier1?.bonus || 50 },
+                    { key: 'tier2', label: '🥈 Silver', count: c.tier2?.count || 25, bonus: c.tier2?.bonus || 150 },
+                    { key: 'tier3', label: '🥇 Gold', count: c.tier3?.count || 50, bonus: c.tier3?.bonus || 300 },
+                    { key: 'tier4', label: '💎 Platinum', count: c.tier4?.count || 100, bonus: c.tier4?.bonus || 500 },
+                    { key: 'tier5', label: '👑 Diamond', count: c.tier5?.count || 200, bonus: c.tier5?.bonus || 1000 }
+                ];
+                const container = document.getElementById('referralTiersContainer');
+                container.innerHTML = tiers.map(t => `
+                    <div class="form-row">
+                        <div class="form-group"><label>${t.label} Count</label><input type="number" id="ref${t.key}Count" value="${t.count}"></div>
+                        <div class="form-group"><label>${t.label} Bonus</label><input type="number" id="ref${t.key}Bonus" value="${t.bonus}"></div>
+                    </div>
+                `).join('');
             }); 
             db.ref('referrals').once('value', s => { let h = '<table><tr><th>User</th><th>Referred By</th><th>Username</th><th>Bonus</th><th>Date</th></tr>'; if (s.exists()) { const arr = []; s.forEach(ch => arr.push({ id: ch.key, ...ch.val() })); arr.sort((a, b) => (b.referredAt || 0) - (a.referredAt || 0)); arr.forEach(r => h += `<tr><td>${r.id}</td><td>${r.referredBy}</td><td>${r.username||'User'}</td><td>+${r.bonus||50}</td><td>${r.referredAt?new Date(r.referredAt).toLocaleDateString():''}</td></tr>`); } else h += '<tr><td colspan="5">No referrals</td></tr>'; document.getElementById('referralStatsTable').innerHTML = h + '</table>'; }); 
         }
-        function saveReferralConfig() { db.ref('referralConfig').set({ perReferralCoins: +document.getElementById('refPerReferral').value || 50, xpPerReferral: +document.getElementById('refXpPerReferral').value || 100, tier1: { count: +document.getElementById('refT1Count').value || 10, bonus: +document.getElementById('refT1Bonus').value || 50 }, tier2: { count: +document.getElementById('refT2Count').value || 25, bonus: +document.getElementById('refT2Bonus').value || 150 }, tier3: { count: +document.getElementById('refT3Count').value || 50, bonus: +document.getElementById('refT3Bonus').value || 300 }, tier4: { count: +document.getElementById('refT4Count').value || 100, bonus: +document.getElementById('refT4Bonus').value || 500 }, tier5: { count: +document.getElementById('refT5Count').value || 200, bonus: +document.getElementById('refT5Bonus').value || 1000 } }); toast('✅ Saved!'); }
+        function saveReferralConfig() { 
+            const config = { 
+                perReferralCoins: +document.getElementById('refPerReferral').value || 50, 
+                xpPerReferral: +document.getElementById('refXpPerReferral').value || 100,
+                tier1: { count: +document.getElementById('reftier1Count').value || 10, bonus: +document.getElementById('reftier1Bonus').value || 50 },
+                tier2: { count: +document.getElementById('reftier2Count').value || 25, bonus: +document.getElementById('reftier2Bonus').value || 150 },
+                tier3: { count: +document.getElementById('reftier3Count').value || 50, bonus: +document.getElementById('reftier3Bonus').value || 300 },
+                tier4: { count: +document.getElementById('reftier4Count').value || 100, bonus: +document.getElementById('reftier4Bonus').value || 500 },
+                tier5: { count: +document.getElementById('reftier5Count').value || 200, bonus: +document.getElementById('reftier5Bonus').value || 1000 }
+            };
+            db.ref('referralConfig').set(config); toast('✅ Saved!'); 
+        }
 
         // ============================================================
         // ================== TASKS ====================================
@@ -744,7 +706,7 @@
         function saveTask() { 
             const tid = document.getElementById('editingTaskId').value; 
             const t = { title: document.getElementById('taskTitle').value, reward: +document.getElementById('taskReward').value || 50, type: document.getElementById('taskType').value, link: document.getElementById('taskLink').value, limit: +document.getElementById('taskLimit').value || 1, waitTime: +document.getElementById('taskWaitTime').value || 60, updatedAt: Date.now() }; 
-            if (!t.title) { toast('Title!', 'error'); return; } 
+            if (!t.title) { toast('Title required!', 'error'); return; } 
             if (!t.createdAt) t.createdAt = Date.now(); 
             if (tid) { db.ref('tasks/' + tid).update(t, () => { toast('✅ Updated!'); clearTaskForm(); loadTasks(); }); } 
             else { db.ref('tasks').push(t, () => { toast('✅ Added!'); clearTaskForm(); loadTasks(); }); } 
@@ -761,19 +723,18 @@
             db.ref('config/dailyBonus').once('value', s => { const d = s.val() || { min: 50, max: 100 }; document.getElementById('dailyBonusMin').value = d.min || 50; document.getElementById('dailyBonusMax').value = d.max || 100; });
             db.ref('config/speedBoost').once('value', s => { const d = s.val() || { min: 50, max: 60, cooldown: 3600000 }; document.getElementById('speedBoostMin').value = d.min || 50; document.getElementById('speedBoostMax').value = d.max || 60; document.getElementById('speedBoostCooldown').value = Math.floor((d.cooldown || 3600000) / 3600000); });
             db.ref('config/mysteryBox').once('value', s => { const d = s.val() || { min: 20, max: 100, duration: 1800000 }; document.getElementById('mysteryBoxMin').value = d.min || 20; document.getElementById('mysteryBoxMax').value = d.max || 100; document.getElementById('mysteryBoxDuration').value = Math.floor((d.duration || 1800000) / 60000); });
-            
             db.ref('gameConfigs').once('value', snap => {
                 const configs = snap.val() || {};
-                const games = ['xo', 'dice', 'target', 'card', 'memory', 'flappy', 'puzzle'];
+                const games = ['xo', 'dice', 'target', 'card', 'memory', 'coinflip', 'rps', 'aviator'];
                 let html = '';
                 games.forEach(game => {
                     const c = configs[game] || { minEntry: 100, maxEntry: 500, bonus: 10 };
                     html += `<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);margin-bottom:10px;">
                         <h4 style="color:#fbbf24;margin-bottom:8px;">🎮 ${game.charAt(0).toUpperCase()+game.slice(1)}</h4>
                         <div class="form-row">
-                            <div class="form-group"><label>Min</label><input type="number" id="gm_${game}_min" value="${c.minEntry||100}"></div>
-                            <div class="form-group"><label>Max</label><input type="number" id="gm_${game}_max" value="${c.maxEntry||500}"></div>
-                            <div class="form-group"><label>Win %</label><input type="number" id="gm_${game}_bonus" value="${c.bonus||10}"></div>
+                            <div class="form-group"><label>Min Entry</label><input type="number" id="gm_${game}_min" value="${c.minEntry||100}"></div>
+                            <div class="form-group"><label>Max Entry</label><input type="number" id="gm_${game}_max" value="${c.maxEntry||500}"></div>
+                            <div class="form-group"><label>Win Bonus %</label><input type="number" id="gm_${game}_bonus" value="${c.bonus||10}"></div>
                         </div>
                     </div>`;
                 });
@@ -784,7 +745,7 @@
         function saveSpeedBoost() { db.ref('config/speedBoost').set({ min: +document.getElementById('speedBoostMin').value || 50, max: +document.getElementById('speedBoostMax').value || 60, cooldown: (+document.getElementById('speedBoostCooldown').value || 1) * 3600000 }); toast('✅ Saved!'); }
         function saveMysteryBox() { db.ref('config/mysteryBox').set({ min: +document.getElementById('mysteryBoxMin').value || 20, max: +document.getElementById('mysteryBoxMax').value || 100, duration: (+document.getElementById('mysteryBoxDuration').value || 30) * 60000 }); toast('✅ Saved!'); }
         function saveAllGameConfigs() {
-            const games = ['xo', 'dice', 'target', 'card', 'memory', 'flappy', 'puzzle'];
+            const games = ['xo', 'dice', 'target', 'card', 'memory', 'coinflip', 'rps', 'aviator'];
             const configs = {};
             games.forEach(game => {
                 configs[game] = {
@@ -816,10 +777,16 @@
             const container = document.getElementById('usdPrizesContainer');
             container.innerHTML = prizes.map((p, i) => `<div class="spin-prize-item"><span style="color:#10b981;">💵</span><input type="number" step="0.01" value="${p}" data-index="${i}" class="usd-prize-input"><button class="remove-btn" onclick="removeUSDPrize(${i})">✕</button></div>`).join('');
         }
-        function addCoinPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.coin-prize-input'); if (inputs.length) { inputs[inputs.length-1].value = 50; } }, 100); }
-        function addUSDPrize() { loadSpinConfigPage(); setTimeout(() => { const inputs = document.querySelectorAll('.usd-prize-input'); if (inputs.length) { inputs[inputs.length-1].value = 0.01; } }, 100); }
-        function removeCoinPrize(index) { db.ref('spinConfig').once('value', snap => { const config = snap.val() || {}; config.coinPrizes = (config.coinPrizes || [500,200,150,100,90,70,50,20,10,0]).filter((_, i) => i !== index); db.ref('spinConfig').set(config); renderCoinPrizes(config.coinPrizes); }); }
-        function removeUSDPrize(index) { db.ref('spinConfig').once('value', snap => { const config = snap.val() || {}; config.usdPrizes = (config.usdPrizes || [0.08,0.05,0.02,0.01,0]).filter((_, i) => i !== index); db.ref('spinConfig').set(config); renderUSDPrizes(config.usdPrizes); }); }
+        function addCoinPrize() { 
+            const container = document.getElementById('coinPrizesContainer');
+            container.innerHTML += `<div class="spin-prize-item"><span style="color:#fbbf24;">🪙</span><input type="number" value="50" class="coin-prize-input"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>`;
+        }
+        function addUSDPrize() { 
+            const container = document.getElementById('usdPrizesContainer');
+            container.innerHTML += `<div class="spin-prize-item"><span style="color:#10b981;">💵</span><input type="number" step="0.01" value="0.01" class="usd-prize-input"><button class="remove-btn" onclick="this.parentElement.remove()">✕</button></div>`;
+        }
+        function removeCoinPrize(index) { const inputs = document.querySelectorAll('.coin-prize-input'); if (inputs[index]) inputs[index].parentElement.remove(); }
+        function removeUSDPrize(index) { const inputs = document.querySelectorAll('.usd-prize-input'); if (inputs[index]) inputs[index].parentElement.remove(); }
         function saveSpinConfig() {
             const coinPrizes = Array.from(document.querySelectorAll('.coin-prize-input')).map(el => +el.value || 0).filter(v => v >= 0);
             const usdPrizes = Array.from(document.querySelectorAll('.usd-prize-input')).map(el => +el.value || 0).filter(v => v >= 0);
@@ -837,12 +804,14 @@
         function loadRules() {
             db.ref('rules').on('value', snap => {
                 const rules = snap.val() || {};
-                document.getElementById('rule-mining').textContent = rules.mining || 'No rules set.';
-                document.getElementById('rule-tasks').textContent = rules.tasks || 'No rules set.';
-                document.getElementById('rule-referral').textContent = rules.referral || 'No rules set.';
-                document.getElementById('rule-withdraw').textContent = rules.withdraw || 'No rules set.';
-                document.getElementById('rule-level').textContent = rules.level || 'No rules set.';
-                document.getElementById('rule-airdrop').textContent = rules.airdrop || 'No rules set.';
+                const container = document.getElementById('rulesContainer');
+                const keys = ['mining', 'tasks', 'referral', 'withdraw', 'level', 'airdrop'];
+                container.innerHTML = keys.map(key => `
+                    <div class="rule-item">
+                        <div class="rule-key">📋 ${key.charAt(0).toUpperCase()+key.slice(1)}</div>
+                        <div class="rule-value">${rules[key] || 'No rules set.'}</div>
+                    </div>
+                `).join('');
             });
             loadRuleContent();
         }
@@ -872,8 +841,26 @@
         // ================== PAYMENT CONFIG ===========================
         // ============================================================
         function loadPaymentConfig() {
-            db.ref('paymentConfig/methodsStatus').once('value', s => { const d = s.val() || { bkash: 'on', nagad: 'on', rocket: 'on' }; document.getElementById('bkashStatus').value = d.bkash || 'on'; document.getElementById('nagadStatus').value = d.nagad || 'on'; document.getElementById('rocketStatus').value = d.rocket || 'on'; });
-            db.ref('paymentConfig/manualNumbers').once('value', s => { const d = s.val() || {}; document.getElementById('bkashNumber').value = d.bkash || ''; document.getElementById('nagadNumber').value = d.nagad || ''; document.getElementById('rocketNumber').value = d.rocket || ''; });
+            db.ref('paymentConfig/methodsStatus').once('value', s => { 
+                const d = s.val() || { bkash: 'on', nagad: 'on', rocket: 'on' };
+                const container = document.getElementById('paymentMethodsContainer');
+                container.innerHTML = `
+                    <div class="form-row">
+                        <div class="form-group"><label>bKash</label><select id="bkashStatus"><option value="on" ${d.bkash==='on'?'selected':''}>ON</option><option value="off" ${d.bkash==='off'?'selected':''}>OFF</option></select></div>
+                        <div class="form-group"><label>Nagad</label><select id="nagadStatus"><option value="on" ${d.nagad==='on'?'selected':''}>ON</option><option value="off" ${d.nagad==='off'?'selected':''}>OFF</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Rocket</label><select id="rocketStatus"><option value="on" ${d.rocket==='on'?'selected':''}>ON</option><option value="off" ${d.rocket==='off'?'selected':''}>OFF</option></select></div>
+                `;
+            });
+            db.ref('paymentConfig/manualNumbers').once('value', s => { 
+                const d = s.val() || {};
+                const container = document.getElementById('paymentNumbersContainer');
+                container.innerHTML = `
+                    <div class="form-group"><label>bKash Number</label><input type="text" id="bkashNumber" value="${d.bkash||''}" placeholder="017XXXXXXXX"></div>
+                    <div class="form-group"><label>Nagad Number</label><input type="text" id="nagadNumber" value="${d.nagad||''}" placeholder="017XXXXXXXX"></div>
+                    <div class="form-group"><label>Rocket Number</label><input type="text" id="rocketNumber" value="${d.rocket||''}" placeholder="017XXXXXXXX"></div>
+                `;
+            });
         }
         function savePaymentMethodsStatus() { db.ref('paymentConfig/methodsStatus').set({ bkash: document.getElementById('bkashStatus').value, nagad: document.getElementById('nagadStatus').value, rocket: document.getElementById('rocketStatus').value }); toast('✅ Saved!'); }
         function saveManualPaymentNumbers() { db.ref('paymentConfig/manualNumbers').set({ bkash: document.getElementById('bkashNumber').value.trim(), nagad: document.getElementById('nagadNumber').value.trim(), rocket: document.getElementById('rocketNumber').value.trim() }); toast('✅ Saved!'); }
@@ -967,17 +954,16 @@
         }
 
         // ============================================================
-        // ================== AVIATRIX =================================
+        // ================== AVIATOR ==================================
         // ============================================================
-        function loadAviatrixConfig() {
-            db.ref('aviatrixConfig').once('value', s => {
+        function loadAviatorConfig() {
+            db.ref('aviatorConfig').once('value', s => {
                 const c = s.val() || { crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] };
-                document.getElementById('aviatrixCrashPoints').value = c.crashPoints ? c.crashPoints.join(',') : '';
+                document.getElementById('aviatorCrashPoints').value = c.crashPoints ? c.crashPoints.join(',') : '';
             });
-            // Live players
-            db.ref('aviatrixPlayers').on('value', snap => {
+            db.ref('aviatorPlayers').on('value', snap => {
                 const players = snap.val() || {};
-                const container = document.getElementById('aviatrixLivePlayers');
+                const container = document.getElementById('aviatorLivePlayers');
                 let count = 0, html = '<div class="online-players-grid">';
                 for (let key in players) {
                     if (players[key].online) { count++; html += `<div class="online-player-card"><div class="name">${players[key].username||key}</div><div class="status">🟢 Online</div></div>`; }
@@ -986,23 +972,22 @@
                 else html += '</div><p style="color:#10b981;margin-top:10px;">👥 ' + count + ' players online</p>';
                 container.innerHTML = html;
             });
-            // History - read from aviatrixData in user DB
-            loadAviatrixHistory();
+            loadAviatorHistory();
         }
-        function saveAviatrixConfig() {
-            const points = document.getElementById('aviatrixCrashPoints').value.split(',').map(p => parseFloat(p.trim())).filter(p => !isNaN(p) && p > 1);
+        function saveAviatorConfig() {
+            const points = document.getElementById('aviatorCrashPoints').value.split(',').map(p => parseFloat(p.trim())).filter(p => !isNaN(p) && p > 1);
             if (points.length === 0) { toast('Enter valid crash points!', 'error'); return; }
-            db.ref('aviatrixConfig').set({ crashPoints: points });
+            db.ref('aviatorConfig').set({ crashPoints: points });
             toast('✅ Saved!');
         }
-        function loadAviatrixHistory() {
+        function loadAviatorHistory() {
             db.ref('users').once('value', snap => {
-                const container = document.getElementById('aviatrixHistoryTable');
+                const container = document.getElementById('aviatorHistoryTable');
                 const allHistory = [];
                 snap.forEach(ch => {
                     const d = ch.val();
-                    if (d.aviatrixHistory && d.aviatrixHistory.length) {
-                        d.aviatrixHistory.forEach(h => {
+                    if (d.aviatorHistory && d.aviatorHistory.length) {
+                        d.aviatorHistory.forEach(h => {
                             allHistory.push({ ...h, username: d.fullName || d.username || ch.key });
                         });
                     }
@@ -1033,9 +1018,10 @@
             db.ref('spinConfig').once('value', s => { if (!s.exists()) db.ref('spinConfig').set({ usdPrizes: [0.08, 0.05, 0.02, 0.01, 0], coinPrizes: [500, 200, 150, 100, 90, 70, 50, 20, 10, 0], spinCountLimit: 20, cooldown: 15 }); }); 
             db.ref('maintenance').once('value', s => { if (!s.exists()) db.ref('maintenance').set({ enabled: false, message: 'We are currently updating the app.' }); }); 
             db.ref('paymentConfig').once('value', s => { if (!s.exists()) db.ref('paymentConfig').set({ methodsStatus: { bkash: 'on', nagad: 'on', rocket: 'on' }, manualNumbers: { bkash: '', nagad: '', rocket: '' } }); }); 
-            db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, flappy:{minEntry:100,maxEntry:500,bonus:20}, puzzle:{minEntry:100,maxEntry:500,bonus:18} }); }); 
+            db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, coinflip:{minEntry:100,maxEntry:500,bonus:12}, rps:{minEntry:100,maxEntry:500,bonus:18}, aviator:{minEntry:50,maxEntry:500,bonus:15} }); }); 
             db.ref('airdropConfig').once('value', s => { if (!s.exists()) db.ref('airdropConfig').set({ poolAmount: 50, duration: 5, active: false }); }); 
-            db.ref('aviatrixConfig').once('value', s => { if (!s.exists()) db.ref('aviatrixConfig').set({ crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] }); }); 
+            db.ref('aviatorConfig').once('value', s => { if (!s.exists()) db.ref('aviatorConfig').set({ crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] }); }); 
+            db.ref('features').once('value', s => { if (!s.exists()) db.ref('features').set({ games: {enabled:true}, spin:{enabled:true}, mining:{enabled:true}, mysterybox:{enabled:true}, speedboost:{enabled:true}, tasks:{enabled:true}, referral:{enabled:true}, airdrop:{enabled:true}, withdraw:{enabled:true} }); }); 
         }
         document.addEventListener('DOMContentLoaded', init);
         document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') adminLogin(); if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
