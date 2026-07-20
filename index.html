@@ -253,9 +253,13 @@
             <!-- GAME CONFIG -->
             <div class="page" id="pageGameConfig">
                 <div class="page-header">🎮 Game Config</div>
+                <!-- Daily Bonus -->
                 <div class="card"><h3>🎁 Daily Bonus</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="dailyBonusMin" value="50"></div><div class="form-group"><label>Max</label><input type="number" id="dailyBonusMax" value="100"></div></div><button class="btn btn-primary" onclick="saveDailyBonus()">💾 Save</button></div>
+                <!-- Speed Boost -->
                 <div class="card"><h3>🚀 Speed Boost</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="speedBoostMin" value="50"></div><div class="form-group"><label>Max</label><input type="number" id="speedBoostMax" value="60"></div></div><div class="form-group"><label>Cooldown (Hours)</label><input type="number" id="speedBoostCooldown" value="1"></div><button class="btn btn-primary" onclick="saveSpeedBoost()">💾 Save</button></div>
+                <!-- Mystery Box -->
                 <div class="card"><h3>🎁 Mystery Box</h3><div class="form-row"><div class="form-group"><label>Min</label><input type="number" id="mysteryBoxMin" value="20"></div><div class="form-group"><label>Max</label><input type="number" id="mysteryBoxMax" value="100"></div></div><div class="form-group"><label>Cooldown (Minutes)</label><input type="number" id="mysteryBoxDuration" value="30"></div><button class="btn btn-primary" onclick="saveMysteryBox()">💾 Save</button></div>
+                <!-- Game Configs -->
                 <div class="card"><h3>🎮 Games</h3><div id="gameConfigGrid"></div><button class="btn btn-primary" onclick="saveAllGameConfigs()" style="margin-top:10px;">💾 Save All</button></div>
             </div>
 
@@ -453,7 +457,6 @@
         function loadAppealCount() { 
             db.ref('banAppeals').orderByChild('status').equalTo('pending').once('value', s => { 
                 const count = s.numChildren(); 
-                const badge = document.querySelector('#pageBanAppeals .badge'); 
                 // update sidebar if needed
             }); 
         }
@@ -478,7 +481,7 @@
                 const f = snap.val() || {};
                 features.forEach(key => {
                     const toggle = document.getElementById('toggle_' + key);
-                    if (f[key] && !f[key].enabled) {
+                    if (f[key] && f[key].enabled === false) {
                         toggle.classList.remove('active');
                     } else {
                         toggle.classList.add('active');
@@ -725,7 +728,7 @@
             db.ref('config/mysteryBox').once('value', s => { const d = s.val() || { min: 20, max: 100, duration: 1800000 }; document.getElementById('mysteryBoxMin').value = d.min || 20; document.getElementById('mysteryBoxMax').value = d.max || 100; document.getElementById('mysteryBoxDuration').value = Math.floor((d.duration || 1800000) / 60000); });
             db.ref('gameConfigs').once('value', snap => {
                 const configs = snap.val() || {};
-                const games = ['xo', 'dice', 'target', 'card', 'memory', 'coinflip', 'rps', 'aviator'];
+                const games = ['xo', 'dice', 'target', 'card', 'memory', 'puzzle', 'coinflip', 'rps', 'aviator'];
                 let html = '';
                 games.forEach(game => {
                     const c = configs[game] || { minEntry: 100, maxEntry: 500, bonus: 10 };
@@ -745,7 +748,7 @@
         function saveSpeedBoost() { db.ref('config/speedBoost').set({ min: +document.getElementById('speedBoostMin').value || 50, max: +document.getElementById('speedBoostMax').value || 60, cooldown: (+document.getElementById('speedBoostCooldown').value || 1) * 3600000 }); toast('✅ Saved!'); }
         function saveMysteryBox() { db.ref('config/mysteryBox').set({ min: +document.getElementById('mysteryBoxMin').value || 20, max: +document.getElementById('mysteryBoxMax').value || 100, duration: (+document.getElementById('mysteryBoxDuration').value || 30) * 60000 }); toast('✅ Saved!'); }
         function saveAllGameConfigs() {
-            const games = ['xo', 'dice', 'target', 'card', 'memory', 'coinflip', 'rps', 'aviator'];
+            const games = ['xo', 'dice', 'target', 'card', 'memory', 'puzzle', 'coinflip', 'rps', 'aviator'];
             const configs = {};
             games.forEach(game => {
                 configs[game] = {
@@ -831,7 +834,7 @@
         // ============================================================
         function loadSettings() { 
             db.ref('conversionRate').once('value', s => document.getElementById('conversionRate').value = s.val() || 1000); 
-            db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 1; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket']).join(','); } }); 
+            db.ref('withdrawSettings').once('value', s => { if (s.exists()) { document.getElementById('minWithdraw').value = s.val().minAmount || 1; document.getElementById('withdrawMethods').value = (s.val().methods || ['Nagad','Rocket','bKash']).join(','); } }); 
         }
         function saveConv() { db.ref('conversionRate').set(+document.getElementById('conversionRate').value || 1000); toast('✅ Saved!'); }
         function saveWithdrawSet() { db.ref('withdrawSettings').set({ minAmount: +document.getElementById('minWithdraw').value || 1, methods: document.getElementById('withdrawMethods').value.split(',').map(m => m.trim()).filter(m => m) }); toast('✅ Saved!'); }
@@ -1018,7 +1021,7 @@
             db.ref('spinConfig').once('value', s => { if (!s.exists()) db.ref('spinConfig').set({ usdPrizes: [0.08, 0.05, 0.02, 0.01, 0], coinPrizes: [500, 200, 150, 100, 90, 70, 50, 20, 10, 0], spinCountLimit: 20, cooldown: 15 }); }); 
             db.ref('maintenance').once('value', s => { if (!s.exists()) db.ref('maintenance').set({ enabled: false, message: 'We are currently updating the app.' }); }); 
             db.ref('paymentConfig').once('value', s => { if (!s.exists()) db.ref('paymentConfig').set({ methodsStatus: { bkash: 'on', nagad: 'on', rocket: 'on' }, manualNumbers: { bkash: '', nagad: '', rocket: '' } }); }); 
-            db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, coinflip:{minEntry:100,maxEntry:500,bonus:12}, rps:{minEntry:100,maxEntry:500,bonus:18}, aviator:{minEntry:50,maxEntry:500,bonus:15} }); }); 
+            db.ref('gameConfigs').once('value', s => { if (!s.exists()) db.ref('gameConfigs').set({ xo:{minEntry:100,maxEntry:500,bonus:10}, dice:{minEntry:100,maxEntry:500,bonus:15}, target:{minEntry:100,maxEntry:500,bonus:20}, card:{minEntry:100,maxEntry:500,bonus:12}, memory:{minEntry:100,maxEntry:500,bonus:15}, puzzle:{minEntry:100,maxEntry:500,bonus:18}, coinflip:{minEntry:100,maxEntry:500,bonus:12}, rps:{minEntry:100,maxEntry:500,bonus:18}, aviator:{minEntry:50,maxEntry:500,bonus:15} }); }); 
             db.ref('airdropConfig').once('value', s => { if (!s.exists()) db.ref('airdropConfig').set({ poolAmount: 50, duration: 5, active: false }); }); 
             db.ref('aviatorConfig').once('value', s => { if (!s.exists()) db.ref('aviatorConfig').set({ crashPoints: [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0,8.5,9.0,9.5,10.0] }); }); 
             db.ref('features').once('value', s => { if (!s.exists()) db.ref('features').set({ games: {enabled:true}, spin:{enabled:true}, mining:{enabled:true}, mysterybox:{enabled:true}, speedboost:{enabled:true}, tasks:{enabled:true}, referral:{enabled:true}, airdrop:{enabled:true}, withdraw:{enabled:true} }); }); 
