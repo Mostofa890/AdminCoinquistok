@@ -78,6 +78,8 @@
         .status-badge.pending { background: #f59e0b20; color: #f59e0b; }
         .status-badge.success { background: #4ade8020; color: #4ade80; }
         .status-badge.failed { background: #ef444420; color: #ef4444; }
+        .status-badge.mining-active { background: #4ade8020; color: #4ade80; }
+        .status-badge.mining-idle { background: #ef444420; color: #ef4444; }
         
         .toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; border-radius: 12px; font-weight: 600; z-index: 9999; animation: slideUp 0.4s ease; }
         .toast.success { background: #4ade80; color: #0f0f1a; }
@@ -95,6 +97,12 @@
         
         .mining-settings { background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.2); border-radius: 12px; padding: 16px; margin-top: 8px; }
         .mining-settings .title { color: #fbbf24; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+        
+        .mining-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .mining-status-dot.active { background: #4ade80; animation: pulse 1.5s infinite; }
+        .mining-status-dot.inactive { background: #ef4444; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
         
         @media (max-width: 768px) {
             .sidebar { width: 70px; padding: 12px; }
@@ -122,6 +130,7 @@
             <li><a class="active" data-page="dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
             <li><a data-page="config"><i class="fa-solid fa-gear"></i><span>Configuration</span></a></li>
             <li><a data-page="mining"><i class="fa-solid fa-hammer"></i><span>Mining Settings</span></a></li>
+            <li><a data-page="live-mining"><i class="fa-solid fa-bolt"></i><span>Live Mining</span><span class="badge" id="live-mining-count">0</span></a></li>
             <li><a data-page="withdrawals"><i class="fa-solid fa-money-bill-transfer"></i><span>Withdrawals</span><span class="badge" id="pending-count">0</span></a></li>
             <li><a data-page="users"><i class="fa-solid fa-users"></i><span>Users</span></a></li>
             <li><a data-page="bonus"><i class="fa-solid fa-star"></i><span>Bonus Tasks</span></a></li>
@@ -144,7 +153,7 @@
                 <div class="stat-card"><div class="label">Total Users</div><div class="value blue" id="total-users">0</div></div>
                 <div class="stat-card"><div class="label">Total Earnings</div><div class="value green" id="total-earnings">$0.000</div></div>
                 <div class="stat-card"><div class="label">Pending Withdrawals</div><div class="value orange" id="pending-withdrawals">0</div></div>
-                <div class="stat-card"><div class="label">Total Ads Watched</div><div class="value purple" id="total-ads">0</div></div>
+                <div class="stat-card"><div class="label">Active Miners</div><div class="value purple" id="active-miners">0</div></div>
             </div>
 
             <div class="card">
@@ -249,11 +258,6 @@ Nogad</textarea>
                             <input type="number" id="mining-recharge-hours" step="0.5" value="1">
                             <div style="font-size:11px; color:#8a8a9a; margin-top:4px;">Time between auto recharge</div>
                         </div>
-                        <div class="form-group">
-                            <label>Auto Convert Time (Hours)</label>
-                            <input type="number" id="mining-convert-hours" step="1" value="24" disabled>
-                            <div style="font-size:11px; color:#8a8a9a; margin-top:4px;">Fixed: 24 hours</div>
-                        </div>
                     </div>
                 </div>
                 <div style="margin-top:16px; padding:12px; background:rgba(16,185,129,0.08); border-radius:10px; border:1px solid rgba(16,185,129,0.15);">
@@ -268,7 +272,6 @@ Nogad</textarea>
                 </div>
             </div>
             
-            <!-- Manual User Management -->
             <div class="card">
                 <div class="card-header">
                     <h3>👤 Manual User Management</h3>
@@ -300,6 +303,35 @@ Nogad</textarea>
                     </div>
                 </div>
                 <div id="manual-result" style="margin-top:10px; font-size:14px;"></div>
+            </div>
+        </div>
+
+        <!-- Live Mining -->
+        <div id="page-live-mining" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>⚡ Live Mining Status</h3>
+                    <button class="btn btn-secondary" onclick="loadLiveMining()"><i class="fa-solid fa-refresh"></i> Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>User</th>
+                                <th>User ID</th>
+                                <th>Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody id="live-mining-table">
+                            <tr><td colspan="4" class="text-center text-muted">Loading mining status...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px; font-size:12px; color:#8a8a9a;">
+                    <span class="mining-status-dot active"></span> Mining Active &nbsp;
+                    <span class="mining-status-dot inactive"></span> Idle
+                </div>
             </div>
         </div>
 
@@ -390,6 +422,7 @@ Nogad</textarea>
                 if (page === 'dashboard') loadDashboard();
                 if (page === 'bonus') loadBonusTasks();
                 if (page === 'mining') loadMiningSettings();
+                if (page === 'live-mining') loadLiveMining();
             });
         });
 
@@ -419,13 +452,16 @@ Nogad</textarea>
                 
                 let totalEarnings = 0;
                 let totalAds = 0;
+                let activeMiners = 0;
                 userIds.forEach(id => {
                     const u = users[id];
                     if (u.totalEarning) totalEarnings += u.totalEarning;
                     if (u.adCount) totalAds += u.adCount;
+                    if (u.isMining) activeMiners++;
                 });
                 document.getElementById('total-earnings').textContent = '$' + totalEarnings.toFixed(3);
                 document.getElementById('total-ads').textContent = totalAds;
+                document.getElementById('active-miners').textContent = activeMiners;
             });
             
             firebaseDb.ref('withdrawals').once('value').then(snapshot => {
@@ -452,6 +488,41 @@ Nogad</textarea>
                                     '<span style="color:#4ade80;">✓</span>'
                                 }
                             </td>
+                        </tr>
+                    `).join('');
+                }
+            });
+        }
+
+        // ============================================================
+        // LIVE MINING
+        // ============================================================
+        function loadLiveMining() {
+            if (!firebaseDb) return;
+            
+            firebaseDb.ref('miningStatus').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const entries = Object.entries(data);
+                entries.sort((a, b) => b[1].updatedAt - a[1].updatedAt);
+                
+                const tbody = document.getElementById('live-mining-table');
+                const count = entries.filter(e => e[1].isMining).length;
+                document.getElementById('live-mining-count').textContent = count;
+                
+                if (entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No mining activity yet</td></tr>';
+                } else {
+                    tbody.innerHTML = entries.map(([id, status]) => `
+                        <tr>
+                            <td>
+                                <span class="mining-status-dot ${status.isMining ? 'active' : 'inactive'}"></span>
+                                <span class="status-badge ${status.isMining ? 'mining-active' : 'mining-idle'}">
+                                    ${status.isMining ? '⛏️ Mining' : '💤 Idle'}
+                                </span>
+                            </td>
+                            <td>${status.name || 'N/A'}</td>
+                            <td><code>${id}</code></td>
+                            <td>${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'N/A'}</td>
                         </tr>
                     `).join('');
                 }
@@ -836,6 +907,7 @@ Nogad</textarea>
                 if (id === 'page-withdrawals') loadWithdrawals();
                 if (id === 'page-users') loadUsers();
                 if (id === 'page-bonus') loadBonusTasks();
+                if (id === 'page-live-mining') loadLiveMining();
             }
         }, 30000);
 
