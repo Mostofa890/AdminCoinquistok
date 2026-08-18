@@ -5,53 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NexEarn Admin Panel</title>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
-        :root { 
-            --primary: #FF6B35; 
-            --primary-rgb: 255, 107, 53; 
-            --secondary: #E85D04; 
-            --bg: #0a0a12; 
-            --card: #141420; 
-            --text: #ffffff; 
-            --text-light: #8e8ea0; 
-            --border: #2a2a3a; 
+        :root {
+            --primary: #FF6B35;
+            --primary-rgb: 255, 107, 53;
+            --secondary: #E85D04;
+            --bg: #0a0a12;
+            --card: #141420;
+            --text: #ffffff;
+            --text-light: #8e8ea0;
+            --border: #2a2a3a;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
             --radius: 14px;
             --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --transition: all 0.3s ease;
         }
-        
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 16px 12px 20px 12px; 
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px 12px 20px 12px;
             min-height: 100vh;
         }
-        
+
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         /* ===== HEADER ===== */
         .admin-header {
             display: flex;
@@ -60,17 +64,17 @@
             margin-bottom: 24px;
             animation: fadeIn 0.4s ease;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
-        
+
         .admin-header .logo {
             font-size: 24px;
             font-weight: 900;
             color: var(--primary);
         }
-        
+
         .admin-header .logo span { color: var(--text); }
-        
+
         .admin-header .badge {
             background: var(--primary);
             color: white;
@@ -79,7 +83,13 @@
             font-size: 11px;
             font-weight: 700;
         }
-        
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .back-btn {
             background: var(--card);
             border: 1px solid var(--border);
@@ -89,18 +99,39 @@
             cursor: pointer;
             font-family: inherit;
             font-size: 13px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
-        
+
         .back-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
         }
-        
+
+        .refresh-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--text-light);
+            color: var(--text);
+        }
+
+        .refresh-btn .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+
         /* ===== STATS GRID ===== */
         .stats-grid {
             display: grid;
@@ -109,24 +140,47 @@
             margin-bottom: 20px;
             animation: fadeIn 0.5s ease;
         }
-        
+
         .stat-card {
             background: var(--card);
             padding: 16px;
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            cursor: pointer;
         }
-        
+
         .stat-card:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
         }
-        
-        .stat-card .icon { font-size: 22px; margin-bottom: 6px; color: var(--primary); }
-        .stat-card .value { font-size: 22px; font-weight: 800; }
-        .stat-card .label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
-        
+
+        .stat-card .icon {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .stat-card .value {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .stat-card .change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .stat-card .change.up { color: var(--success); }
+        .stat-card .change.down { color: var(--danger); }
+
         /* ===== TABS ===== */
         .tabs {
             display: flex;
@@ -135,7 +189,7 @@
             flex-wrap: wrap;
             animation: fadeIn 0.6s ease;
         }
-        
+
         .tab-btn {
             padding: 10px 20px;
             border-radius: 10px;
@@ -146,20 +200,34 @@
             font-family: inherit;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
         .tab-btn:hover {
             border-color: var(--text-light);
             color: var(--text);
         }
-        
+
         .tab-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-        
+
+        .tab-btn .count {
+            background: rgba(255,255,255,0.15);
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .tab-btn.active .count {
+            background: rgba(255,255,255,0.2);
+        }
+
         /* ===== CARDS ===== */
         .card {
             background: var(--card);
@@ -169,7 +237,7 @@
             border: 1px solid var(--border);
             animation: fadeIn 0.7s ease;
         }
-        
+
         .card-title {
             font-size: 17px;
             font-weight: 700;
@@ -179,7 +247,7 @@
             justify-content: space-between;
             gap: 8px;
         }
-        
+
         .card-title .count {
             font-size: 13px;
             font-weight: 600;
@@ -188,18 +256,24 @@
             padding: 2px 12px;
             border-radius: 12px;
         }
-        
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         /* ===== TABLE ===== */
         .table-container {
             overflow-x: auto;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
         }
-        
+
         th {
             text-align: left;
             padding: 10px 8px;
@@ -208,17 +282,17 @@
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
-        
+
         td {
             padding: 10px 8px;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
         }
-        
+
         tr:hover td {
             background: rgba(255,255,255,0.02);
         }
-        
+
         .status-badge {
             padding: 2px 12px;
             border-radius: 12px;
@@ -226,14 +300,16 @@
             font-weight: 600;
             display: inline-block;
         }
-        
+
         .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .status-badge.approved { background: rgba(16, 185, 129, 0.2); color: var(--success); }
         .status-badge.rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         .status-badge.active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
         .status-badge.paused { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .status-badge.verified { background: rgba(59, 130, 246, 0.2); color: var(--info); }
-        
+        .status-badge.expired { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-badge.refunded { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+
         .action-btn {
             padding: 4px 12px;
             border: none;
@@ -241,27 +317,32 @@
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-family: inherit;
             margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
-        
+
         .action-btn.approve { background: var(--success); color: white; }
-        .action-btn.approve:hover { opacity: 0.8; }
+        .action-btn.approve:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.reject { background: var(--danger); color: white; }
-        .action-btn.reject:hover { opacity: 0.8; }
+        .action-btn.reject:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.edit { background: var(--info); color: white; }
-        .action-btn.edit:hover { opacity: 0.8; }
+        .action-btn.edit:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.delete { background: var(--danger); color: white; }
-        .action-btn.delete:hover { opacity: 0.8; }
+        .action-btn.delete:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.view { background: var(--primary); color: white; }
-        .action-btn.view:hover { opacity: 0.8; }
-        
+        .action-btn.view:hover { opacity: 0.8; transform: scale(1.02); }
+        .action-btn.refund { background: var(--warning); color: white; }
+        .action-btn.refund:hover { opacity: 0.8; transform: scale(1.02); }
+
         /* ===== FORMS ===== */
         .form-group {
             margin-bottom: 14px;
         }
-        
+
         .form-group label {
             display: block;
             font-size: 13px;
@@ -269,7 +350,7 @@
             color: var(--text-light);
             margin-bottom: 4px;
         }
-        
+
         .form-group input,
         .form-group textarea,
         .form-group select {
@@ -281,9 +362,9 @@
             font-size: 14px;
             background: var(--bg);
             color: var(--text);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
-        
+
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
@@ -291,18 +372,18 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
         }
-        
+
         .form-group textarea {
             min-height: 60px;
             resize: vertical;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-        
+
         .btn-primary {
             display: inline-flex;
             align-items: center;
@@ -315,20 +396,38 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-family: inherit;
         }
-        
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
         }
-        
-        .btn-success { background: var(--success); }
-        .btn-danger { background: var(--danger); }
-        .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
-        .btn-secondary:hover { border-color: var(--text-light); }
-        
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-light);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
         /* ===== MODAL ===== */
         .modal {
             display: none;
@@ -341,49 +440,60 @@
             padding: 16px;
             animation: fadeIn 0.3s ease;
         }
-        
-        .modal.show { display: flex; }
-        
+
+        .modal.show {
+            display: flex;
+        }
+
         .modal-content {
             background: var(--card);
             padding: 24px;
             border-radius: var(--radius);
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid var(--border);
             animation: fadeIn 0.3s ease;
+            position: relative;
         }
-        
+
         .modal-content .modal-title {
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
+
         .modal-content .close-modal {
-            float: right;
+            position: absolute;
+            top: 16px;
+            right: 20px;
             background: none;
             border: none;
             color: var(--text-light);
             font-size: 24px;
             cursor: pointer;
             font-family: inherit;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
-        
-        .modal-content .close-modal:hover { color: var(--text); }
-        
+
+        .modal-content .close-modal:hover {
+            color: var(--text);
+            transform: rotate(90deg);
+        }
+
         .modal-actions {
             display: flex;
             gap: 10px;
             margin-top: 16px;
         }
-        
+
         .modal-actions .btn-primary { flex: 1; justify-content: center; }
         .modal-actions .btn-secondary { flex: 1; justify-content: center; }
-        
+
         /* ===== TOAST ===== */
         .toast-container {
             position: fixed;
@@ -396,7 +506,7 @@
             max-width: 360px;
             width: 100%;
         }
-        
+
         .toast {
             background: var(--card);
             color: var(--text);
@@ -410,55 +520,41 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            backdrop-filter: blur(10px);
         }
-        
+
         .toast.success { border-color: var(--success); }
         .toast.error { border-color: var(--danger); }
         .toast.warning { border-color: var(--warning); }
         .toast.info { border-color: var(--info); }
-        
+
         .toast .toast-icon { font-size: 18px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
         .toast.warning .toast-icon { color: var(--warning); }
         .toast.info .toast-icon { color: var(--info); }
-        
+
         /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: var(--text-light);
         }
-        
+
         .empty-state i {
             font-size: 40px;
             margin-bottom: 12px;
             opacity: 0.3;
         }
-        
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .form-row { grid-template-columns: 1fr; }
-            .admin-header { flex-wrap: wrap; gap: 10px; }
-            .tabs { gap: 6px; }
-            .tab-btn { padding: 8px 14px; font-size: 12px; }
-        }
-        
-        @media (max-width: 400px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .stat-card { padding: 12px; }
-            .stat-card .value { font-size: 18px; }
-            body { padding: 12px 8px; }
-        }
-        
-        /* ===== SEARCH ===== */
+
+        /* ===== SEARCH & FILTER ===== */
         .search-box {
             display: flex;
             gap: 10px;
             margin-bottom: 14px;
+            flex-wrap: wrap;
         }
-        
+
         .search-box input {
             flex: 1;
             padding: 10px 14px;
@@ -468,14 +564,15 @@
             color: var(--text);
             font-family: inherit;
             font-size: 14px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            min-width: 150px;
         }
-        
+
         .search-box input:focus {
             outline: none;
             border-color: var(--primary);
         }
-        
+
         .search-box select {
             padding: 10px 14px;
             border: 1px solid var(--border);
@@ -484,85 +581,121 @@
             color: var(--text);
             font-family: inherit;
             font-size: 14px;
+            transition: var(--transition);
+            min-width: 120px;
         }
-        
+
+        .search-box select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
         /* ===== TAB CONTENT ===== */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
         /* ===== LOADING ===== */
         .loading {
             text-align: center;
             padding: 40px;
             color: var(--text-light);
         }
-        
-        .loading i { font-size: 30px; animation: spin 1s linear infinite; }
-        
-        /* ===== TEXT ===== */
+
+        .loading i {
+            font-size: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .admin-header { flex-wrap: wrap; gap: 10px; }
+            .tabs { gap: 6px; }
+            .tab-btn { padding: 8px 14px; font-size: 12px; }
+            .modal-content { padding: 18px; }
+            .search-box { flex-direction: column; }
+        }
+
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 12px; }
+            .stat-card .value { font-size: 18px; }
+            body { padding: 12px 8px; }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-track { background: var(--bg); }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        /* ===== ADDITIONAL ===== */
         .text-muted { color: var(--text-light); font-size: 12px; }
         .text-truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
         .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
-        
-        /* ===== MIN DEPOSIT ===== */
-        .setting-card {
-            background: var(--card);
-            padding: 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            margin-bottom: 12px;
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        .text-info { color: var(--info); }
+        .mt-8 { margin-top: 8px; }
+        .mb-8 { margin-bottom: 8px; }
+        .flex { display: flex; }
+        .flex-center { display: flex; align-items: center; gap: 8px; }
+        .gap-8 { gap: 8px; }
+        .gap-4 { gap: 4px; }
+
+        .settings-group {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .setting-card .setting-label {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-bottom: 4px;
+
+        .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
-        
-        .setting-card .setting-value {
-            font-size: 18px;
+
+        .settings-group .group-title {
+            font-size: 14px;
             font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-light);
         }
-        
-        .setting-card .setting-edit {
-            margin-top: 8px;
-        }
-        
-        /* ===== DEPOSIT METHODS ===== */
-        .deposit-method-item {
+
+        .method-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px;
+            padding: 10px 12px;
             background: var(--bg);
-            border-radius: 10px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            margin-bottom: 6px;
             border: 1px solid var(--border);
         }
-        
-        .deposit-method-item .method-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .deposit-method-item .method-icon {
-            font-size: 24px;
-        }
-        
-        .deposit-method-item .method-name {
+
+        .method-item .method-name {
             font-weight: 600;
-            font-size: 14px;
         }
-        
-        .deposit-method-item .method-number {
-            font-size: 13px;
+
+        .method-item .method-number {
             color: var(--text-light);
+            font-family: monospace;
         }
-        
-        .deposit-method-item .method-actions {
+
+        .method-item .method-icon {
+            font-size: 20px;
+        }
+
+        .method-item .method-actions {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
     </style>
 </head>
@@ -574,9 +707,12 @@
             <div class="logo">Nex<span>Earn</span></div>
             <div style="font-size:12px; color:var(--text-light);">Admin Panel v3.0</div>
         </div>
-        <div style="display:flex; align-items:center; gap:12px;">
+        <div class="header-actions">
+            <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">
+                <i class="fa-solid fa-sync"></i>
+            </button>
             <span class="badge">👑 Admin</span>
-            <a href="index.html" class="back-btn">
+            <a href="javascript:void(0)" class="back-btn" onclick="window.history.back()">
                 <i class="fa-solid fa-arrow-left"></i> Back
             </a>
         </div>
@@ -584,46 +720,110 @@
 
     <!-- ===== STATS ===== -->
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('withdrawals')">
             <div class="icon"><i class="fa-solid fa-users"></i></div>
             <div class="value" id="statUsers">0</div>
             <div class="label">Total Users</div>
+            <div class="change up" id="statUsersChange">+0 this week</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('withdrawals')">
             <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
             <div class="value" id="statEarnings">$0</div>
             <div class="label">Total Earnings</div>
+            <div class="change up" id="statEarningsChange">+$0 this week</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('ads')">
             <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
             <div class="value" id="statAds">0</div>
             <div class="label">Total Ads</div>
+            <div class="change" id="statAdsChange">0 active</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="switchTab('withdrawals')">
             <div class="icon"><i class="fa-solid fa-clock"></i></div>
             <div class="value" id="statPending">0</div>
             <div class="label">Pending Requests</div>
+            <div class="change" id="statPendingChange">Needs action</div>
         </div>
     </div>
 
     <!-- ===== TABS ===== -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="withdrawals"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</button>
-        <button class="tab-btn" data-tab="deposits"><i class="fa-solid fa-credit-card"></i> Deposits</button>
-        <button class="tab-btn" data-tab="ads"><i class="fa-solid fa-rectangle-ad"></i> Ads</button>
-        <button class="tab-btn" data-tab="users"><i class="fa-solid fa-users"></i> Users</button>
-        <button class="tab-btn" data-tab="verifications"><i class="fa-solid fa-check-double"></i> Verifications</button>
-        <button class="tab-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings</button>
-        <button class="tab-btn" data-tab="bonus"><i class="fa-solid fa-star"></i> Bonus Tasks</button>
-        <button class="tab-btn" data-tab="deposit-methods"><i class="fa-solid fa-money-bill"></i> Deposit Methods</button>
+        <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </button>
+        <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')">
+            <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
+            <span class="count" id="withdrawCount">0</span>
+        </button>
+        <button class="tab-btn" data-tab="deposits" onclick="switchTab('deposits')">
+            <i class="fa-solid fa-credit-card"></i> Deposits
+            <span class="count" id="depositCount">0</span>
+        </button>
+        <button class="tab-btn" data-tab="ads" onclick="switchTab('ads')">
+            <i class="fa-solid fa-rectangle-ad"></i> Ads
+            <span class="count" id="adsCount">0</span>
+        </button>
+        <button class="tab-btn" data-tab="users" onclick="switchTab('users')">
+            <i class="fa-solid fa-users"></i> Users
+            <span class="count" id="usersCount">0</span>
+        </button>
+        <button class="tab-btn" data-tab="verifications" onclick="switchTab('verifications')">
+            <i class="fa-solid fa-check-double"></i> Verifications
+            <span class="count" id="verificationCount">0</span>
+        </button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+            <i class="fa-solid fa-gear"></i> Settings
+        </button>
+        <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')">
+            <i class="fa-solid fa-star"></i> Bonus Tasks
+            <span class="count" id="bonusCount">0</span>
+        </button>
+    </div>
+
+    <!-- ===== TAB: DASHBOARD ===== -->
+    <div class="tab-content active" id="tab-dashboard">
+        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card">
+                <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="value" id="dashPendingWithdrawals">0</div>
+                <div class="label">Pending Withdrawals</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="value" id="dashPendingDeposits">0</div>
+                <div class="label">Pending Deposits</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="value" id="dashPendingVerifications">0</div>
+                <div class="label">Pending Verifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="value" id="dashPendingAds">0</div>
+                <div class="label">Pending Ads Approval</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span>📊 Recent Activity</span>
+            </div>
+            <div id="recentActivity">
+                <div class="empty-state">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ===== TAB: WITHDRAWALS ===== -->
-    <div class="tab-content active" id="tab-withdrawals">
+    <div class="tab-content" id="tab-withdrawals">
         <div class="card">
             <div class="card-title">
                 <span>💸 Withdrawal Requests</span>
-                <span class="count" id="withdrawCount">0</span>
+                <span class="count" id="withdrawCountTitle">0</span>
             </div>
             <div class="search-box">
                 <input type="text" id="withdrawSearch" placeholder="Search by user or ID..." oninput="filterWithdrawals()">
@@ -637,7 +837,14 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr>
+                        <tr>
+                            <th>User</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="withdrawalsBody"></tbody>
                 </table>
@@ -650,7 +857,7 @@
         <div class="card">
             <div class="card-title">
                 <span>💳 Deposit Requests</span>
-                <span class="count" id="depositCount">0</span>
+                <span class="count" id="depositCountTitle">0</span>
             </div>
             <div class="search-box">
                 <input type="text" id="depositSearch" placeholder="Search by user..." oninput="filterDeposits()">
@@ -664,7 +871,14 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr>
+                        <tr>
+                            <th>User</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="depositsBody"></tbody>
                 </table>
@@ -677,22 +891,29 @@
         <div class="card">
             <div class="card-title">
                 <span>📢 All Ads</span>
-                <span class="count" id="adsCount">0</span>
+                <span class="count" id="adsCountTitle">0</span>
             </div>
             <div class="search-box">
-                <input type="text" id="adsSearch" placeholder="Search by title..." oninput="filterAds()">
-                <select id="adsFilter" onchange="filterAds()">
+                <input type="text" id="adsSearch" placeholder="Search by title..." oninput="filterAdsTable()">
+                <select id="adsFilter" onchange="filterAdsTable()">
                     <option value="all">All</option>
+                    <option value="pending">Pending Approval</option>
                     <option value="active">Active</option>
                     <option value="paused">Paused</option>
-                    <option value="pending">Pending Approval</option>
                     <option value="expired">Expired</option>
                 </select>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Approved</th><th>Action</th></tr>
+                        <tr>
+                            <th>Title</th>
+                            <th>Creator</th>
+                            <th>Views</th>
+                            <th>Reward</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="adsBody"></tbody>
                 </table>
@@ -705,7 +926,7 @@
         <div class="card">
             <div class="card-title">
                 <span>👥 All Users</span>
-                <span class="count" id="usersCount">0</span>
+                <span class="count" id="usersCountTitle">0</span>
             </div>
             <div class="search-box">
                 <input type="text" id="usersSearch" placeholder="Search by name or ID..." oninput="filterUsers()">
@@ -713,7 +934,15 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads Watched</th><th>Action</th></tr>
+                        <tr>
+                            <th>User</th>
+                            <th>ID</th>
+                            <th>Balance</th>
+                            <th>Wallet</th>
+                            <th>Ads Watched</th>
+                            <th>Joined</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="usersBody"></tbody>
                 </table>
@@ -726,12 +955,20 @@
         <div class="card">
             <div class="card-title">
                 <span>📸 Verification Requests</span>
-                <span class="count" id="verificationCount">0</span>
+                <span class="count" id="verificationCountTitle">0</span>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>User</th><th>Ad</th><th>Title</th><th>Screenshot</th><th>Status</th><th>Date</th><th>Action</th></tr>
+                        <tr>
+                            <th>User</th>
+                            <th>Ad</th>
+                            <th>Title</th>
+                            <th>Screenshot</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="verificationsBody"></tbody>
                 </table>
@@ -744,46 +981,90 @@
         <div class="card">
             <div class="card-title">⚙️ System Settings</div>
             <form id="settingsForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Ad Reward ($)</label>
-                        <input type="number" id="settingAdReward" step="0.001" value="0.001">
+                <!-- General Settings -->
+                <div class="settings-group">
+                    <div class="group-title">💰 General Settings</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ad Reward ($)</label>
+                            <input type="number" id="settingAdReward" step="0.001" value="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Ad Limit</label>
+                            <input type="number" id="settingDailyLimit" value="15">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Daily Ad Limit</label>
-                        <input type="number" id="settingDailyLimit" value="15">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Minimum Withdrawal ($)</label>
+                            <input type="number" id="settingMinWithdraw" step="0.01" value="0.10">
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Deposit (BDT)</label>
+                            <input type="number" id="settingMinDeposit" value="10">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cooldown (minutes)</label>
+                            <input type="number" id="settingCooldown" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label>Referral Reward ($)</label>
+                            <input type="number" id="settingReferralReward" step="0.001" value="0.01">
+                        </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Minimum Withdrawal ($)</label>
-                        <input type="number" id="settingMinWithdraw" step="0.01" value="0.10">
-                    </div>
-                    <div class="form-group">
-                        <label>Cooldown (minutes)</label>
-                        <input type="number" id="settingCooldown" value="30">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Referral Reward ($)</label>
-                        <input type="number" id="settingReferralReward" step="0.001" value="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Minimum Deposit (BDT)</label>
-                        <input type="number" id="settingMinDeposit" step="1" value="10">
+
+                <!-- Withdrawal Methods -->
+                <div class="settings-group">
+                    <div class="group-title">💸 Withdrawal Methods</div>
+                    <div id="withdrawMethodsContainer"></div>
+                    <div class="form-row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <input type="text" id="newWithdrawMethod" placeholder="New method name">
+                        </div>
+                        <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Welcome Message</label>
-                    <textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea>
+
+                <!-- Deposit Methods -->
+                <div class="settings-group">
+                    <div class="group-title">💳 Deposit Methods</div>
+                    <div id="depositMethodsContainer"></div>
+                    <div class="form-row" style="margin-top:10px;">
+                        <div class="form-group">
+                            <input type="text" id="newDepositMethodName" placeholder="Method name">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="newDepositMethodNumber" placeholder="Number">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="newDepositMethodIcon" placeholder="Icon (emoji)">
+                        </div>
+                        <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Withdrawal Methods (comma separated)</label>
-                    <input type="text" id="settingWithdrawMethods" value="Binance, Bikash, Nogad">
+
+                <!-- Welcome Message -->
+                <div class="settings-group">
+                    <div class="group-title">📝 Welcome Message</div>
+                    <div class="form-group">
+                        <label>Welcome Title</label>
+                        <input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉">
+                    </div>
+                    <div class="form-group">
+                        <label>Welcome Message</label>
+                        <textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea>
+                    </div>
                 </div>
+
                 <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
-                    <i class="fa-solid fa-save"></i> Save Settings
+                    <i class="fa-solid fa-save"></i> Save All Settings
                 </button>
             </form>
         </div>
@@ -794,10 +1075,10 @@
         <div class="card">
             <div class="card-title">
                 <span>⭐ Bonus Tasks</span>
-                <span class="count" id="bonusCount">0</span>
+                <span class="count" id="bonusCountTitle">0</span>
             </div>
             <div id="bonusTasksList"></div>
-            
+
             <form id="bonusForm" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
                 <div class="form-row">
                     <div class="form-group">
@@ -821,37 +1102,6 @@
                 </div>
                 <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
                     <i class="fa-solid fa-plus"></i> Add Bonus Task
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== TAB: DEPOSIT METHODS ===== -->
-    <div class="tab-content" id="tab-deposit-methods">
-        <div class="card">
-            <div class="card-title">
-                <span>🏦 Deposit Methods</span>
-                <span class="count" id="depositMethodCount">0</span>
-            </div>
-            <div id="depositMethodsList"></div>
-            
-            <form id="depositMethodForm" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Method Name</label>
-                        <input type="text" id="dmName" placeholder="e.g., Bikash" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Number</label>
-                        <input type="text" id="dmNumber" placeholder="e.g., 01712345678" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Icon (Emoji)</label>
-                    <input type="text" id="dmIcon" placeholder="e.g., 💳" value="💳">
-                </div>
-                <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
-                    <i class="fa-solid fa-plus"></i> Add Deposit Method
                 </button>
             </form>
         </div>
@@ -892,8 +1142,9 @@
             users: [],
             verifications: [],
             bonusTasks: [],
-            depositMethods: []
+            adminConfig: {}
         };
+        let filteredData = {};
 
         // ============================================================
         // INIT
@@ -920,6 +1171,7 @@
                 allData.withdrawals = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 renderWithdrawals();
                 updateStats();
+                updateDashboard();
             });
 
             // Load Deposits
@@ -928,6 +1180,7 @@
                 allData.deposits = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 renderDeposits();
                 updateStats();
+                updateDashboard();
             });
 
             // Load Ads
@@ -936,6 +1189,7 @@
                 allData.ads = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 renderAds();
                 updateStats();
+                updateDashboard();
             });
 
             // Load Users
@@ -944,6 +1198,7 @@
                 allData.users = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 renderUsers();
                 updateStats();
+                updateDashboard();
             });
 
             // Load Verifications
@@ -952,6 +1207,7 @@
                 allData.verifications = Object.entries(data).map(([id, item]) => ({ id, ...item }));
                 renderVerifications();
                 updateStats();
+                updateDashboard();
             });
 
             // Load Bonus Tasks
@@ -962,25 +1218,13 @@
                 updateStats();
             });
 
-            // Load Deposit Methods
-            firebaseDb.ref('depositMethods').on('value', (snapshot) => {
-                const data = snapshot.val() || [];
-                allData.depositMethods = data;
-                renderDepositMethods();
-                updateStats();
-            });
-
             // Load Settings
-            firebaseDb.ref('adminConfig').once('value', (snapshot) => {
+            firebaseDb.ref('adminConfig').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
-                document.getElementById('settingAdReward').value = data.adReward || 0.001;
-                document.getElementById('settingDailyLimit').value = data.dailyLimit || 15;
-                document.getElementById('settingMinWithdraw').value = data.minWithdraw || 0.10;
-                document.getElementById('settingCooldown').value = data.cooldown || 30;
-                document.getElementById('settingReferralReward').value = data.referralReward || 0.01;
-                document.getElementById('settingMinDeposit').value = data.minDeposit || 10;
-                document.getElementById('settingWelcomeMsg').value = data.welcomeMessage || '';
-                document.getElementById('settingWithdrawMethods').value = (data.withdrawMethods || ['Binance', 'Bikash', 'Nogad']).join(', ');
+                allData.adminConfig = data;
+                loadSettings();
+                renderWithdrawMethods();
+                renderDepositMethodsSettings();
             });
         }
 
@@ -989,20 +1233,97 @@
         // ============================================================
         function updateStats() {
             document.getElementById('statUsers').textContent = allData.users.length;
-            
+
             let totalEarnings = 0;
             allData.users.forEach(u => {
-                totalEarnings += (u.balance || 0);
+                totalEarnings += u.balance || 0;
             });
             document.getElementById('statEarnings').textContent = `$${totalEarnings.toFixed(3)}`;
-            
+
             document.getElementById('statAds').textContent = allData.ads.length;
-            
+
             const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
             const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
             const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            const pendingAds = allData.ads.filter(a => a.approved === false);
+            const pendingAds = allData.ads.filter(ad => ad.approved === false || ad.approved === undefined);
             document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications.length + pendingAds.length;
+
+            document.getElementById('withdrawCount').textContent = pending.length;
+            document.getElementById('depositCount').textContent = pendingDeposits.length;
+            document.getElementById('verificationCount').textContent = pendingVerifications.length;
+            document.getElementById('adsCount').textContent = pendingAds.length;
+            document.getElementById('usersCount').textContent = allData.users.length;
+            document.getElementById('bonusCount').textContent = allData.bonusTasks.length;
+        }
+
+        function updateDashboard() {
+            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
+            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
+            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
+            const pendingAds = allData.ads.filter(ad => ad.approved === false || ad.approved === undefined);
+
+            document.getElementById('dashPendingWithdrawals').textContent = pending.length;
+            document.getElementById('dashPendingDeposits').textContent = pendingDeposits.length;
+            document.getElementById('dashPendingVerifications').textContent = pendingVerifications.length;
+            document.getElementById('dashPendingAds').textContent = pendingAds.length;
+
+            // Recent Activity
+            const all = [];
+            allData.withdrawals.forEach(w => all.push({ ...w, type: 'withdrawal' }));
+            allData.deposits.forEach(d => all.push({ ...d, type: 'deposit' }));
+            allData.verifications.forEach(v => all.push({ ...v, type: 'verification' }));
+            allData.ads.forEach(a => all.push({ ...a, type: 'ad' }));
+
+            all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            const recent = all.slice(0, 10);
+            const container = document.getElementById('recentActivity');
+
+            if (recent.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div>`;
+                return;
+            }
+
+            container.innerHTML = recent.map(item => {
+                let icon = 'fa-solid fa-circle';
+                let label = 'Unknown';
+                let status = '';
+
+                if (item.type === 'withdrawal') {
+                    icon = 'fa-solid fa-money-bill-transfer';
+                    label = `Withdrawal $${item.amount?.toFixed(3)}`;
+                    status = item.status || 'Pending';
+                } else if (item.type === 'deposit') {
+                    icon = 'fa-solid fa-credit-card';
+                    label = `Deposit ${item.amount} BDT`;
+                    status = item.status || 'Pending';
+                } else if (item.type === 'verification') {
+                    icon = 'fa-solid fa-check-double';
+                    label = `Verification for ${item.adTitle || 'Ad'}`;
+                    status = item.status || 'Pending';
+                } else if (item.type === 'ad') {
+                    icon = 'fa-solid fa-rectangle-ad';
+                    label = `Ad: ${item.title || 'Untitled'}`;
+                    status = item.approved ? 'Approved' : 'Pending';
+                }
+
+                const statusClass = status.toLowerCase() === 'pending' ? 'warning' :
+                                   status.toLowerCase() === 'approved' ? 'success' :
+                                   status.toLowerCase() === 'rejected' ? 'danger' : 'info';
+
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="${icon}" style="color:var(--primary);"></i>
+                            <div>
+                                <div style="font-weight:600; font-size:13px;">${label}</div>
+                                <div style="font-size:11px; color:var(--text-light);">${new Date(item.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge ${statusClass}">${status}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ============================================================
@@ -1011,27 +1332,28 @@
         function renderWithdrawals() {
             const search = document.getElementById('withdrawSearch')?.value?.toLowerCase() || '';
             const filter = document.getElementById('withdrawFilter')?.value || 'all';
-            
+
             let filtered = allData.withdrawals;
             if (filter !== 'all') {
                 filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
             }
             if (search) {
-                filtered = filtered.filter(w => 
-                    (w.userName || '').toLowerCase().includes(search) || 
+                filtered = filtered.filter(w =>
+                    (w.userName || '').toLowerCase().includes(search) ||
                     (w.id || '').toLowerCase().includes(search)
                 );
             }
-            
+
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-            document.getElementById('withdrawCount').textContent = filtered.length;
-            
+
+            document.getElementById('withdrawCountTitle').textContent = filtered.length;
+
             const tbody = document.getElementById('withdrawalsBody');
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals found</p></div></td></tr>`;
                 return;
             }
-            
+
             tbody.innerHTML = filtered.map(w => `
                 <tr>
                     <td><strong>${escapeHTML(w.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(w.userId || '')}</span></td>
@@ -1041,9 +1363,11 @@
                     <td class="text-muted">${new Date(w.date).toLocaleDateString()}</td>
                     <td>
                         ${w.status === 'Pending' || w.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')">Approve</button>
-                            <button class="action-btn reject" onclick="rejectWithdrawal('${w.id}')">Reject</button>
-                        ` : `<span class="text-muted">Done</span>`}
+                            <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')"><i class="fa-solid fa-check"></i></button>
+                            <button class="action-btn reject" onclick="rejectWithdrawal('${w.id}')"><i class="fa-solid fa-times"></i></button>
+                        ` : `
+                            <span class="text-muted">Done</span>
+                        `}
                     </td>
                 </tr>
             `).join('');
@@ -1057,39 +1381,42 @@
         function renderDeposits() {
             const search = document.getElementById('depositSearch')?.value?.toLowerCase() || '';
             const filter = document.getElementById('depositFilter')?.value || 'all';
-            
+
             let filtered = allData.deposits;
             if (filter !== 'all') {
                 filtered = filtered.filter(d => d.status === filter);
             }
             if (search) {
-                filtered = filtered.filter(d => 
-                    (d.userName || '').toLowerCase().includes(search) || 
+                filtered = filtered.filter(d =>
+                    (d.userName || '').toLowerCase().includes(search) ||
                     (d.method || '').toLowerCase().includes(search)
                 );
             }
-            
+
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            document.getElementById('depositCount').textContent = filtered.length;
-            
+
+            document.getElementById('depositCountTitle').textContent = filtered.length;
+
             const tbody = document.getElementById('depositsBody');
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits found</p></div></td></tr>`;
                 return;
             }
-            
+
             tbody.innerHTML = filtered.map(d => `
                 <tr>
                     <td><strong>${escapeHTML(d.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId || '')}</span></td>
-                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.senderNumber || '')}</span></td>
-                    <td><strong>${d.amount} BDT</strong><br><span class="text-muted">TX: ${escapeHTML(d.transactionId || '')}</span></td>
+                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number || '')}</span></td>
+                    <td><strong>${d.amount} BDT</strong></td>
                     <td><span class="status-badge ${d.status || 'pending'}">${d.status || 'Pending'}</span></td>
                     <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
                     <td>
                         ${d.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveDeposit('${d.id}')">Approve</button>
-                            <button class="action-btn reject" onclick="rejectDeposit('${d.id}')">Reject</button>
-                        ` : `<span class="text-muted">Done</span>`}
+                            <button class="action-btn approve" onclick="approveDeposit('${d.id}')"><i class="fa-solid fa-check"></i></button>
+                            <button class="action-btn reject" onclick="rejectDeposit('${d.id}')"><i class="fa-solid fa-times"></i></button>
+                        ` : `
+                            <span class="text-muted">Done</span>
+                        `}
                     </td>
                 </tr>
             `).join('');
@@ -1103,85 +1430,87 @@
         function renderAds() {
             const search = document.getElementById('adsSearch')?.value?.toLowerCase() || '';
             const filter = document.getElementById('adsFilter')?.value || 'all';
-            
+
             let filtered = allData.ads;
-            if (filter !== 'all') {
-                if (filter === 'pending') {
-                    filtered = filtered.filter(a => a.approved === false);
-                } else {
-                    filtered = filtered.filter(a => a.status === filter);
-                }
+            if (filter === 'pending') {
+                filtered = filtered.filter(a => a.approved === false || a.approved === undefined);
+            } else if (filter !== 'all') {
+                filtered = filtered.filter(a => a.status === filter);
             }
             if (search) {
                 filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
             }
-            
+
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            document.getElementById('adsCount').textContent = filtered.length;
-            
+
+            document.getElementById('adsCountTitle').textContent = filtered.length;
+
             const tbody = document.getElementById('adsBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
                 return;
             }
-            
+
             tbody.innerHTML = filtered.map(ad => {
                 const views = ad.views || 0;
                 const totalViews = ad.totalViews || 100;
                 const progress = Math.min((views / totalViews) * 100, 100);
                 const isApproved = ad.approved || false;
-                
+
+                let statusText = ad.status || 'pending';
+                let statusClass = statusText;
+                if (!isApproved) { statusText = 'Pending Approval'; statusClass = 'pending'; }
+
                 return `
                     <tr>
                         <td><strong>${escapeHTML(ad.title || 'Untitled')}</strong></td>
                         <td><span class="user-id">${escapeHTML(ad.createdBy || 'Unknown')}</span></td>
                         <td>${views}/${totalViews} (${Math.round(progress)}%)</td>
                         <td>$${ad.reward?.toFixed(3) || '0.001'}</td>
-                        <td><span class="status-badge ${ad.status || 'pending'}">${ad.status || 'Pending'}</span></td>
-                        <td><span class="status-badge ${isApproved ? 'approved' : 'pending'}">${isApproved ? '✅ Approved' : '⏳ Pending'}</span></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
                             ${!isApproved ? `
-                                <button class="action-btn approve" onclick="approveAd('${ad.id}')">Approve</button>
+                                <button class="action-btn approve" onclick="approveAd('${ad.id}')"><i class="fa-solid fa-check"></i></button>
+                                <button class="action-btn reject" onclick="rejectAd('${ad.id}')"><i class="fa-solid fa-times"></i></button>
                             ` : `
                                 <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
-                            `}
-                            <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
-                            ${isApproved ? `
+                                <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
                                 <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">
                                     ${ad.status === 'active' ? '⏸' : '▶️'}
                                 </button>
-                            ` : ''}
+                            `}
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function filterAds() { renderAds(); }
+        function filterAdsTable() { renderAds(); }
 
         // ============================================================
         // RENDER USERS
         // ============================================================
         function renderUsers() {
             const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
-            
+
             let filtered = allData.users;
             if (search) {
-                filtered = filtered.filter(u => 
-                    (u.name || '').toLowerCase().includes(search) || 
+                filtered = filtered.filter(u =>
+                    (u.name || '').toLowerCase().includes(search) ||
                     (u.id || '').toLowerCase().includes(search)
                 );
             }
-            
+
             filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
-            document.getElementById('usersCount').textContent = filtered.length;
-            
+
+            document.getElementById('usersCountTitle').textContent = filtered.length;
+
             const tbody = document.getElementById('usersBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
                 return;
             }
-            
+
             tbody.innerHTML = filtered.map(u => `
                 <tr>
                     <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
@@ -1189,6 +1518,7 @@
                     <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
                     <td>$${(u.walletBalance || 0).toFixed(3)}</td>
                     <td>${u.adCount || 0}</td>
+                    <td class="text-muted">${u.lastAdWatchedDate || 'Never'}</td>
                     <td>
                         <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
                         <button class="action-btn view" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
@@ -1204,26 +1534,28 @@
         // ============================================================
         function renderVerifications() {
             const items = allData.verifications.filter(v => v.status === 'pending');
-            
-            document.getElementById('verificationCount').textContent = items.length;
-            
+
+            document.getElementById('verificationCountTitle').textContent = items.length;
+
             const tbody = document.getElementById('verificationsBody');
             if (items.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
                 return;
             }
-            
+
             tbody.innerHTML = items.map(v => `
                 <tr>
                     <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
                     <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
                     <td>${escapeHTML(v.adTitle || 'N/A')}</td>
-                    <td>${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}</td>
+                    <td>
+                        ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
+                    </td>
                     <td><span class="status-badge pending">Pending</span></td>
                     <td class="text-muted">${new Date(v.createdAt).toLocaleDateString()}</td>
                     <td>
-                        <button class="action-btn approve" onclick="approveVerification('${v.id}')">Approve</button>
-                        <button class="action-btn reject" onclick="openRejectModal('${v.id}')">Reject</button>
+                        <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
+                        <button class="action-btn reject" onclick="rejectVerification('${v.id}')"><i class="fa-solid fa-times"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -1234,18 +1566,18 @@
         // ============================================================
         function renderBonusTasks() {
             const container = document.getElementById('bonusTasksList');
-            document.getElementById('bonusCount').textContent = allData.bonusTasks.length;
-            
+            document.getElementById('bonusCountTitle').textContent = allData.bonusTasks.length;
+
             if (allData.bonusTasks.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`;
                 return;
             }
-            
+
             container.innerHTML = allData.bonusTasks.map((task, index) => `
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
                     <div>
                         <div style="font-weight:600; font-size:14px;">${escapeHTML(task.title)}</div>
-                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s</div>
+                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s | ${escapeHTML(task.link || '')}</div>
                     </div>
                     <div>
                         <button class="action-btn edit" onclick="editBonusTask(${index})"><i class="fa-solid fa-pen"></i></button>
@@ -1256,37 +1588,256 @@
         }
 
         // ============================================================
-        // RENDER DEPOSIT METHODS
+        // RENDER SETTINGS - Withdrawal Methods
         // ============================================================
-        function renderDepositMethods() {
-            const container = document.getElementById('depositMethodsList');
-            document.getElementById('depositMethodCount').textContent = allData.depositMethods.length;
-            
-            if (allData.depositMethods.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No deposit methods</p></div>`;
-                return;
-            }
-            
-            container.innerHTML = allData.depositMethods.map((method, index) => `
-                <div class="deposit-method-item">
-                    <div class="method-info">
-                        <div class="method-icon">${method.icon || '💳'}</div>
-                        <div>
-                            <div class="method-name">${escapeHTML(method.name)}</div>
-                            <div class="method-number">${escapeHTML(method.number)}</div>
-                        </div>
-                    </div>
+        function renderWithdrawMethods() {
+            const container = document.getElementById('withdrawMethodsContainer');
+            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
+
+            container.innerHTML = methods.map((method, index) => `
+                <div class="method-item">
+                    <span class="method-name">${escapeHTML(method)}</span>
                     <div class="method-actions">
-                        <button class="action-btn edit" onclick="editDepositMethod(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="deleteDepositMethod(${index})"><i class="fa-solid fa-trash"></i></button>
+                        <button class="action-btn edit btn-sm" onclick="editWithdrawMethod(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete btn-sm" onclick="deleteWithdrawMethod(${index})"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
+        function editWithdrawMethod(index) {
+            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
+            const current = methods[index];
+
+            showModal(
+                'Edit Withdrawal Method',
+                `
+                <div class="form-group">
+                    <label>Method Name</label>
+                    <input type="text" id="editWithdrawMethodInput" value="${escapeHTML(current)}">
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveWithdrawMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        function saveWithdrawMethod(index) {
+            const newName = document.getElementById('editWithdrawMethodInput').value.trim();
+            if (!newName) { showToast('Please enter a method name', 'error'); return; }
+
+            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
+            methods[index] = newName;
+
+            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
+                closeModal();
+                showToast('✅ Withdrawal method updated!', 'success');
+                renderWithdrawMethods();
+            }).catch(() => showToast('❌ Failed to update', 'error'));
+        }
+
+        function deleteWithdrawMethod(index) {
+            if (!confirm('Delete this withdrawal method?')) return;
+            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
+            methods.splice(index, 1);
+
+            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
+                showToast('✅ Method deleted!', 'success');
+                renderWithdrawMethods();
+            }).catch(() => showToast('❌ Failed to delete', 'error'));
+        }
+
+        function addWithdrawMethod() {
+            const input = document.getElementById('newWithdrawMethod');
+            const name = input.value.trim();
+            if (!name) { showToast('Please enter a method name', 'error'); return; }
+
+            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
+            methods.push(name);
+
+            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
+                input.value = '';
+                showToast('✅ Method added!', 'success');
+                renderWithdrawMethods();
+            }).catch(() => showToast('❌ Failed to add', 'error'));
+        }
+
         // ============================================================
-        // ACTIONS - Withdrawals
+        // RENDER SETTINGS - Deposit Methods
         // ============================================================
+        function renderDepositMethodsSettings() {
+            const container = document.getElementById('depositMethodsContainer');
+            const methods = allData.adminConfig.depositMethods || [
+                { name: 'Bikash', number: '01712345678', icon: '💳' },
+                { name: 'Nogad', number: '01712345678', icon: '📱' },
+                { name: 'Bank', number: '1234567890', icon: '🏦' }
+            ];
+
+            container.innerHTML = methods.map((method, index) => `
+                <div class="method-item">
+                    <div class="flex-center">
+                        <span class="method-icon">${method.icon || '💰'}</span>
+                        <span class="method-name">${escapeHTML(method.name)}</span>
+                        <span class="method-number">${escapeHTML(method.number)}</span>
+                    </div>
+                    <div class="method-actions">
+                        <button class="action-btn edit btn-sm" onclick="editDepositMethod(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete btn-sm" onclick="deleteDepositMethod(${index})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editDepositMethod(index) {
+            const methods = allData.adminConfig.depositMethods || [];
+            const current = methods[index] || { name: '', number: '', icon: '💰' };
+
+            showModal(
+                'Edit Deposit Method',
+                `
+                <div class="form-group">
+                    <label>Method Name</label>
+                    <input type="text" id="editDepositName" value="${escapeHTML(current.name)}">
+                </div>
+                <div class="form-group">
+                    <label>Number</label>
+                    <input type="text" id="editDepositNumber" value="${escapeHTML(current.number)}">
+                </div>
+                <div class="form-group">
+                    <label>Icon (emoji)</label>
+                    <input type="text" id="editDepositIcon" value="${escapeHTML(current.icon || '💰')}">
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        function saveDepositMethod(index) {
+            const name = document.getElementById('editDepositName').value.trim();
+            const number = document.getElementById('editDepositNumber').value.trim();
+            const icon = document.getElementById('editDepositIcon').value.trim() || '💰';
+
+            if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
+
+            const methods = allData.adminConfig.depositMethods || [];
+            methods[index] = { name, number, icon };
+
+            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
+                closeModal();
+                showToast('✅ Deposit method updated!', 'success');
+                renderDepositMethodsSettings();
+            }).catch(() => showToast('❌ Failed to update', 'error'));
+        }
+
+        function deleteDepositMethod(index) {
+            if (!confirm('Delete this deposit method?')) return;
+            const methods = allData.adminConfig.depositMethods || [];
+            methods.splice(index, 1);
+
+            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
+                showToast('✅ Method deleted!', 'success');
+                renderDepositMethodsSettings();
+            }).catch(() => showToast('❌ Failed to delete', 'error'));
+        }
+
+        function addDepositMethod() {
+            const name = document.getElementById('newDepositMethodName').value.trim();
+            const number = document.getElementById('newDepositMethodNumber').value.trim();
+            const icon = document.getElementById('newDepositMethodIcon').value.trim() || '💰';
+
+            if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
+
+            const methods = allData.adminConfig.depositMethods || [];
+            methods.push({ name, number, icon });
+
+            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
+                document.getElementById('newDepositMethodName').value = '';
+                document.getElementById('newDepositMethodNumber').value = '';
+                document.getElementById('newDepositMethodIcon').value = '';
+                showToast('✅ Method added!', 'success');
+                renderDepositMethodsSettings();
+            }).catch(() => showToast('❌ Failed to add', 'error'));
+        }
+
+        // ============================================================
+        // LOAD SETTINGS
+        // ============================================================
+        function loadSettings() {
+            const config = allData.adminConfig;
+            document.getElementById('settingAdReward').value = config.adReward || 0.001;
+            document.getElementById('settingDailyLimit').value = config.dailyLimit || 15;
+            document.getElementById('settingMinWithdraw').value = config.minWithdraw || 0.10;
+            document.getElementById('settingMinDeposit').value = config.minDeposit || 10;
+            document.getElementById('settingCooldown').value = config.cooldown || 30;
+            document.getElementById('settingReferralReward').value = config.referralReward || 0.01;
+            document.getElementById('settingWelcomeTitle').value = config.welcomeTitle || 'Welcome to NexEarn! 🎉';
+            document.getElementById('settingWelcomeMsg').value = config.welcomeMessage || 'Please follow the rules to ensure you receive your payment.';
+        }
+
+        // ============================================================
+        // SETTINGS FORM
+        // ============================================================
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const settings = {
+                adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
+                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
+                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
+                minDeposit: parseInt(document.getElementById('settingMinDeposit').value) || 10,
+                cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
+                referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
+                welcomeTitle: document.getElementById('settingWelcomeTitle').value || 'Welcome to NexEarn! 🎉',
+                welcomeMessage: document.getElementById('settingWelcomeMsg').value || ''
+            };
+
+            try {
+                await firebaseDb.ref('adminConfig').update(settings);
+                showToast('✅ Settings saved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to save settings', 'error');
+            }
+        });
+
+        // ============================================================
+        // BONUS FORM
+        // ============================================================
+        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const task = {
+                id: Date.now().toString(),
+                title: document.getElementById('bonusTitle').value.trim(),
+                link: document.getElementById('bonusLink').value.trim(),
+                reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
+                duration: parseInt(document.getElementById('bonusDuration').value) || 10
+            };
+
+            if (!task.title || !task.link) {
+                showToast('❌ Please fill all fields', 'error');
+                return;
+            }
+
+            try {
+                allData.bonusTasks.push(task);
+                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
+                this.reset();
+                showToast('✅ Bonus task added!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to add task', 'error');
+            }
+        });
+
+        // ============================================================
+        // ACTIONS
+        // ============================================================
+
+        // Withdrawals
         async function approveWithdrawal(id) {
             if (!confirm('Approve this withdrawal?')) return;
             try {
@@ -1307,9 +1858,7 @@
             }
         }
 
-        // ============================================================
-        // ACTIONS - Deposits
-        // ============================================================
+        // Deposits
         async function approveDeposit(id) {
             if (!confirm('Approve this deposit?')) return;
             try {
@@ -1318,10 +1867,10 @@
                 if (!data) return;
 
                 await firebaseDb.ref(`deposits/${id}/status`).set('approved');
-                
+
                 const amount = data.amount / 100;
                 await firebaseDb.ref(`users/${data.userId}/walletBalance`).transaction((current) => (current || 0) + amount);
-                
+
                 showToast('✅ Deposit approved!', 'success');
             } catch (e) {
                 showToast('❌ Failed to approve', 'error');
@@ -1338,16 +1887,26 @@
             }
         }
 
-        // ============================================================
-        // ACTIONS - Ads
-        // ============================================================
+        // Ads
         async function approveAd(id) {
             if (!confirm('Approve this ad?')) return;
             try {
                 await firebaseDb.ref(`ads/${id}/approved`).set(true);
                 showToast('✅ Ad approved!', 'success');
+                renderAds();
             } catch (e) {
                 showToast('❌ Failed to approve', 'error');
+            }
+        }
+
+        async function rejectAd(id) {
+            if (!confirm('Reject this ad?')) return;
+            try {
+                await firebaseDb.ref(`ads/${id}/status`).set('rejected');
+                showToast('❌ Ad rejected', 'error');
+                renderAds();
+            } catch (e) {
+                showToast('❌ Failed to reject', 'error');
             }
         }
 
@@ -1378,7 +1937,7 @@
             const snapshot = await firebaseDb.ref(`ads/${id}`).once('value');
             const ad = snapshot.val();
             if (!ad) return;
-            
+
             showModal(
                 'Edit Ad',
                 `
@@ -1410,8 +1969,12 @@
                         <input type="number" id="editAdDuration" value="${ad.duration || 7}">
                     </div>
                     <div class="form-group">
-                        <label>Budget ($)</label>
-                        <input type="number" id="editAdBudget" step="0.01" value="${ad.budget || 1.00}">
+                        <label>Status</label>
+                        <select id="editAdStatus">
+                            <option value="active" ${ad.status === 'active' ? 'selected' : ''}>Active</option>
+                            <option value="paused" ${ad.status === 'paused' ? 'selected' : ''}>Paused</option>
+                            <option value="expired" ${ad.status === 'expired' ? 'selected' : ''}>Expired</option>
+                        </select>
                     </div>
                 </div>
                 `,
@@ -1430,9 +1993,14 @@
                 reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
                 totalViews: parseInt(document.getElementById('editAdViews').value) || 100,
                 duration: parseInt(document.getElementById('editAdDuration').value) || 7,
-                budget: parseFloat(document.getElementById('editAdBudget').value) || 1.00
+                status: document.getElementById('editAdStatus').value
             };
-            
+
+            // Update endDate if duration changed
+            if (data.duration) {
+                data.endDate = Date.now() + (data.duration * 24 * 60 * 60 * 1000);
+            }
+
             try {
                 await firebaseDb.ref(`ads/${id}`).update(data);
                 closeModal();
@@ -1442,14 +2010,12 @@
             }
         }
 
-        // ============================================================
-        // ACTIONS - Users
-        // ============================================================
+        // Users
         async function editUser(id) {
             const snapshot = await firebaseDb.ref(`users/${id}`).once('value');
             const user = snapshot.val();
             if (!user) return;
-            
+
             showModal(
                 'Edit User',
                 `
@@ -1457,17 +2023,28 @@
                     <label>Name</label>
                     <input type="text" id="editUserName" value="${escapeHTML(user.name || '')}">
                 </div>
-                <div class="form-group">
-                    <label>Balance ($)</label>
-                    <input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Balance ($)</label>
+                        <input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}">
+                    </div>
+                    <div class="form-group">
+                        <label>Wallet Balance ($)</label>
+                        <input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Wallet Balance ($)</label>
-                    <input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}">
-                </div>
-                <div class="form-group">
-                    <label>Ads Watched</label>
-                    <input type="number" id="editUserAds" value="${user.adCount || 0}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ads Watched</label>
+                        <input type="number" id="editUserAds" value="${user.adCount || 0}">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="editUserRole">
+                            <option value="publisher" ${user.userRole === 'publisher' ? 'selected' : ''}>Publisher</option>
+                            <option value="advertiser" ${user.userRole === 'advertiser' ? 'selected' : ''}>Advertiser</option>
+                        </select>
+                    </div>
                 </div>
                 `,
                 `
@@ -1482,9 +2059,10 @@
                 name: document.getElementById('editUserName').value,
                 balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
                 walletBalance: parseFloat(document.getElementById('editUserWallet').value) || 0,
-                adCount: parseInt(document.getElementById('editUserAds').value) || 0
+                adCount: parseInt(document.getElementById('editUserAds').value) || 0,
+                userRole: document.getElementById('editUserRole').value
             };
-            
+
             try {
                 await firebaseDb.ref(`users/${id}`).update(data);
                 closeModal();
@@ -1497,7 +2075,7 @@
         function viewUser(id) {
             const user = allData.users.find(u => u.id === id);
             if (!user) return;
-            
+
             showModal(
                 'User Details',
                 `
@@ -1509,15 +2087,15 @@
                     <div><strong>Wallet:</strong> $${(user.walletBalance || 0).toFixed(3)}</div>
                     <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
                     <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
+                    <div><strong>Role:</strong> ${user.userRole || 'Publisher'}</div>
+                    <div><strong>Joined:</strong> ${user.lastAdWatchedDate || 'N/A'}</div>
                 </div>
                 `,
                 `<button class="btn-secondary" onclick="closeModal()">Close</button>`
             );
         }
 
-        // ============================================================
-        // ACTIONS - Verifications
-        // ============================================================
+        // Verifications
         async function approveVerification(id) {
             if (!confirm('Approve this verification?')) return;
             try {
@@ -1542,54 +2120,17 @@
             }
         }
 
-        function openRejectModal(id) {
-            pendingRejectId = id;
-            showModal(
-                'Reject Verification',
-                `
-                <div class="form-group">
-                    <label>Rejection Reason *</label>
-                    <textarea id="rejectReasonInput" placeholder="Explain why this verification is being rejected..." rows="4" required></textarea>
-                    <div style="font-size:11px; color:var(--text-light); margin-top:4px;">The user will see this reason</div>
-                </div>
-                `,
-                `
-                <button class="btn-primary btn-danger" onclick="confirmRejectVerification()"><i class="fa-solid fa-times"></i> Reject</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
-            );
-        }
-
-        let pendingRejectId = null;
-
-        async function confirmRejectVerification() {
-            const reason = document.getElementById('rejectReasonInput').value.trim();
-            
-            if (!reason || reason.length < 3) {
-                showToast('❌ Please provide a valid rejection reason (min 3 characters)', 'error');
-                return;
-            }
-
-            if (!pendingRejectId) {
-                showToast('❌ No verification selected', 'error');
-                return;
-            }
-
+        async function rejectVerification(id) {
+            if (!confirm('Reject this verification?')) return;
             try {
-                await firebaseDb.ref(`verifications/${pendingRejectId}/status`).set('rejected');
-                await firebaseDb.ref(`verifications/${pendingRejectId}/rejectReason`).set(reason);
-                
-                closeModal();
-                pendingRejectId = null;
-                showToast('❌ Verification rejected with reason', 'error');
+                await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
+                showToast('❌ Verification rejected', 'error');
             } catch (e) {
-                showToast('❌ Failed to reject verification.', 'error');
+                showToast('❌ Failed to reject', 'error');
             }
         }
 
-        // ============================================================
-        // ACTIONS - Bonus Tasks
-        // ============================================================
+        // Bonus Tasks
         async function deleteBonusTask(index) {
             if (!confirm('Delete this bonus task?')) return;
             try {
@@ -1604,7 +2145,7 @@
         function editBonusTask(index) {
             const task = allData.bonusTasks[index];
             if (!task) return;
-            
+
             showModal(
                 'Edit Bonus Task',
                 `
@@ -1636,13 +2177,13 @@
 
         async function saveBonusTask(index) {
             const data = {
-                id: allData.bonusTasks[index].id,
+                id: allData.bonusTasks[index]?.id || Date.now().toString(),
                 title: document.getElementById('editBonusTitle').value,
                 link: document.getElementById('editBonusLink').value,
                 reward: parseFloat(document.getElementById('editBonusReward').value) || 0.01,
                 duration: parseInt(document.getElementById('editBonusDuration').value) || 10
             };
-            
+
             try {
                 allData.bonusTasks[index] = data;
                 await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
@@ -1654,144 +2195,24 @@
         }
 
         // ============================================================
-        // ACTIONS - Deposit Methods
+        // TABS
         // ============================================================
-        async function deleteDepositMethod(index) {
-            if (!confirm('Delete this deposit method?')) return;
-            try {
-                allData.depositMethods.splice(index, 1);
-                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
-                showToast('✅ Deposit method deleted!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to delete', 'error');
-            }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`)?.classList.add('active');
+
+            // Refresh data on tab switch
+            if (tab === 'withdrawals') renderWithdrawals();
+            if (tab === 'deposits') renderDeposits();
+            if (tab === 'ads') renderAds();
+            if (tab === 'users') renderUsers();
+            if (tab === 'verifications') renderVerifications();
+            if (tab === 'bonus') renderBonusTasks();
+            if (tab === 'settings') { renderWithdrawMethods(); renderDepositMethodsSettings(); }
         }
-
-        function editDepositMethod(index) {
-            const method = allData.depositMethods[index];
-            if (!method) return;
-            
-            showModal(
-                'Edit Deposit Method',
-                `
-                <div class="form-group">
-                    <label>Method Name</label>
-                    <input type="text" id="editDmName" value="${escapeHTML(method.name || '')}">
-                </div>
-                <div class="form-group">
-                    <label>Number</label>
-                    <input type="text" id="editDmNumber" value="${escapeHTML(method.number || '')}">
-                </div>
-                <div class="form-group">
-                    <label>Icon (Emoji)</label>
-                    <input type="text" id="editDmIcon" value="${escapeHTML(method.icon || '💳')}">
-                </div>
-                `,
-                `
-                <button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
-            );
-        }
-
-        async function saveDepositMethod(index) {
-            const data = {
-                name: document.getElementById('editDmName').value,
-                number: document.getElementById('editDmNumber').value,
-                icon: document.getElementById('editDmIcon').value || '💳'
-            };
-            
-            try {
-                allData.depositMethods[index] = data;
-                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
-                closeModal();
-                showToast('✅ Deposit method updated!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to update', 'error');
-            }
-        }
-
-        // ============================================================
-        // SETTINGS
-        // ============================================================
-        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const settings = {
-                adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
-                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
-                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
-                cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
-                referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
-                minDeposit: parseInt(document.getElementById('settingMinDeposit').value) || 10,
-                welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
-                withdrawMethods: document.getElementById('settingWithdrawMethods').value.split(',').map(s => s.trim()).filter(Boolean)
-            };
-            
-            try {
-                await firebaseDb.ref('adminConfig').update(settings);
-                showToast('✅ Settings saved!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to save settings', 'error');
-            }
-        });
-
-        // ============================================================
-        // BONUS FORM
-        // ============================================================
-        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const task = {
-                id: Date.now().toString(),
-                title: document.getElementById('bonusTitle').value.trim(),
-                link: document.getElementById('bonusLink').value.trim(),
-                reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
-                duration: parseInt(document.getElementById('bonusDuration').value) || 10
-            };
-            
-            if (!task.title || !task.link) {
-                showToast('❌ Please fill all fields', 'error');
-                return;
-            }
-            
-            try {
-                allData.bonusTasks.push(task);
-                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                this.reset();
-                showToast('✅ Bonus task added!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to add task', 'error');
-            }
-        });
-
-        // ============================================================
-        // DEPOSIT METHOD FORM
-        // ============================================================
-        document.getElementById('depositMethodForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const method = {
-                name: document.getElementById('dmName').value.trim(),
-                number: document.getElementById('dmNumber').value.trim(),
-                icon: document.getElementById('dmIcon').value.trim() || '💳'
-            };
-            
-            if (!method.name || !method.number) {
-                showToast('❌ Please fill all fields', 'error');
-                return;
-            }
-            
-            try {
-                allData.depositMethods.push(method);
-                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
-                this.reset();
-                document.getElementById('dmIcon').value = '💳';
-                showToast('✅ Deposit method added!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to add method', 'error');
-            }
-        });
 
         // ============================================================
         // MODAL
@@ -1812,19 +2233,6 @@
         });
 
         // ============================================================
-        // TABS
-        // ============================================================
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
-            });
-        });
-
-        // ============================================================
         // TOAST
         // ============================================================
         function showToast(message, type = 'info') {
@@ -1834,14 +2242,14 @@
                 document.body.appendChild(c);
                 return c;
             })();
-            
+
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-times-circle',
                 warning: 'fa-exclamation-triangle',
                 info: 'fa-info-circle'
             };
-            
+
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerHTML = `
@@ -1849,12 +2257,28 @@
                 <span>${message}</span>
             `;
             container.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.style.opacity = '0';
                 toast.style.transition = 'opacity 0.5s ease';
                 setTimeout(() => toast.remove(), 500);
             }, 3000);
+        }
+
+        // ============================================================
+        // REFRESH
+        // ============================================================
+        function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i>';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                loadAllData();
+                btn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+                btn.disabled = false;
+                showToast('🔄 Data refreshed!', 'success');
+            }, 1000);
         }
 
         // ============================================================
@@ -1870,14 +2294,14 @@
         // ============================================================
         function init() {
             if (!initFirebase()) {
-                document.querySelector('.stats-grid').innerHTML = 
+                document.querySelector('.stats-grid').innerHTML =
                     `<div class="stat-card" style="grid-column:1/-1; text-align:center; padding:40px;">
                         <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; color:var(--danger);"></i>
                         <p style="margin-top:10px;">Failed to connect to Firebase. Please check your internet connection.</p>
                     </div>`;
                 return;
             }
-            
+
             loadAllData();
             showToast('✅ Admin panel loaded', 'success');
         }
