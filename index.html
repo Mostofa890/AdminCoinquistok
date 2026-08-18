@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>NexEarn Admin Panel</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
@@ -51,6 +48,10 @@
             to { opacity: 1; transform: translateY(0); } 
         }
         
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* ===== HEADER ===== */
         .admin-header {
             display: flex;
@@ -58,6 +59,8 @@
             justify-content: space-between;
             margin-bottom: 24px;
             animation: fadeIn 0.4s ease;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .admin-header .logo {
@@ -120,22 +123,9 @@
             transform: translateY(-2px);
         }
         
-        .stat-card .icon {
-            font-size: 22px;
-            margin-bottom: 6px;
-            color: var(--primary);
-        }
-        
-        .stat-card .value {
-            font-size: 22px;
-            font-weight: 800;
-        }
-        
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 2px;
-        }
+        .stat-card .icon { font-size: 22px; margin-bottom: 6px; color: var(--primary); }
+        .stat-card .value { font-size: 22px; font-weight: 800; }
+        .stat-card .label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
         
         /* ===== TABS ===== */
         .tabs {
@@ -334,23 +324,10 @@
             box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
         }
         
-        .btn-success {
-            background: var(--success);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-        }
-        
-        .btn-secondary {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        
-        .btn-secondary:hover {
-            border-color: var(--text-light);
-        }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+        .btn-secondary:hover { border-color: var(--text-light); }
         
         /* ===== MODAL ===== */
         .modal {
@@ -365,9 +342,7 @@
             animation: fadeIn 0.3s ease;
         }
         
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
         
         .modal-content {
             background: var(--card);
@@ -398,9 +373,7 @@
             transition: all 0.3s ease;
         }
         
-        .modal-content .close-modal:hover {
-            color: var(--text);
-        }
+        .modal-content .close-modal:hover { color: var(--text); }
         
         .modal-actions {
             display: flex;
@@ -503,15 +476,19 @@
             border-color: var(--primary);
         }
         
-        /* ===== TAB CONTENT ===== */
-        .tab-content {
-            display: none;
+        .search-box select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
         }
         
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
+        /* ===== TAB CONTENT ===== */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         
         /* ===== LOADING ===== */
         .loading {
@@ -520,19 +497,73 @@
             color: var(--text-light);
         }
         
-        .loading i {
-            font-size: 30px;
-            animation: spin 1s linear infinite;
-        }
+        .loading i { font-size: 30px; animation: spin 1s linear infinite; }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* ===== SMALL TEXT ===== */
+        /* ===== TEXT ===== */
         .text-muted { color: var(--text-light); font-size: 12px; }
         .text-truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
         .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
+        
+        /* ===== MIN DEPOSIT ===== */
+        .setting-card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        
+        .setting-card .setting-label {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        
+        .setting-card .setting-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .setting-card .setting-edit {
+            margin-top: 8px;
+        }
+        
+        /* ===== DEPOSIT METHODS ===== */
+        .deposit-method-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .deposit-method-item .method-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .deposit-method-item .method-icon {
+            font-size: 24px;
+        }
+        
+        .deposit-method-item .method-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .deposit-method-item .method-number {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        .deposit-method-item .method-actions {
+            display: flex;
+            gap: 6px;
+        }
     </style>
 </head>
 <body>
@@ -541,7 +572,7 @@
     <div class="admin-header">
         <div>
             <div class="logo">Nex<span>Earn</span></div>
-            <div style="font-size:12px; color:var(--text-light);">Admin Panel v2.0</div>
+            <div style="font-size:12px; color:var(--text-light);">Admin Panel v3.0</div>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
             <span class="badge">👑 Admin</span>
@@ -577,27 +608,14 @@
 
     <!-- ===== TABS ===== -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="withdrawals">
-            <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
-        </button>
-        <button class="tab-btn" data-tab="deposits">
-            <i class="fa-solid fa-credit-card"></i> Deposits
-        </button>
-        <button class="tab-btn" data-tab="ads">
-            <i class="fa-solid fa-rectangle-ad"></i> Ads
-        </button>
-        <button class="tab-btn" data-tab="users">
-            <i class="fa-solid fa-users"></i> Users
-        </button>
-        <button class="tab-btn" data-tab="verifications">
-            <i class="fa-solid fa-check-double"></i> Verifications
-        </button>
-        <button class="tab-btn" data-tab="settings">
-            <i class="fa-solid fa-gear"></i> Settings
-        </button>
-        <button class="tab-btn" data-tab="bonus">
-            <i class="fa-solid fa-star"></i> Bonus Tasks
-        </button>
+        <button class="tab-btn active" data-tab="withdrawals"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals</button>
+        <button class="tab-btn" data-tab="deposits"><i class="fa-solid fa-credit-card"></i> Deposits</button>
+        <button class="tab-btn" data-tab="ads"><i class="fa-solid fa-rectangle-ad"></i> Ads</button>
+        <button class="tab-btn" data-tab="users"><i class="fa-solid fa-users"></i> Users</button>
+        <button class="tab-btn" data-tab="verifications"><i class="fa-solid fa-check-double"></i> Verifications</button>
+        <button class="tab-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+        <button class="tab-btn" data-tab="bonus"><i class="fa-solid fa-star"></i> Bonus Tasks</button>
+        <button class="tab-btn" data-tab="deposit-methods"><i class="fa-solid fa-money-bill"></i> Deposit Methods</button>
     </div>
 
     <!-- ===== TAB: WITHDRAWALS ===== -->
@@ -609,7 +627,7 @@
             </div>
             <div class="search-box">
                 <input type="text" id="withdrawSearch" placeholder="Search by user or ID..." oninput="filterWithdrawals()">
-                <select id="withdrawFilter" onchange="filterWithdrawals()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                <select id="withdrawFilter" onchange="filterWithdrawals()">
                     <option value="all">All</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -619,14 +637,7 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Method</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr>
                     </thead>
                     <tbody id="withdrawalsBody"></tbody>
                 </table>
@@ -643,7 +654,7 @@
             </div>
             <div class="search-box">
                 <input type="text" id="depositSearch" placeholder="Search by user..." oninput="filterDeposits()">
-                <select id="depositFilter" onchange="filterDeposits()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                <select id="depositFilter" onchange="filterDeposits()">
                     <option value="all">All</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -653,14 +664,7 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Method</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr>
                     </thead>
                     <tbody id="depositsBody"></tbody>
                 </table>
@@ -677,24 +681,18 @@
             </div>
             <div class="search-box">
                 <input type="text" id="adsSearch" placeholder="Search by title..." oninput="filterAds()">
-                <select id="adsFilter" onchange="filterAds()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                <select id="adsFilter" onchange="filterAds()">
                     <option value="all">All</option>
                     <option value="active">Active</option>
                     <option value="paused">Paused</option>
-                    <option value="completed">Completed</option>
+                    <option value="pending">Pending Approval</option>
+                    <option value="expired">Expired</option>
                 </select>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Creator</th>
-                            <th>Views</th>
-                            <th>Reward</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Approved</th><th>Action</th></tr>
                     </thead>
                     <tbody id="adsBody"></tbody>
                 </table>
@@ -715,14 +713,7 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>ID</th>
-                            <th>Balance</th>
-                            <th>Ads Watched</th>
-                            <th>Joined</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads Watched</th><th>Action</th></tr>
                     </thead>
                     <tbody id="usersBody"></tbody>
                 </table>
@@ -740,14 +731,7 @@
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Ad</th>
-                            <th>Screenshot</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>User</th><th>Ad</th><th>Title</th><th>Screenshot</th><th>Status</th><th>Date</th><th>Action</th></tr>
                     </thead>
                     <tbody id="verificationsBody"></tbody>
                 </table>
@@ -780,9 +764,15 @@
                         <input type="number" id="settingCooldown" value="30">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Referral Reward ($)</label>
-                    <input type="number" id="settingReferralReward" step="0.001" value="0.01">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Referral Reward ($)</label>
+                        <input type="number" id="settingReferralReward" step="0.001" value="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Deposit (BDT)</label>
+                        <input type="number" id="settingMinDeposit" step="1" value="10">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Welcome Message</label>
@@ -836,6 +826,37 @@
         </div>
     </div>
 
+    <!-- ===== TAB: DEPOSIT METHODS ===== -->
+    <div class="tab-content" id="tab-deposit-methods">
+        <div class="card">
+            <div class="card-title">
+                <span>🏦 Deposit Methods</span>
+                <span class="count" id="depositMethodCount">0</span>
+            </div>
+            <div id="depositMethodsList"></div>
+            
+            <form id="depositMethodForm" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Method Name</label>
+                        <input type="text" id="dmName" placeholder="e.g., Bikash" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number</label>
+                        <input type="text" id="dmNumber" placeholder="e.g., 01712345678" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Icon (Emoji)</label>
+                    <input type="text" id="dmIcon" placeholder="e.g., 💳" value="💳">
+                </div>
+                <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-plus"></i> Add Deposit Method
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- ===== MODAL ===== -->
     <div class="modal" id="actionModal">
         <div class="modal-content">
@@ -870,7 +891,8 @@
             ads: [],
             users: [],
             verifications: [],
-            bonusTasks: []
+            bonusTasks: [],
+            depositMethods: []
         };
 
         // ============================================================
@@ -940,6 +962,14 @@
                 updateStats();
             });
 
+            // Load Deposit Methods
+            firebaseDb.ref('depositMethods').on('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                allData.depositMethods = data;
+                renderDepositMethods();
+                updateStats();
+            });
+
             // Load Settings
             firebaseDb.ref('adminConfig').once('value', (snapshot) => {
                 const data = snapshot.val() || {};
@@ -948,6 +978,7 @@
                 document.getElementById('settingMinWithdraw').value = data.minWithdraw || 0.10;
                 document.getElementById('settingCooldown').value = data.cooldown || 30;
                 document.getElementById('settingReferralReward').value = data.referralReward || 0.01;
+                document.getElementById('settingMinDeposit').value = data.minDeposit || 10;
                 document.getElementById('settingWelcomeMsg').value = data.welcomeMessage || '';
                 document.getElementById('settingWithdrawMethods').value = (data.withdrawMethods || ['Binance', 'Bikash', 'Nogad']).join(', ');
             });
@@ -961,7 +992,7 @@
             
             let totalEarnings = 0;
             allData.users.forEach(u => {
-                totalEarnings += u.balance || 0;
+                totalEarnings += (u.balance || 0);
             });
             document.getElementById('statEarnings').textContent = `$${totalEarnings.toFixed(3)}`;
             
@@ -970,7 +1001,8 @@
             const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
             const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
             const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications.length;
+            const pendingAds = allData.ads.filter(a => a.approved === false);
+            document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications.length + pendingAds.length;
         }
 
         // ============================================================
@@ -992,7 +1024,6 @@
             }
             
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
             document.getElementById('withdrawCount').textContent = filtered.length;
             
             const tbody = document.getElementById('withdrawalsBody');
@@ -1012,9 +1043,7 @@
                         ${w.status === 'Pending' || w.status === 'pending' ? `
                             <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')">Approve</button>
                             <button class="action-btn reject" onclick="rejectWithdrawal('${w.id}')">Reject</button>
-                        ` : `
-                            <span class="text-muted">Done</span>
-                        `}
+                        ` : `<span class="text-muted">Done</span>`}
                     </td>
                 </tr>
             `).join('');
@@ -1041,7 +1070,6 @@
             }
             
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            
             document.getElementById('depositCount').textContent = filtered.length;
             
             const tbody = document.getElementById('depositsBody');
@@ -1053,17 +1081,15 @@
             tbody.innerHTML = filtered.map(d => `
                 <tr>
                     <td><strong>${escapeHTML(d.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId || '')}</span></td>
-                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number || '')}</span></td>
-                    <td><strong>${d.amount} BDT</strong></td>
+                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.senderNumber || '')}</span></td>
+                    <td><strong>${d.amount} BDT</strong><br><span class="text-muted">TX: ${escapeHTML(d.transactionId || '')}</span></td>
                     <td><span class="status-badge ${d.status || 'pending'}">${d.status || 'Pending'}</span></td>
                     <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
                     <td>
                         ${d.status === 'pending' ? `
                             <button class="action-btn approve" onclick="approveDeposit('${d.id}')">Approve</button>
                             <button class="action-btn reject" onclick="rejectDeposit('${d.id}')">Reject</button>
-                        ` : `
-                            <span class="text-muted">Done</span>
-                        `}
+                        ` : `<span class="text-muted">Done</span>`}
                     </td>
                 </tr>
             `).join('');
@@ -1080,19 +1106,22 @@
             
             let filtered = allData.ads;
             if (filter !== 'all') {
-                filtered = filtered.filter(a => a.status === filter);
+                if (filter === 'pending') {
+                    filtered = filtered.filter(a => a.approved === false);
+                } else {
+                    filtered = filtered.filter(a => a.status === filter);
+                }
             }
             if (search) {
                 filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
             }
             
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            
             document.getElementById('adsCount').textContent = filtered.length;
             
             const tbody = document.getElementById('adsBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
                 return;
             }
             
@@ -1100,6 +1129,7 @@
                 const views = ad.views || 0;
                 const totalViews = ad.totalViews || 100;
                 const progress = Math.min((views / totalViews) * 100, 100);
+                const isApproved = ad.approved || false;
                 
                 return `
                     <tr>
@@ -1108,12 +1138,19 @@
                         <td>${views}/${totalViews} (${Math.round(progress)}%)</td>
                         <td>$${ad.reward?.toFixed(3) || '0.001'}</td>
                         <td><span class="status-badge ${ad.status || 'pending'}">${ad.status || 'Pending'}</span></td>
+                        <td><span class="status-badge ${isApproved ? 'approved' : 'pending'}">${isApproved ? '✅ Approved' : '⏳ Pending'}</span></td>
                         <td>
-                            <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
+                            ${!isApproved ? `
+                                <button class="action-btn approve" onclick="approveAd('${ad.id}')">Approve</button>
+                            ` : `
+                                <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
+                            `}
                             <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
-                            <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">
-                                ${ad.status === 'active' ? '⏸' : '▶️'}
-                            </button>
+                            ${isApproved ? `
+                                <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">
+                                    ${ad.status === 'active' ? '⏸' : '▶️'}
+                                </button>
+                            ` : ''}
                         </td>
                     </tr>
                 `;
@@ -1137,7 +1174,6 @@
             }
             
             filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
-            
             document.getElementById('usersCount').textContent = filtered.length;
             
             const tbody = document.getElementById('usersBody');
@@ -1151,8 +1187,8 @@
                     <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
                     <td><span class="user-id">${escapeHTML(u.id || '')}</span></td>
                     <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
+                    <td>$${(u.walletBalance || 0).toFixed(3)}</td>
                     <td>${u.adCount || 0}</td>
-                    <td class="text-muted">${u.lastAdWatchedDate || 'Never'}</td>
                     <td>
                         <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
                         <button class="action-btn view" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
@@ -1173,7 +1209,7 @@
             
             const tbody = document.getElementById('verificationsBody');
             if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
                 return;
             }
             
@@ -1181,14 +1217,13 @@
                 <tr>
                     <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
                     <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
-                    <td>
-                        ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
-                    </td>
+                    <td>${escapeHTML(v.adTitle || 'N/A')}</td>
+                    <td>${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}</td>
                     <td><span class="status-badge pending">Pending</span></td>
                     <td class="text-muted">${new Date(v.createdAt).toLocaleDateString()}</td>
                     <td>
                         <button class="action-btn approve" onclick="approveVerification('${v.id}')">Approve</button>
-                        <button class="action-btn reject" onclick="rejectVerification('${v.id}')">Reject</button>
+                        <button class="action-btn reject" onclick="openRejectModal('${v.id}')">Reject</button>
                     </td>
                 </tr>
             `).join('');
@@ -1210,7 +1245,7 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
                     <div>
                         <div style="font-weight:600; font-size:14px;">${escapeHTML(task.title)}</div>
-                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s | ${escapeHTML(task.link || '')}</div>
+                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s</div>
                     </div>
                     <div>
                         <button class="action-btn edit" onclick="editBonusTask(${index})"><i class="fa-solid fa-pen"></i></button>
@@ -1221,10 +1256,37 @@
         }
 
         // ============================================================
-        // ACTIONS
+        // RENDER DEPOSIT METHODS
         // ============================================================
-        
-        // Withdrawals
+        function renderDepositMethods() {
+            const container = document.getElementById('depositMethodsList');
+            document.getElementById('depositMethodCount').textContent = allData.depositMethods.length;
+            
+            if (allData.depositMethods.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-credit-card"></i><p>No deposit methods</p></div>`;
+                return;
+            }
+            
+            container.innerHTML = allData.depositMethods.map((method, index) => `
+                <div class="deposit-method-item">
+                    <div class="method-info">
+                        <div class="method-icon">${method.icon || '💳'}</div>
+                        <div>
+                            <div class="method-name">${escapeHTML(method.name)}</div>
+                            <div class="method-number">${escapeHTML(method.number)}</div>
+                        </div>
+                    </div>
+                    <div class="method-actions">
+                        <button class="action-btn edit" onclick="editDepositMethod(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" onclick="deleteDepositMethod(${index})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // ACTIONS - Withdrawals
+        // ============================================================
         async function approveWithdrawal(id) {
             if (!confirm('Approve this withdrawal?')) return;
             try {
@@ -1245,7 +1307,9 @@
             }
         }
 
-        // Deposits
+        // ============================================================
+        // ACTIONS - Deposits
+        // ============================================================
         async function approveDeposit(id) {
             if (!confirm('Approve this deposit?')) return;
             try {
@@ -1256,7 +1320,7 @@
                 await firebaseDb.ref(`deposits/${id}/status`).set('approved');
                 
                 const amount = data.amount / 100;
-                await firebaseDb.ref(`users/${data.userId}/balance`).transaction((current) => (current || 0) + amount);
+                await firebaseDb.ref(`users/${data.userId}/walletBalance`).transaction((current) => (current || 0) + amount);
                 
                 showToast('✅ Deposit approved!', 'success');
             } catch (e) {
@@ -1274,7 +1338,19 @@
             }
         }
 
-        // Ads
+        // ============================================================
+        // ACTIONS - Ads
+        // ============================================================
+        async function approveAd(id) {
+            if (!confirm('Approve this ad?')) return;
+            try {
+                await firebaseDb.ref(`ads/${id}/approved`).set(true);
+                showToast('✅ Ad approved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to approve', 'error');
+            }
+        }
+
         async function deleteAd(id) {
             if (!confirm('Delete this ad?')) return;
             try {
@@ -1328,6 +1404,16 @@
                         <input type="number" id="editAdViews" value="${ad.totalViews || 100}">
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Duration (Days)</label>
+                        <input type="number" id="editAdDuration" value="${ad.duration || 7}">
+                    </div>
+                    <div class="form-group">
+                        <label>Budget ($)</label>
+                        <input type="number" id="editAdBudget" step="0.01" value="${ad.budget || 1.00}">
+                    </div>
+                </div>
                 `,
                 `
                 <button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button>
@@ -1342,7 +1428,9 @@
                 desc: document.getElementById('editAdDesc').value,
                 link: document.getElementById('editAdLink').value,
                 reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
-                totalViews: parseInt(document.getElementById('editAdViews').value) || 100
+                totalViews: parseInt(document.getElementById('editAdViews').value) || 100,
+                duration: parseInt(document.getElementById('editAdDuration').value) || 7,
+                budget: parseFloat(document.getElementById('editAdBudget').value) || 1.00
             };
             
             try {
@@ -1354,7 +1442,9 @@
             }
         }
 
-        // Users
+        // ============================================================
+        // ACTIONS - Users
+        // ============================================================
         async function editUser(id) {
             const snapshot = await firebaseDb.ref(`users/${id}`).once('value');
             const user = snapshot.val();
@@ -1372,6 +1462,10 @@
                     <input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}">
                 </div>
                 <div class="form-group">
+                    <label>Wallet Balance ($)</label>
+                    <input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}">
+                </div>
+                <div class="form-group">
                     <label>Ads Watched</label>
                     <input type="number" id="editUserAds" value="${user.adCount || 0}">
                 </div>
@@ -1387,6 +1481,7 @@
             const data = {
                 name: document.getElementById('editUserName').value,
                 balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
+                walletBalance: parseFloat(document.getElementById('editUserWallet').value) || 0,
                 adCount: parseInt(document.getElementById('editUserAds').value) || 0
             };
             
@@ -1411,16 +1506,18 @@
                     <div><strong>Username:</strong> @${escapeHTML(user.username || 'N/A')}</div>
                     <div><strong>ID:</strong> <span class="user-id">${escapeHTML(user.id)}</span></div>
                     <div><strong>Balance:</strong> $${(user.balance || 0).toFixed(3)}</div>
+                    <div><strong>Wallet:</strong> $${(user.walletBalance || 0).toFixed(3)}</div>
                     <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
                     <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
-                    <div><strong>Joined:</strong> ${user.lastAdWatchedDate || 'N/A'}</div>
                 </div>
                 `,
                 `<button class="btn-secondary" onclick="closeModal()">Close</button>`
             );
         }
 
-        // Verifications
+        // ============================================================
+        // ACTIONS - Verifications
+        // ============================================================
         async function approveVerification(id) {
             if (!confirm('Approve this verification?')) return;
             try {
@@ -1445,17 +1542,54 @@
             }
         }
 
-        async function rejectVerification(id) {
-            if (!confirm('Reject this verification?')) return;
+        function openRejectModal(id) {
+            pendingRejectId = id;
+            showModal(
+                'Reject Verification',
+                `
+                <div class="form-group">
+                    <label>Rejection Reason *</label>
+                    <textarea id="rejectReasonInput" placeholder="Explain why this verification is being rejected..." rows="4" required></textarea>
+                    <div style="font-size:11px; color:var(--text-light); margin-top:4px;">The user will see this reason</div>
+                </div>
+                `,
+                `
+                <button class="btn-primary btn-danger" onclick="confirmRejectVerification()"><i class="fa-solid fa-times"></i> Reject</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        let pendingRejectId = null;
+
+        async function confirmRejectVerification() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            
+            if (!reason || reason.length < 3) {
+                showToast('❌ Please provide a valid rejection reason (min 3 characters)', 'error');
+                return;
+            }
+
+            if (!pendingRejectId) {
+                showToast('❌ No verification selected', 'error');
+                return;
+            }
+
             try {
-                await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
-                showToast('❌ Verification rejected', 'error');
+                await firebaseDb.ref(`verifications/${pendingRejectId}/status`).set('rejected');
+                await firebaseDb.ref(`verifications/${pendingRejectId}/rejectReason`).set(reason);
+                
+                closeModal();
+                pendingRejectId = null;
+                showToast('❌ Verification rejected with reason', 'error');
             } catch (e) {
-                showToast('❌ Failed to reject', 'error');
+                showToast('❌ Failed to reject verification.', 'error');
             }
         }
 
-        // Bonus Tasks
+        // ============================================================
+        // ACTIONS - Bonus Tasks
+        // ============================================================
         async function deleteBonusTask(index) {
             if (!confirm('Delete this bonus task?')) return;
             try {
@@ -1520,6 +1654,64 @@
         }
 
         // ============================================================
+        // ACTIONS - Deposit Methods
+        // ============================================================
+        async function deleteDepositMethod(index) {
+            if (!confirm('Delete this deposit method?')) return;
+            try {
+                allData.depositMethods.splice(index, 1);
+                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
+                showToast('✅ Deposit method deleted!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to delete', 'error');
+            }
+        }
+
+        function editDepositMethod(index) {
+            const method = allData.depositMethods[index];
+            if (!method) return;
+            
+            showModal(
+                'Edit Deposit Method',
+                `
+                <div class="form-group">
+                    <label>Method Name</label>
+                    <input type="text" id="editDmName" value="${escapeHTML(method.name || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Number</label>
+                    <input type="text" id="editDmNumber" value="${escapeHTML(method.number || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Icon (Emoji)</label>
+                    <input type="text" id="editDmIcon" value="${escapeHTML(method.icon || '💳')}">
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        async function saveDepositMethod(index) {
+            const data = {
+                name: document.getElementById('editDmName').value,
+                number: document.getElementById('editDmNumber').value,
+                icon: document.getElementById('editDmIcon').value || '💳'
+            };
+            
+            try {
+                allData.depositMethods[index] = data;
+                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
+                closeModal();
+                showToast('✅ Deposit method updated!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to update', 'error');
+            }
+        }
+
+        // ============================================================
         // SETTINGS
         // ============================================================
         document.getElementById('settingsForm').addEventListener('submit', async function(e) {
@@ -1531,6 +1723,7 @@
                 minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
                 cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
                 referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
+                minDeposit: parseInt(document.getElementById('settingMinDeposit').value) || 10,
                 welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
                 withdrawMethods: document.getElementById('settingWithdrawMethods').value.split(',').map(s => s.trim()).filter(Boolean)
             };
@@ -1573,6 +1766,34 @@
         });
 
         // ============================================================
+        // DEPOSIT METHOD FORM
+        // ============================================================
+        document.getElementById('depositMethodForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const method = {
+                name: document.getElementById('dmName').value.trim(),
+                number: document.getElementById('dmNumber').value.trim(),
+                icon: document.getElementById('dmIcon').value.trim() || '💳'
+            };
+            
+            if (!method.name || !method.number) {
+                showToast('❌ Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                allData.depositMethods.push(method);
+                await firebaseDb.ref('depositMethods').set(allData.depositMethods);
+                this.reset();
+                document.getElementById('dmIcon').value = '💳';
+                showToast('✅ Deposit method added!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to add method', 'error');
+            }
+        });
+
+        // ============================================================
         // MODAL
         // ============================================================
         function showModal(title, body, actions) {
@@ -1586,7 +1807,6 @@
             document.getElementById('actionModal').classList.remove('show');
         }
 
-        // Close modal on background click
         document.getElementById('actionModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
