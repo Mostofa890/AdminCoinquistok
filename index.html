@@ -2,383 +2,853 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - NexEarn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NexEarn Admin Panel</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
-        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #1a1a2e; padding: 20px; overflow-y: auto; border-right: 1px solid #2a2a4a; z-index: 100; }
-        .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 15px 0 30px 0; border-bottom: 1px solid #2a2a4a; margin-bottom: 20px; }
-        .sidebar-brand i { font-size: 32px; color: #FF6B35; }
-        .sidebar-brand h2 { font-size: 20px; font-weight: 800; color: #fff; }
-        .sidebar-brand span { color: #FF6B35; }
-        
-        .nav-menu { list-style: none; }
-        .nav-menu li { margin-bottom: 4px; }
-        .nav-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: #8a8a9a; text-decoration: none; transition: all 0.3s ease; cursor: pointer; font-size: 14px; font-weight: 500; }
-        .nav-menu li a:hover, .nav-menu li a.active { background: #2a2a4a; color: #fff; }
-        .nav-menu li a i { width: 20px; text-align: center; font-size: 16px; }
-        .nav-menu li a .badge { margin-left: auto; background: #FF6B35; color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        
-        .main-content { margin-left: 250px; padding: 30px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .top-bar h1 { font-size: 28px; font-weight: 800; }
-        .top-bar .user-info { display: flex; align-items: center; gap: 16px; background: #1a1a2e; padding: 10px 20px; border-radius: 12px; border: 1px solid #2a2a4a; }
-        .top-bar .user-info i { font-size: 24px; color: #FF6B35; }
-        
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: #1a1a2e; padding: 20px; border-radius: 16px; border: 1px solid #2a2a4a; }
-        .stat-card .label { font-size: 13px; color: #8a8a9a; font-weight: 500; }
-        .stat-card .value { font-size: 28px; font-weight: 800; margin-top: 8px; }
-        .stat-card .value.green { color: #4ade80; }
-        .stat-card .value.orange { color: #FF6B35; }
-        .stat-card .value.blue { color: #60a5fa; }
-        .stat-card .value.purple { color: #a78bfa; }
-        
-        .card { background: #1a1a2e; border-radius: 16px; border: 1px solid #2a2a4a; padding: 24px; margin-bottom: 24px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .card-header h3 { font-size: 18px; font-weight: 700; }
-        
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: #FF6B35; color: #fff; }
-        .btn-primary:hover { background: #e85d2a; transform: translateY(-2px); }
-        .btn-success { background: #4ade80; color: #0f0f1a; }
-        .btn-success:hover { background: #22c55e; transform: translateY(-2px); }
-        .btn-danger { background: #ef4444; color: #fff; }
-        .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
-        .btn-secondary { background: #2a2a4a; color: #fff; }
-        .btn-secondary:hover { background: #3a3a5a; transform: translateY(-2px); }
-        .btn-sm { padding: 6px 14px; font-size: 12px; }
-        
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #8a8a9a; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 10px; color: #e0e0e0; font-size: 14px; transition: border-color 0.3s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #FF6B35; }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        table th, table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #2a2a4a; }
-        table th { font-size: 12px; font-weight: 600; color: #8a8a9a; text-transform: uppercase; letter-spacing: 0.5px; }
-        table td { font-size: 14px; }
-        
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-badge.pending { background: #f59e0b20; color: #f59e0b; }
-        .status-badge.success { background: #4ade8020; color: #4ade80; }
-        .status-badge.failed { background: #ef444420; color: #ef4444; }
-        .status-badge.mining-active { background: #4ade8020; color: #4ade80; }
-        .status-badge.mining-idle { background: #ef444420; color: #ef4444; }
-        
-        .toast { position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; border-radius: 12px; font-weight: 600; z-index: 9999; animation: slideUp 0.4s ease; }
-        .toast.success { background: #4ade80; color: #0f0f1a; }
-        .toast.error { background: #ef4444; color: #fff; }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .text-center { text-align: center; }
-        .text-muted { color: #8a8a9a; }
-        .mt-2 { margin-top: 8px; }
-        
-        .method-tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: #2a2a4a; color: #e0e0e0; }
-        .method-tag.binance { background: #f0b90b20; color: #f0b90b; }
-        .method-tag.bikash { background: #e91e6320; color: #e91e63; }
-        .method-tag.nogad { background: #00bcd420; color: #00bcd4; }
-        
-        .mining-settings { background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.2); border-radius: 12px; padding: 16px; margin-top: 8px; }
-        .mining-settings .title { color: #fbbf24; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
-        
-        .mining-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-        .mining-status-dot.active { background: #4ade80; animation: pulse 1.5s infinite; }
-        .mining-status-dot.inactive { background: #ef4444; }
-        
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-        
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 12px; }
-            .sidebar-brand h2 { display: none; }
-            .sidebar-brand span { display: none; }
-            .nav-menu li a span { display: none; }
-            .main-content { margin-left: 70px; padding: 16px; }
-            .form-row { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+        :root { 
+            --primary: #FF6B35; 
+            --primary-rgb: 255, 107, 53; 
+            --secondary: #E85D04; 
+            --bg: #0a0a12; 
+            --card: #141420; 
+            --text: #ffffff; 
+            --text-light: #8e8ea0; 
+            --border: #2a2a3a; 
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 14px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
         
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f0f1a; }
-        ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 16px 12px 20px 12px; 
+            min-height: 100vh;
+        }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        /* ===== HEADER ===== */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .admin-header .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        
+        .admin-header .logo span { color: var(--text); }
+        
+        .admin-header .badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .back-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .icon {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+        
+        .stat-card .value {
+            font-size: 22px;
+            font-weight: 800;
+        }
+        
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+        
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            border-color: var(--text-light);
+            color: var(--text);
+        }
+        
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--card);
+            padding: 18px 16px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.7s ease;
+        }
+        
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .card-title .count {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            background: var(--bg);
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+        
+        /* ===== TABLE ===== */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            color: var(--text-light);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .status-badge {
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-badge.approved { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-badge.rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-badge.active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-badge.paused { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-badge.verified { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        
+        .action-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin: 2px;
+        }
+        
+        .action-btn.approve { background: var(--success); color: white; }
+        .action-btn.approve:hover { opacity: 0.8; }
+        .action-btn.reject { background: var(--danger); color: white; }
+        .action-btn.reject:hover { opacity: 0.8; }
+        .action-btn.edit { background: var(--info); color: white; }
+        .action-btn.edit:hover { opacity: 0.8; }
+        .action-btn.delete { background: var(--danger); color: white; }
+        .action-btn.delete:hover { opacity: 0.8; }
+        .action-btn.view { background: var(--primary); color: white; }
+        .action-btn.view:hover { opacity: 0.8; }
+        
+        /* ===== FORMS ===== */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+        }
+        
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-secondary {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--text-light);
+        }
+        
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            padding: 24px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .modal-content .close-modal {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 24px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-content .close-modal:hover {
+            color: var(--text);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .modal-actions .btn-primary { flex: 1; justify-content: center; }
+        .modal-actions .btn-secondary { flex: 1; justify-content: center; }
+        
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 360px;
+            width: 100%;
+        }
+        
+        .toast {
+            background: var(--card);
+            color: var(--text);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.warning { border-color: var(--warning); }
+        .toast.info { border-color: var(--info); }
+        
+        .toast .toast-icon { font-size: 18px; }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        .toast.info .toast-icon { color: var(--info); }
+        
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+        
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .admin-header { flex-wrap: wrap; gap: 10px; }
+            .tabs { gap: 6px; }
+            .tab-btn { padding: 8px 14px; font-size: 12px; }
+        }
+        
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 12px; }
+            .stat-card .value { font-size: 18px; }
+            body { padding: 12px 8px; }
+        }
+        
+        /* ===== SEARCH ===== */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* ===== TAB CONTENT ===== */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+        
+        .loading i {
+            font-size: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ===== SMALL TEXT ===== */
+        .text-muted { color: var(--text-light); font-size: 12px; }
+        .text-truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+        .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fa-solid fa-cat"></i>
-            <h2>Nex<span>Earn</span></h2>
+
+    <!-- ===== HEADER ===== -->
+    <div class="admin-header">
+        <div>
+            <div class="logo">Nex<span>Earn</span></div>
+            <div style="font-size:12px; color:var(--text-light);">Admin Panel v2.0</div>
         </div>
-        <ul class="nav-menu">
-            <li><a class="active" data-page="dashboard"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a></li>
-            <li><a data-page="config"><i class="fa-solid fa-gear"></i><span>Configuration</span></a></li>
-            <li><a data-page="mining"><i class="fa-solid fa-hammer"></i><span>Mining Settings</span></a></li>
-            <li><a data-page="live-mining"><i class="fa-solid fa-bolt"></i><span>Live Mining</span><span class="badge" id="live-mining-count">0</span></a></li>
-            <li><a data-page="withdrawals"><i class="fa-solid fa-money-bill-transfer"></i><span>Withdrawals</span><span class="badge" id="pending-count">0</span></a></li>
-            <li><a data-page="users"><i class="fa-solid fa-users"></i><span>Users</span></a></li>
-            <li><a data-page="bonus"><i class="fa-solid fa-star"></i><span>Bonus Tasks</span></a></li>
-        </ul>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span class="badge">👑 Admin</span>
+            <a href="index.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="top-bar">
-            <h1 id="page-title">Dashboard</h1>
-            <div class="user-info">
-                <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
+    <!-- ===== STATS ===== -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="icon"><i class="fa-solid fa-users"></i></div>
+            <div class="value" id="statUsers">0</div>
+            <div class="label">Total Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
+            <div class="value" id="statEarnings">$0</div>
+            <div class="label">Total Earnings</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
+            <div class="value" id="statAds">0</div>
+            <div class="label">Total Ads</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fa-solid fa-clock"></i></div>
+            <div class="value" id="statPending">0</div>
+            <div class="label">Pending Requests</div>
+        </div>
+    </div>
+
+    <!-- ===== TABS ===== -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="withdrawals">
+            <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
+        </button>
+        <button class="tab-btn" data-tab="deposits">
+            <i class="fa-solid fa-credit-card"></i> Deposits
+        </button>
+        <button class="tab-btn" data-tab="ads">
+            <i class="fa-solid fa-rectangle-ad"></i> Ads
+        </button>
+        <button class="tab-btn" data-tab="users">
+            <i class="fa-solid fa-users"></i> Users
+        </button>
+        <button class="tab-btn" data-tab="verifications">
+            <i class="fa-solid fa-check-double"></i> Verifications
+        </button>
+        <button class="tab-btn" data-tab="settings">
+            <i class="fa-solid fa-gear"></i> Settings
+        </button>
+        <button class="tab-btn" data-tab="bonus">
+            <i class="fa-solid fa-star"></i> Bonus Tasks
+        </button>
+    </div>
+
+    <!-- ===== TAB: WITHDRAWALS ===== -->
+    <div class="tab-content active" id="tab-withdrawals">
+        <div class="card">
+            <div class="card-title">
+                <span>💸 Withdrawal Requests</span>
+                <span class="count" id="withdrawCount">0</span>
+            </div>
+            <div class="search-box">
+                <input type="text" id="withdrawSearch" placeholder="Search by user or ID..." oninput="filterWithdrawals()">
+                <select id="withdrawFilter" onchange="filterWithdrawals()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawalsBody"></tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <!-- Dashboard -->
-        <div id="page-dashboard" class="page active">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="label">Total Users</div><div class="value blue" id="total-users">0</div></div>
-                <div class="stat-card"><div class="label">Total Earnings</div><div class="value green" id="total-earnings">$0.000</div></div>
-                <div class="stat-card"><div class="label">Pending Withdrawals</div><div class="value orange" id="pending-withdrawals">0</div></div>
-                <div class="stat-card"><div class="label">Active Miners</div><div class="value purple" id="active-miners">0</div></div>
+    <!-- ===== TAB: DEPOSITS ===== -->
+    <div class="tab-content" id="tab-deposits">
+        <div class="card">
+            <div class="card-title">
+                <span>💳 Deposit Requests</span>
+                <span class="count" id="depositCount">0</span>
             </div>
-
-            <div class="card">
-                <div class="card-header"><h3>Recent Withdrawals</h3></div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-                        <tbody id="recent-withdrawals"><tr><td colspan="6" class="text-center text-muted">No withdrawals yet</td></tr></tbody>
-                    </table>
-                </div>
+            <div class="search-box">
+                <input type="text" id="depositSearch" placeholder="Search by user..." oninput="filterDeposits()">
+                <select id="depositFilter" onchange="filterDeposits()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                    <option value="all">All</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositsBody"></tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <!-- Configuration -->
-        <div id="page-config" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>App Configuration</h3>
-                    <button class="btn btn-success" onclick="saveConfig()"><i class="fa-solid fa-save"></i> Save All</button>
-                </div>
-                <form id="config-form">
-                    <div class="form-row">
-                        <div class="form-group"><label>App Name</label><input type="text" id="app-name" value="NexEarn"></div>
-                        <div class="form-group"><label>Bot Token</label><input type="text" id="bot-token" placeholder="Enter bot token"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Bot Username</label><input type="text" id="bot-username" placeholder="@botusername"></div>
-                        <div class="form-group"><label>Admin IDs (comma separated)</label><input type="text" id="admin-ids" placeholder="123456,789012"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Channel Link</label><input type="text" id="channel-link" placeholder="https://t.me/channel"></div>
-                        <div class="form-group"><label>Support Link</label><input type="text" id="support-link" placeholder="https://t.me/admin"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Ad Reward ($)</label><input type="number" id="ad-reward" step="0.001" value="0.001"></div>
-                        <div class="form-group"><label>Daily Ad Limit</label><input type="number" id="daily-limit" value="15"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Minimum Withdrawal ($)</label><input type="number" id="min-withdraw" step="0.01" value="0.10"></div>
-                        <div class="form-group"><label>Cooldown (minutes)</label><input type="number" id="cooldown" value="30"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Referral Reward ($)</label><input type="number" id="referral-reward" step="0.001" value="0.01"></div>
-                        <div class="form-group"><label>Monetag Zone ID</label><input type="text" id="zone-id" value="11573980"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Conversion Rate (1 USD = ? Coins)</label><input type="number" id="conversion-rate" step="1" value="1000"></div>
-                        <div class="form-group"><label>Recharge Amount (Coins)</label><input type="number" id="recharge-amount" step="1" value="1000"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Recharge Cooldown (Hours)</label><input type="number" id="recharge-hours" step="0.5" value="1"></div>
-                    </div>
-                    
+    <!-- ===== TAB: ADS ===== -->
+    <div class="tab-content" id="tab-ads">
+        <div class="card">
+            <div class="card-title">
+                <span>📢 All Ads</span>
+                <span class="count" id="adsCount">0</span>
+            </div>
+            <div class="search-box">
+                <input type="text" id="adsSearch" placeholder="Search by title..." oninput="filterAds()">
+                <select id="adsFilter" onchange="filterAds()" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); font-family:inherit;">
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Creator</th>
+                            <th>Views</th>
+                            <th>Reward</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TAB: USERS ===== -->
+    <div class="tab-content" id="tab-users">
+        <div class="card">
+            <div class="card-title">
+                <span>👥 All Users</span>
+                <span class="count" id="usersCount">0</span>
+            </div>
+            <div class="search-box">
+                <input type="text" id="usersSearch" placeholder="Search by name or ID..." oninput="filterUsers()">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>ID</th>
+                            <th>Balance</th>
+                            <th>Ads Watched</th>
+                            <th>Joined</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TAB: VERIFICATIONS ===== -->
+    <div class="tab-content" id="tab-verifications">
+        <div class="card">
+            <div class="card-title">
+                <span>📸 Verification Requests</span>
+                <span class="count" id="verificationCount">0</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Ad</th>
+                            <th>Screenshot</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verificationsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TAB: SETTINGS ===== -->
+    <div class="tab-content" id="tab-settings">
+        <div class="card">
+            <div class="card-title">⚙️ System Settings</div>
+            <form id="settingsForm">
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Payment Methods (one per line)</label>
-                        <div class="field-hint" style="font-size:12px; color:#8a8a9a; margin-bottom:8px;">
-                            <i class="fa-solid fa-info-circle"></i> Each line will appear as a separate withdrawal method
-                        </div>
-                        <textarea id="withdraw-methods" rows="4">Binance
-Bikash
-Nogad</textarea>
+                        <label>Ad Reward ($)</label>
+                        <input type="number" id="settingAdReward" step="0.001" value="0.001">
                     </div>
-                    
                     <div class="form-group">
-                        <label>Welcome Message</label>
-                        <textarea id="welcome-msg" rows="6">Please follow the rules to ensure you receive your payment.
-
-💰 Reward per Ad: $0.001
-💝 After watching 15 ads, there is a 30-minute break.
-✅ 100% Payment Guarantee
-💸 Withdraw via Binance UID or Email
-🔥 Minimum withdrawal is only $0.10</textarea>
+                        <label>Daily Ad Limit</label>
+                        <input type="number" id="settingDailyLimit" value="15">
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Minimum Withdrawal ($)</label>
+                        <input type="number" id="settingMinWithdraw" step="0.01" value="0.10">
+                    </div>
+                    <div class="form-group">
+                        <label>Cooldown (minutes)</label>
+                        <input type="number" id="settingCooldown" value="30">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Referral Reward ($)</label>
+                    <input type="number" id="settingReferralReward" step="0.001" value="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Welcome Message</label>
+                    <textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Withdrawal Methods (comma separated)</label>
+                    <input type="text" id="settingWithdrawMethods" value="Binance, Bikash, Nogad">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-save"></i> Save Settings
+                </button>
+            </form>
         </div>
+    </div>
 
-        <!-- Mining Settings -->
-        <div id="page-mining" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>⚡ Mining Settings</h3>
-                    <button class="btn btn-success" onclick="saveMiningSettings()"><i class="fa-solid fa-save"></i> Save Settings</button>
-                </div>
-                <div class="mining-settings">
-                    <div class="title">⛏️ Mining Configuration</div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Conversion Rate (1 USD = ? Coins)</label>
-                            <input type="number" id="mining-conversion-rate" step="1" value="1000">
-                            <div style="font-size:11px; color:#8a8a9a; margin-top:4px;">How many coins = 1 USD</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Recharge Amount (Coins)</label>
-                            <input type="number" id="mining-recharge-amount" step="1" value="1000">
-                            <div style="font-size:11px; color:#8a8a9a; margin-top:4px;">How many coins to add when recharge</div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Recharge Cooldown (Hours)</label>
-                            <input type="number" id="mining-recharge-hours" step="0.5" value="1">
-                            <div style="font-size:11px; color:#8a8a9a; margin-top:4px;">Time between auto recharge</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top:16px; padding:12px; background:rgba(16,185,129,0.08); border-radius:10px; border:1px solid rgba(16,185,129,0.15);">
-                    <div style="font-size:13px; color:#94a3b8;">
-                        <i class="fa-solid fa-info-circle" style="color:#10b981;"></i>
-                        <strong>How it works:</strong><br>
-                        • Mining balance collects coins from mining & ads<br>
-                        • After <strong>24 hours</strong>, auto convert to main balance<br>
-                        • Conversion rate: <strong id="rate-preview">1000</strong> coins = $1 USD<br>
-                        • Recharge adds <strong id="recharge-preview">1000</strong> coins every <strong id="hours-preview">1</strong> hour(s)
-                    </div>
-                </div>
+    <!-- ===== TAB: BONUS TASKS ===== -->
+    <div class="tab-content" id="tab-bonus">
+        <div class="card">
+            <div class="card-title">
+                <span>⭐ Bonus Tasks</span>
+                <span class="count" id="bonusCount">0</span>
             </div>
+            <div id="bonusTasksList"></div>
             
-            <div class="card">
-                <div class="card-header">
-                    <h3>👤 Manual User Management</h3>
-                </div>
+            <form id="bonusForm" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>User ID</label>
-                        <input type="text" id="manual-user-id" placeholder="Enter Telegram User ID">
+                        <label>Task Title</label>
+                        <input type="text" id="bonusTitle" placeholder="Enter task title" required>
                     </div>
                     <div class="form-group">
-                        <label>Action</label>
-                        <select id="manual-action">
-                            <option value="add-coins">Add Mining Coins</option>
-                            <option value="set-coins">Set Mining Coins</option>
-                            <option value="add-balance">Add Mining Balance</option>
-                            <option value="set-balance">Set Mining Balance</option>
-                        </select>
+                        <label>Reward ($)</label>
+                        <input type="number" id="bonusReward" step="0.001" value="0.01" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" id="manual-amount" step="1" value="100">
+                        <label>Task Link</label>
+                        <input type="url" id="bonusLink" placeholder="https://t.me/..." required>
                     </div>
-                    <div class="form-group" style="display:flex; align-items:flex-end;">
-                        <button class="btn btn-primary" onclick="manualUserUpdate()" style="width:100%;">
-                            <i class="fa-solid fa-pen"></i> Update User
-                        </button>
+                    <div class="form-group">
+                        <label>Duration (seconds)</label>
+                        <input type="number" id="bonusDuration" value="10" required>
                     </div>
                 </div>
-                <div id="manual-result" style="margin-top:10px; font-size:14px;"></div>
-            </div>
-        </div>
-
-        <!-- Live Mining -->
-        <div id="page-live-mining" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>⚡ Live Mining Status</h3>
-                    <button class="btn btn-secondary" onclick="loadLiveMining()"><i class="fa-solid fa-refresh"></i> Refresh</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>User</th>
-                                <th>User ID</th>
-                                <th>Last Active</th>
-                            </tr>
-                        </thead>
-                        <tbody id="live-mining-table">
-                            <tr><td colspan="4" class="text-center text-muted">Loading mining status...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div style="margin-top:12px; font-size:12px; color:#8a8a9a;">
-                    <span class="mining-status-dot active"></span> Mining Active &nbsp;
-                    <span class="mining-status-dot inactive"></span> Idle
-                </div>
-            </div>
-        </div>
-
-        <!-- Withdrawals -->
-        <div id="page-withdrawals" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>All Withdrawals</h3>
-                    <button class="btn btn-success" onclick="approveAll()"><i class="fa-solid fa-check-double"></i> Approve All</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>User</th><th>Method</th><th>Account</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-                        <tbody id="withdrawals-table"><tr><td colspan="7" class="text-center text-muted">No withdrawals found</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users -->
-        <div id="page-users" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>All Users</h3>
-                    <button class="btn btn-secondary" onclick="loadUsers()"><i class="fa-solid fa-refresh"></i> Refresh</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>User ID</th><th>Name</th><th>Username</th><th>Balance</th><th>Mining</th><th>Ads</th><th>Referrals</th></tr></thead>
-                        <tbody id="users-table"><tr><td colspan="7" class="text-center text-muted">Loading users...</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bonus Tasks -->
-        <div id="page-bonus" class="page">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Bonus Tasks</h3>
-                    <button class="btn btn-primary" onclick="addBonusTask()"><i class="fa-solid fa-plus"></i> Add Task</button>
-                </div>
-                <div id="bonus-tasks-list"><p class="text-center text-muted">Loading bonus tasks...</p></div>
-            </div>
+                <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
+                    <i class="fa-solid fa-plus"></i> Add Bonus Task
+                </button>
+            </form>
         </div>
     </div>
 
+    <!-- ===== MODAL ===== -->
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-title" id="modalTitle">Action</div>
+            <div id="modalBody"></div>
+            <div class="modal-actions" id="modalActions"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
     <script>
         // ============================================================
         // FIREBASE CONFIG
@@ -393,525 +863,806 @@ Nogad</textarea>
             appId: "1:616291442045:android:9de76c46bfdc5edec60014"
         };
 
-        let firebaseDb;
+        let firebaseDb = null;
+        let allData = {
+            withdrawals: [],
+            deposits: [],
+            ads: [],
+            users: [],
+            verifications: [],
+            bonusTasks: []
+        };
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            firebaseDb = firebase.database();
-            console.log("✅ Firebase Connected");
-        } catch(e) {
-            console.error("Firebase init error:", e);
-            alert("Firebase connection failed. Please check your configuration.");
+        // ============================================================
+        // INIT
+        // ============================================================
+        function initFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                firebaseDb = firebase.database();
+                console.log("✅ Firebase connected");
+                return true;
+            } catch (e) {
+                console.error("Firebase init error:", e);
+                return false;
+            }
         }
 
         // ============================================================
-        // NAVIGATION
+        // LOAD DATA
         // ============================================================
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
-                this.classList.add('active');
-                const page = this.dataset.page;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById('page-' + page).classList.add('active');
-                document.getElementById('page-title').textContent = this.querySelector('span')?.textContent || 'Dashboard';
+        function loadAllData() {
+            // Load Withdrawals
+            firebaseDb.ref('withdrawals').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allData.withdrawals = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                renderWithdrawals();
+                updateStats();
+            });
+
+            // Load Deposits
+            firebaseDb.ref('deposits').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allData.deposits = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                renderDeposits();
+                updateStats();
+            });
+
+            // Load Ads
+            firebaseDb.ref('ads').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allData.ads = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                renderAds();
+                updateStats();
+            });
+
+            // Load Users
+            firebaseDb.ref('users').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allData.users = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                renderUsers();
+                updateStats();
+            });
+
+            // Load Verifications
+            firebaseDb.ref('verifications').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                allData.verifications = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+                renderVerifications();
+                updateStats();
+            });
+
+            // Load Bonus Tasks
+            firebaseDb.ref('bonusTasks').on('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                allData.bonusTasks = data;
+                renderBonusTasks();
+                updateStats();
+            });
+
+            // Load Settings
+            firebaseDb.ref('adminConfig').once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                document.getElementById('settingAdReward').value = data.adReward || 0.001;
+                document.getElementById('settingDailyLimit').value = data.dailyLimit || 15;
+                document.getElementById('settingMinWithdraw').value = data.minWithdraw || 0.10;
+                document.getElementById('settingCooldown').value = data.cooldown || 30;
+                document.getElementById('settingReferralReward').value = data.referralReward || 0.01;
+                document.getElementById('settingWelcomeMsg').value = data.welcomeMessage || '';
+                document.getElementById('settingWithdrawMethods').value = (data.withdrawMethods || ['Binance', 'Bikash', 'Nogad']).join(', ');
+            });
+        }
+
+        // ============================================================
+        // UPDATE STATS
+        // ============================================================
+        function updateStats() {
+            document.getElementById('statUsers').textContent = allData.users.length;
+            
+            let totalEarnings = 0;
+            allData.users.forEach(u => {
+                totalEarnings += u.balance || 0;
+            });
+            document.getElementById('statEarnings').textContent = `$${totalEarnings.toFixed(3)}`;
+            
+            document.getElementById('statAds').textContent = allData.ads.length;
+            
+            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
+            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
+            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
+            document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications.length;
+        }
+
+        // ============================================================
+        // RENDER WITHDRAWALS
+        // ============================================================
+        function renderWithdrawals() {
+            const search = document.getElementById('withdrawSearch')?.value?.toLowerCase() || '';
+            const filter = document.getElementById('withdrawFilter')?.value || 'all';
+            
+            let filtered = allData.withdrawals;
+            if (filter !== 'all') {
+                filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
+            }
+            if (search) {
+                filtered = filtered.filter(w => 
+                    (w.userName || '').toLowerCase().includes(search) || 
+                    (w.id || '').toLowerCase().includes(search)
+                );
+            }
+            
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            document.getElementById('withdrawCount').textContent = filtered.length;
+            
+            const tbody = document.getElementById('withdrawalsBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals found</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(w => `
+                <tr>
+                    <td><strong>${escapeHTML(w.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(w.userId || '')}</span></td>
+                    <td>${escapeHTML(w.method)}<br><span class="text-muted">${escapeHTML(w.accountNumber || '')}</span></td>
+                    <td><strong>$${w.amount?.toFixed(3) || '0.000'}</strong></td>
+                    <td><span class="status-badge ${(w.status || 'pending').toLowerCase()}">${w.status || 'Pending'}</span></td>
+                    <td class="text-muted">${new Date(w.date).toLocaleDateString()}</td>
+                    <td>
+                        ${w.status === 'Pending' || w.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')">Approve</button>
+                            <button class="action-btn reject" onclick="rejectWithdrawal('${w.id}')">Reject</button>
+                        ` : `
+                            <span class="text-muted">Done</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterWithdrawals() { renderWithdrawals(); }
+
+        // ============================================================
+        // RENDER DEPOSITS
+        // ============================================================
+        function renderDeposits() {
+            const search = document.getElementById('depositSearch')?.value?.toLowerCase() || '';
+            const filter = document.getElementById('depositFilter')?.value || 'all';
+            
+            let filtered = allData.deposits;
+            if (filter !== 'all') {
+                filtered = filtered.filter(d => d.status === filter);
+            }
+            if (search) {
+                filtered = filtered.filter(d => 
+                    (d.userName || '').toLowerCase().includes(search) || 
+                    (d.method || '').toLowerCase().includes(search)
+                );
+            }
+            
+            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            document.getElementById('depositCount').textContent = filtered.length;
+            
+            const tbody = document.getElementById('depositsBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits found</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(d => `
+                <tr>
+                    <td><strong>${escapeHTML(d.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId || '')}</span></td>
+                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number || '')}</span></td>
+                    <td><strong>${d.amount} BDT</strong></td>
+                    <td><span class="status-badge ${d.status || 'pending'}">${d.status || 'Pending'}</span></td>
+                    <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        ${d.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approveDeposit('${d.id}')">Approve</button>
+                            <button class="action-btn reject" onclick="rejectDeposit('${d.id}')">Reject</button>
+                        ` : `
+                            <span class="text-muted">Done</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterDeposits() { renderDeposits(); }
+
+        // ============================================================
+        // RENDER ADS
+        // ============================================================
+        function renderAds() {
+            const search = document.getElementById('adsSearch')?.value?.toLowerCase() || '';
+            const filter = document.getElementById('adsFilter')?.value || 'all';
+            
+            let filtered = allData.ads;
+            if (filter !== 'all') {
+                filtered = filtered.filter(a => a.status === filter);
+            }
+            if (search) {
+                filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
+            }
+            
+            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            
+            document.getElementById('adsCount').textContent = filtered.length;
+            
+            const tbody = document.getElementById('adsBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(ad => {
+                const views = ad.views || 0;
+                const totalViews = ad.totalViews || 100;
+                const progress = Math.min((views / totalViews) * 100, 100);
                 
-                if (page === 'withdrawals') loadWithdrawals();
-                if (page === 'users') loadUsers();
-                if (page === 'dashboard') loadDashboard();
-                if (page === 'bonus') loadBonusTasks();
-                if (page === 'mining') loadMiningSettings();
-                if (page === 'live-mining') loadLiveMining();
+                return `
+                    <tr>
+                        <td><strong>${escapeHTML(ad.title || 'Untitled')}</strong></td>
+                        <td><span class="user-id">${escapeHTML(ad.createdBy || 'Unknown')}</span></td>
+                        <td>${views}/${totalViews} (${Math.round(progress)}%)</td>
+                        <td>$${ad.reward?.toFixed(3) || '0.001'}</td>
+                        <td><span class="status-badge ${ad.status || 'pending'}">${ad.status || 'Pending'}</span></td>
+                        <td>
+                            <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
+                            <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">
+                                ${ad.status === 'active' ? '⏸' : '▶️'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterAds() { renderAds(); }
+
+        // ============================================================
+        // RENDER USERS
+        // ============================================================
+        function renderUsers() {
+            const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
+            
+            let filtered = allData.users;
+            if (search) {
+                filtered = filtered.filter(u => 
+                    (u.name || '').toLowerCase().includes(search) || 
+                    (u.id || '').toLowerCase().includes(search)
+                );
+            }
+            
+            filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+            
+            document.getElementById('usersCount').textContent = filtered.length;
+            
+            const tbody = document.getElementById('usersBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(u => `
+                <tr>
+                    <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
+                    <td><span class="user-id">${escapeHTML(u.id || '')}</span></td>
+                    <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
+                    <td>${u.adCount || 0}</td>
+                    <td class="text-muted">${u.lastAdWatchedDate || 'Never'}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn view" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() { renderUsers(); }
+
+        // ============================================================
+        // RENDER VERIFICATIONS
+        // ============================================================
+        function renderVerifications() {
+            const items = allData.verifications.filter(v => v.status === 'pending');
+            
+            document.getElementById('verificationCount').textContent = items.length;
+            
+            const tbody = document.getElementById('verificationsBody');
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = items.map(v => `
+                <tr>
+                    <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
+                    <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
+                    <td>
+                        ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
+                    </td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td class="text-muted">${new Date(v.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn approve" onclick="approveVerification('${v.id}')">Approve</button>
+                        <button class="action-btn reject" onclick="rejectVerification('${v.id}')">Reject</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================================
+        // RENDER BONUS TASKS
+        // ============================================================
+        function renderBonusTasks() {
+            const container = document.getElementById('bonusTasksList');
+            document.getElementById('bonusCount').textContent = allData.bonusTasks.length;
+            
+            if (allData.bonusTasks.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`;
+                return;
+            }
+            
+            container.innerHTML = allData.bonusTasks.map((task, index) => `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">${escapeHTML(task.title)}</div>
+                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s | ${escapeHTML(task.link || '')}</div>
+                    </div>
+                    <div>
+                        <button class="action-btn edit" onclick="editBonusTask(${index})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" onclick="deleteBonusTask(${index})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // ACTIONS
+        // ============================================================
+        
+        // Withdrawals
+        async function approveWithdrawal(id) {
+            if (!confirm('Approve this withdrawal?')) return;
+            try {
+                await firebaseDb.ref(`withdrawals/${id}/status`).set('Approved');
+                showToast('✅ Withdrawal approved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to approve', 'error');
+            }
+        }
+
+        async function rejectWithdrawal(id) {
+            if (!confirm('Reject this withdrawal?')) return;
+            try {
+                await firebaseDb.ref(`withdrawals/${id}/status`).set('Rejected');
+                showToast('❌ Withdrawal rejected', 'error');
+            } catch (e) {
+                showToast('❌ Failed to reject', 'error');
+            }
+        }
+
+        // Deposits
+        async function approveDeposit(id) {
+            if (!confirm('Approve this deposit?')) return;
+            try {
+                const snapshot = await firebaseDb.ref(`deposits/${id}`).once('value');
+                const data = snapshot.val();
+                if (!data) return;
+
+                await firebaseDb.ref(`deposits/${id}/status`).set('approved');
+                
+                const amount = data.amount / 100;
+                await firebaseDb.ref(`users/${data.userId}/balance`).transaction((current) => (current || 0) + amount);
+                
+                showToast('✅ Deposit approved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to approve', 'error');
+            }
+        }
+
+        async function rejectDeposit(id) {
+            if (!confirm('Reject this deposit?')) return;
+            try {
+                await firebaseDb.ref(`deposits/${id}/status`).set('rejected');
+                showToast('❌ Deposit rejected', 'error');
+            } catch (e) {
+                showToast('❌ Failed to reject', 'error');
+            }
+        }
+
+        // Ads
+        async function deleteAd(id) {
+            if (!confirm('Delete this ad?')) return;
+            try {
+                await firebaseDb.ref(`ads/${id}`).remove();
+                showToast('✅ Ad deleted!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to delete', 'error');
+            }
+        }
+
+        async function toggleAdStatus(id) {
+            try {
+                const snapshot = await firebaseDb.ref(`ads/${id}`).once('value');
+                const ad = snapshot.val();
+                if (!ad) return;
+                const newStatus = ad.status === 'active' ? 'paused' : 'active';
+                await firebaseDb.ref(`ads/${id}/status`).set(newStatus);
+                showToast(`✅ Ad ${newStatus === 'active' ? 'activated' : 'paused'}!`, 'success');
+            } catch (e) {
+                showToast('❌ Failed to update', 'error');
+            }
+        }
+
+        async function editAd(id) {
+            const snapshot = await firebaseDb.ref(`ads/${id}`).once('value');
+            const ad = snapshot.val();
+            if (!ad) return;
+            
+            showModal(
+                'Edit Ad',
+                `
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="editAdTitle" value="${escapeHTML(ad.title || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="editAdDesc">${escapeHTML(ad.desc || '')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Link</label>
+                    <input type="url" id="editAdLink" value="${escapeHTML(ad.link || '')}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Reward ($)</label>
+                        <input type="number" id="editAdReward" step="0.001" value="${ad.reward || 0.001}">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Views</label>
+                        <input type="number" id="editAdViews" value="${ad.totalViews || 100}">
+                    </div>
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        async function saveAd(id) {
+            const data = {
+                title: document.getElementById('editAdTitle').value,
+                desc: document.getElementById('editAdDesc').value,
+                link: document.getElementById('editAdLink').value,
+                reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
+                totalViews: parseInt(document.getElementById('editAdViews').value) || 100
+            };
+            
+            try {
+                await firebaseDb.ref(`ads/${id}`).update(data);
+                closeModal();
+                showToast('✅ Ad updated!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to update', 'error');
+            }
+        }
+
+        // Users
+        async function editUser(id) {
+            const snapshot = await firebaseDb.ref(`users/${id}`).once('value');
+            const user = snapshot.val();
+            if (!user) return;
+            
+            showModal(
+                'Edit User',
+                `
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="editUserName" value="${escapeHTML(user.name || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Balance ($)</label>
+                    <input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}">
+                </div>
+                <div class="form-group">
+                    <label>Ads Watched</label>
+                    <input type="number" id="editUserAds" value="${user.adCount || 0}">
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        async function saveUser(id) {
+            const data = {
+                name: document.getElementById('editUserName').value,
+                balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
+                adCount: parseInt(document.getElementById('editUserAds').value) || 0
+            };
+            
+            try {
+                await firebaseDb.ref(`users/${id}`).update(data);
+                closeModal();
+                showToast('✅ User updated!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to update', 'error');
+            }
+        }
+
+        function viewUser(id) {
+            const user = allData.users.find(u => u.id === id);
+            if (!user) return;
+            
+            showModal(
+                'User Details',
+                `
+                <div style="display:grid; gap:8px; font-size:14px;">
+                    <div><strong>Name:</strong> ${escapeHTML(user.name || 'Unknown')}</div>
+                    <div><strong>Username:</strong> @${escapeHTML(user.username || 'N/A')}</div>
+                    <div><strong>ID:</strong> <span class="user-id">${escapeHTML(user.id)}</span></div>
+                    <div><strong>Balance:</strong> $${(user.balance || 0).toFixed(3)}</div>
+                    <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
+                    <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
+                    <div><strong>Joined:</strong> ${user.lastAdWatchedDate || 'N/A'}</div>
+                </div>
+                `,
+                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
+            );
+        }
+
+        // Verifications
+        async function approveVerification(id) {
+            if (!confirm('Approve this verification?')) return;
+            try {
+                const snapshot = await firebaseDb.ref(`verifications/${id}`).once('value');
+                const data = snapshot.val();
+                if (!data) return;
+
+                await firebaseDb.ref(`verifications/${id}/status`).set('approved');
+
+                const adSnapshot = await firebaseDb.ref(`ads/${data.adId}`).once('value');
+                const ad = adSnapshot.val();
+
+                if (ad) {
+                    await firebaseDb.ref(`users/${data.userId}/balance`).transaction((current) => (current || 0) + ad.reward);
+                }
+
+                await firebaseDb.ref(`ads/${data.adId}/verified`).set(true);
+
+                showToast('✅ Verification approved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to approve', 'error');
+            }
+        }
+
+        async function rejectVerification(id) {
+            if (!confirm('Reject this verification?')) return;
+            try {
+                await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
+                showToast('❌ Verification rejected', 'error');
+            } catch (e) {
+                showToast('❌ Failed to reject', 'error');
+            }
+        }
+
+        // Bonus Tasks
+        async function deleteBonusTask(index) {
+            if (!confirm('Delete this bonus task?')) return;
+            try {
+                allData.bonusTasks.splice(index, 1);
+                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
+                showToast('✅ Bonus task deleted!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to delete', 'error');
+            }
+        }
+
+        function editBonusTask(index) {
+            const task = allData.bonusTasks[index];
+            if (!task) return;
+            
+            showModal(
+                'Edit Bonus Task',
+                `
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="editBonusTitle" value="${escapeHTML(task.title || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Link</label>
+                    <input type="url" id="editBonusLink" value="${escapeHTML(task.link || '')}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Reward ($)</label>
+                        <input type="number" id="editBonusReward" step="0.001" value="${task.reward || 0.01}">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (seconds)</label>
+                        <input type="number" id="editBonusDuration" value="${task.duration || 10}">
+                    </div>
+                </div>
+                `,
+                `
+                <button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        async function saveBonusTask(index) {
+            const data = {
+                id: allData.bonusTasks[index].id,
+                title: document.getElementById('editBonusTitle').value,
+                link: document.getElementById('editBonusLink').value,
+                reward: parseFloat(document.getElementById('editBonusReward').value) || 0.01,
+                duration: parseInt(document.getElementById('editBonusDuration').value) || 10
+            };
+            
+            try {
+                allData.bonusTasks[index] = data;
+                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
+                closeModal();
+                showToast('✅ Bonus task updated!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to update', 'error');
+            }
+        }
+
+        // ============================================================
+        // SETTINGS
+        // ============================================================
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const settings = {
+                adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
+                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
+                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
+                cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
+                referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
+                welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
+                withdrawMethods: document.getElementById('settingWithdrawMethods').value.split(',').map(s => s.trim()).filter(Boolean)
+            };
+            
+            try {
+                await firebaseDb.ref('adminConfig').update(settings);
+                showToast('✅ Settings saved!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to save settings', 'error');
+            }
+        });
+
+        // ============================================================
+        // BONUS FORM
+        // ============================================================
+        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const task = {
+                id: Date.now().toString(),
+                title: document.getElementById('bonusTitle').value.trim(),
+                link: document.getElementById('bonusLink').value.trim(),
+                reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
+                duration: parseInt(document.getElementById('bonusDuration').value) || 10
+            };
+            
+            if (!task.title || !task.link) {
+                showToast('❌ Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                allData.bonusTasks.push(task);
+                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
+                this.reset();
+                showToast('✅ Bonus task added!', 'success');
+            } catch (e) {
+                showToast('❌ Failed to add task', 'error');
+            }
+        });
+
+        // ============================================================
+        // MODAL
+        // ============================================================
+        function showModal(title, body, actions) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            document.getElementById('modalActions').innerHTML = actions || '';
+            document.getElementById('actionModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('actionModal').classList.remove('show');
+        }
+
+        // Close modal on background click
+        document.getElementById('actionModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ============================================================
+        // TABS
+        // ============================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.getElementById(`tab-${this.dataset.tab}`).classList.add('active');
             });
         });
 
         // ============================================================
         // TOAST
         // ============================================================
-        function showToast(message, type = 'success') {
-            const existing = document.querySelector('.toast');
-            if (existing) existing.remove();
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // ============================================================
-        // DASHBOARD
-        // ============================================================
-        function loadDashboard() {
-            if (!firebaseDb) return;
+        function showToast(message, type = 'info') {
+            const container = document.querySelector('.toast-container') || (() => {
+                const c = document.createElement('div');
+                c.className = 'toast-container';
+                document.body.appendChild(c);
+                return c;
+            })();
             
-            firebaseDb.ref('users').once('value').then(snapshot => {
-                const users = snapshot.val() || {};
-                const userIds = Object.keys(users);
-                document.getElementById('total-users').textContent = userIds.length;
-                
-                let totalEarnings = 0;
-                let totalAds = 0;
-                let activeMiners = 0;
-                userIds.forEach(id => {
-                    const u = users[id];
-                    if (u.totalEarning) totalEarnings += u.totalEarning;
-                    if (u.adCount) totalAds += u.adCount;
-                    if (u.isMining) activeMiners++;
-                });
-                document.getElementById('total-earnings').textContent = '$' + totalEarnings.toFixed(3);
-                document.getElementById('total-ads').textContent = totalAds;
-                document.getElementById('active-miners').textContent = activeMiners;
-            });
-            
-            firebaseDb.ref('withdrawals').once('value').then(snapshot => {
-                const wds = snapshot.val() || {};
-                const pending = Object.values(wds).filter(w => w.status === 'Pending');
-                document.getElementById('pending-withdrawals').textContent = pending.length;
-                document.getElementById('pending-count').textContent = pending.length;
-                
-                const recent = Object.values(wds).slice(-5).reverse();
-                const tbody = document.getElementById('recent-withdrawals');
-                if (recent.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No withdrawals yet</td></tr>';
-                } else {
-                    tbody.innerHTML = recent.map(w => `
-                        <tr>
-                            <td>${w.userName || 'N/A'}</td>
-                            <td><span class="method-tag ${w.method?.toLowerCase()}">${w.method || 'N/A'}</span></td>
-                            <td>$${w.amount?.toFixed(3) || '0'}</td>
-                            <td><span class="status-badge ${w.status?.toLowerCase()}">${w.status || 'Pending'}</span></td>
-                            <td>${new Date(w.date).toLocaleDateString()}</td>
-                            <td>
-                                ${w.status === 'Pending' ? 
-                                    `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${w.id}')">Approve</button>` : 
-                                    '<span style="color:#4ade80;">✓</span>'
-                                }
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            });
-        }
-
-        // ============================================================
-        // LIVE MINING
-        // ============================================================
-        function loadLiveMining() {
-            if (!firebaseDb) return;
-            
-            firebaseDb.ref('miningStatus').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const entries = Object.entries(data);
-                entries.sort((a, b) => b[1].updatedAt - a[1].updatedAt);
-                
-                const tbody = document.getElementById('live-mining-table');
-                const count = entries.filter(e => e[1].isMining).length;
-                document.getElementById('live-mining-count').textContent = count;
-                
-                if (entries.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No mining activity yet</td></tr>';
-                } else {
-                    tbody.innerHTML = entries.map(([id, status]) => `
-                        <tr>
-                            <td>
-                                <span class="mining-status-dot ${status.isMining ? 'active' : 'inactive'}"></span>
-                                <span class="status-badge ${status.isMining ? 'mining-active' : 'mining-idle'}">
-                                    ${status.isMining ? '⛏️ Mining' : '💤 Idle'}
-                                </span>
-                            </td>
-                            <td>${status.name || 'N/A'}</td>
-                            <td><code>${id}</code></td>
-                            <td>${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'N/A'}</td>
-                        </tr>
-                    `).join('');
-                }
-            });
-        }
-
-        // ============================================================
-        // WITHDRAWALS
-        // ============================================================
-        function loadWithdrawals() {
-            if (!firebaseDb) return;
-            firebaseDb.ref('withdrawals').once('value').then(snapshot => {
-                const wds = snapshot.val() || {};
-                const items = Object.entries(wds).map(([id, data]) => ({ id, ...data }));
-                items.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                const tbody = document.getElementById('withdrawals-table');
-                if (items.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No withdrawals found</td></tr>';
-                } else {
-                    tbody.innerHTML = items.map(w => `
-                        <tr>
-                            <td>${w.userName || 'N/A'}</td>
-                            <td><span class="method-tag ${w.method?.toLowerCase()}">${w.method || 'N/A'}</span></td>
-                            <td>${w.accountNumber || 'N/A'}</td>
-                            <td>$${w.amount?.toFixed(3) || '0'}</td>
-                            <td><span class="status-badge ${w.status?.toLowerCase()}">${w.status || 'Pending'}</span></td>
-                            <td>${new Date(w.date).toLocaleDateString()}</td>
-                            <td>
-                                ${w.status === 'Pending' ? 
-                                    `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${w.id}')">Approve</button>
-                                     <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${w.id}')">Reject</button>` : 
-                                    `<span class="status-badge ${w.status?.toLowerCase()}">${w.status}</span>`
-                                }
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            });
-        }
-
-        function approveWithdrawal(id) {
-            if (!confirm('Approve this withdrawal?')) return;
-            firebaseDb.ref(`withdrawals/${id}/status`).set('Success');
-            firebaseDb.ref(`withdrawals/${id}/approvedAt`).set(new Date().toISOString());
-            showToast('✅ Withdrawal approved!');
-            loadWithdrawals();
-            loadDashboard();
-        }
-
-        function rejectWithdrawal(id) {
-            if (!confirm('Reject this withdrawal?')) return;
-            firebaseDb.ref(`withdrawals/${id}/status`).set('Failed');
-            showToast('❌ Withdrawal rejected!');
-            loadWithdrawals();
-            loadDashboard();
-        }
-
-        function approveAll() {
-            if (!confirm('Approve ALL pending withdrawals?')) return;
-            firebaseDb.ref('withdrawals').once('value').then(snapshot => {
-                const wds = snapshot.val() || {};
-                const updates = {};
-                let count = 0;
-                Object.entries(wds).forEach(([id, data]) => {
-                    if (data.status === 'Pending') {
-                        updates[`${id}/status`] = 'Success';
-                        updates[`${id}/approvedAt`] = new Date().toISOString();
-                        count++;
-                    }
-                });
-                if (count === 0) {
-                    showToast('No pending withdrawals', 'error');
-                    return;
-                }
-                firebaseDb.ref('withdrawals').update(updates);
-                showToast(`✅ ${count} withdrawals approved!`);
-                loadWithdrawals();
-                loadDashboard();
-            });
-        }
-
-        // ============================================================
-        // USERS
-        // ============================================================
-        function loadUsers() {
-            if (!firebaseDb) return;
-            firebaseDb.ref('users').once('value').then(snapshot => {
-                const users = snapshot.val() || {};
-                const tbody = document.getElementById('users-table');
-                const entries = Object.entries(users);
-                if (entries.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>';
-                } else {
-                    tbody.innerHTML = entries.map(([id, u]) => `
-                        <tr>
-                            <td><code>${id}</code></td>
-                            <td>${u.name || 'N/A'}</td>
-                            <td>${u.username ? '@' + u.username : 'N/A'}</td>
-                            <td>$${u.totalEarning?.toFixed(3) || '0.000'}</td>
-                            <td>${u.miningBalance || 0} 🪙</td>
-                            <td>${u.adCount || 0}</td>
-                            <td>${u.referrals || 0}</td>
-                        </tr>
-                    `).join('');
-                }
-            });
-        }
-
-        // ============================================================
-        // BONUS TASKS
-        // ============================================================
-        function loadBonusTasks() {
-            if (!firebaseDb) return;
-            firebaseDb.ref('bonusTasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                const container = document.getElementById('bonus-tasks-list');
-                if (tasks.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted">No bonus tasks configured</p>';
-                } else {
-                    container.innerHTML = tasks.map((task, index) => `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#0f0f1a; border-radius:10px; margin-bottom:8px; border:1px solid #2a2a4a;">
-                            <div>
-                                <strong>${task.title || 'Untitled'}</strong>
-                                <span style="color:#FF6B35; margin-left:12px;">+$${task.reward?.toFixed(3) || '0'}</span>
-                                <span style="color:#8a8a9a; font-size:12px; margin-left:12px;">${task.duration || 10}s</span>
-                                <span style="color:#60a5fa; font-size:12px; margin-left:12px;">${task.link || ''}</span>
-                            </div>
-                            <div>
-                                <button class="btn btn-secondary btn-sm" onclick="editBonusTask(${index})"><i class="fa-solid fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteBonusTask(${index})"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            });
-        }
-
-        function addBonusTask() {
-            const title = prompt('Enter task title:');
-            if (!title) return;
-            const reward = parseFloat(prompt('Enter reward amount ($):', '0.05'));
-            if (isNaN(reward)) return;
-            const link = prompt('Enter task link (Telegram URL):', 'https://t.me/');
-            if (!link) return;
-            const duration = parseInt(prompt('Enter duration (seconds):', '10')) || 10;
-            
-            firebaseDb.ref('bonusTasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                tasks.push({ id: 'bonus_' + Date.now(), title, reward, link, duration });
-                firebaseDb.ref('bonusTasks').set(tasks);
-                showToast('✅ Bonus task added!');
-                loadBonusTasks();
-            });
-        }
-
-        function editBonusTask(index) {
-            firebaseDb.ref('bonusTasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                const task = tasks[index];
-                if (!task) return;
-                const title = prompt('Edit title:', task.title);
-                if (!title) return;
-                const reward = parseFloat(prompt('Edit reward:', task.reward));
-                if (isNaN(reward)) return;
-                const link = prompt('Edit link:', task.link);
-                if (!link) return;
-                const duration = parseInt(prompt('Edit duration (seconds):', task.duration)) || 10;
-                
-                tasks[index] = { ...task, title, reward, link, duration };
-                firebaseDb.ref('bonusTasks').set(tasks);
-                showToast('✅ Bonus task updated!');
-                loadBonusTasks();
-            });
-        }
-
-        function deleteBonusTask(index) {
-            if (!confirm('Delete this bonus task?')) return;
-            firebaseDb.ref('bonusTasks').once('value').then(snapshot => {
-                const tasks = snapshot.val() || [];
-                tasks.splice(index, 1);
-                firebaseDb.ref('bonusTasks').set(tasks);
-                showToast('✅ Bonus task deleted!');
-                loadBonusTasks();
-            });
-        }
-
-        // ============================================================
-        // MINING SETTINGS
-        // ============================================================
-        function loadMiningSettings() {
-            if (!firebaseDb) return;
-            firebaseDb.ref('adminConfig').once('value').then(snapshot => {
-                const config = snapshot.val() || {};
-                document.getElementById('mining-conversion-rate').value = config.conversionRate || 1000;
-                document.getElementById('mining-recharge-amount').value = config.rechargeAmount || 1000;
-                document.getElementById('mining-recharge-hours').value = config.rechargeCooldownHours || 1;
-                
-                updatePreview();
-            });
-        }
-
-        function updatePreview() {
-            const rate = document.getElementById('mining-conversion-rate').value || 1000;
-            const amount = document.getElementById('mining-recharge-amount').value || 1000;
-            const hours = document.getElementById('mining-recharge-hours').value || 1;
-            
-            document.getElementById('rate-preview').textContent = rate;
-            document.getElementById('recharge-preview').textContent = amount;
-            document.getElementById('hours-preview').textContent = hours;
-        }
-
-        // Add event listeners for preview
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('mining-conversion-rate')?.addEventListener('input', updatePreview);
-            document.getElementById('mining-recharge-amount')?.addEventListener('input', updatePreview);
-            document.getElementById('mining-recharge-hours')?.addEventListener('input', updatePreview);
-        });
-
-        function saveMiningSettings() {
-            const rate = parseFloat(document.getElementById('mining-conversion-rate').value) || 1000;
-            const amount = parseFloat(document.getElementById('mining-recharge-amount').value) || 1000;
-            const hours = parseFloat(document.getElementById('mining-recharge-hours').value) || 1;
-            
-            firebaseDb.ref('adminConfig').update({
-                conversionRate: rate,
-                rechargeAmount: amount,
-                rechargeCooldownHours: hours
-            }).then(() => {
-                showToast('✅ Mining settings saved successfully!');
-            }).catch(err => {
-                showToast('❌ Failed to save: ' + err.message, 'error');
-            });
-        }
-
-        // ============================================================
-        // MANUAL USER UPDATE
-        // ============================================================
-        async function manualUserUpdate() {
-            const userId = document.getElementById('manual-user-id').value.trim();
-            const action = document.getElementById('manual-action').value;
-            const amount = parseFloat(document.getElementById('manual-amount').value) || 0;
-            const resultEl = document.getElementById('manual-result');
-            
-            if (!userId) {
-                resultEl.innerHTML = '<span style="color:#ef4444;">❌ Please enter a User ID</span>';
-                return;
-            }
-            if (amount <= 0) {
-                resultEl.innerHTML = '<span style="color:#ef4444;">❌ Amount must be greater than 0</span>';
-                return;
-            }
-            
-            resultEl.innerHTML = '<span style="color:#60a5fa;">⏳ Processing...</span>';
-            
-            try {
-                const snapshot = await firebaseDb.ref(`users/${userId}`).once('value');
-                const userData = snapshot.val();
-                
-                if (!userData) {
-                    resultEl.innerHTML = '<span style="color:#ef4444;">❌ User not found</span>';
-                    return;
-                }
-                
-                let updates = {};
-                let message = '';
-                
-                switch(action) {
-                    case 'add-coins':
-                        updates = { miningCoins: (userData.miningCoins || 0) + amount };
-                        message = `Added ${amount} coins. New total: ${updates.miningCoins}`;
-                        break;
-                    case 'set-coins':
-                        updates = { miningCoins: amount };
-                        message = `Set mining coins to ${amount}`;
-                        break;
-                    case 'add-balance':
-                        updates = { miningBalance: (userData.miningBalance || 0) + amount };
-                        message = `Added ${amount} to mining balance. New total: ${updates.miningBalance}`;
-                        break;
-                    case 'set-balance':
-                        updates = { miningBalance: amount };
-                        message = `Set mining balance to ${amount}`;
-                        break;
-                    default:
-                        resultEl.innerHTML = '<span style="color:#ef4444;">❌ Invalid action</span>';
-                        return;
-                }
-                
-                await firebaseDb.ref(`users/${userId}`).update(updates);
-                resultEl.innerHTML = `<span style="color:#4ade80;">✅ ${message}</span>`;
-                showToast('✅ User updated successfully!');
-                
-            } catch(err) {
-                resultEl.innerHTML = `<span style="color:#ef4444;">❌ Error: ${err.message}</span>`;
-            }
-        }
-
-        // ============================================================
-        // SAVE CONFIGURATION
-        // ============================================================
-        function saveConfig() {
-            const methodsRaw = document.getElementById('withdraw-methods').value;
-            const methods = methodsRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-            
-            const config = {
-                appName: document.getElementById('app-name').value,
-                botToken: document.getElementById('bot-token').value,
-                botUsername: document.getElementById('bot-username').value,
-                adminIds: document.getElementById('admin-ids').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)),
-                channelLink: document.getElementById('channel-link').value,
-                supportLink: document.getElementById('support-link').value,
-                adReward: parseFloat(document.getElementById('ad-reward').value) || 0.001,
-                dailyLimit: parseInt(document.getElementById('daily-limit').value) || 15,
-                minWithdraw: parseFloat(document.getElementById('min-withdraw').value) || 0.10,
-                cooldown: parseInt(document.getElementById('cooldown').value) || 30,
-                referralReward: parseFloat(document.getElementById('referral-reward').value) || 0.01,
-                zoneId: document.getElementById('zone-id').value,
-                withdrawMethods: methods,
-                welcomeMessage: document.getElementById('welcome-msg').value,
-                conversionRate: parseFloat(document.getElementById('conversion-rate').value) || 1000,
-                rechargeAmount: parseFloat(document.getElementById('recharge-amount').value) || 1000,
-                rechargeCooldownHours: parseFloat(document.getElementById('recharge-hours').value) || 1
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
             };
             
-            if (methods.length === 0) {
-                showToast('❌ Please add at least one payment method!', 'error');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fa-solid ${icons[type] || icons.info}"></i></span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        function init() {
+            if (!initFirebase()) {
+                document.querySelector('.stats-grid').innerHTML = 
+                    `<div class="stat-card" style="grid-column:1/-1; text-align:center; padding:40px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; color:var(--danger);"></i>
+                        <p style="margin-top:10px;">Failed to connect to Firebase. Please check your internet connection.</p>
+                    </div>`;
                 return;
             }
             
-            firebaseDb.ref('adminConfig').set(config).then(() => {
-                showToast('✅ Configuration saved successfully!');
-                loadConfig();
-            }).catch(err => {
-                showToast('❌ Failed to save: ' + err.message, 'error');
-            });
+            loadAllData();
+            showToast('✅ Admin panel loaded', 'success');
         }
 
-        // ============================================================
-        // LOAD CONFIGURATION
-        // ============================================================
-        function loadConfig() {
-            if (!firebaseDb) return;
-            firebaseDb.ref('adminConfig').once('value').then(snapshot => {
-                const config = snapshot.val();
-                if (config) {
-                    document.getElementById('app-name').value = config.appName || 'NexEarn';
-                    document.getElementById('bot-token').value = config.botToken || '';
-                    document.getElementById('bot-username').value = config.botUsername || '';
-                    document.getElementById('admin-ids').value = config.adminIds?.join(', ') || '';
-                    document.getElementById('channel-link').value = config.channelLink || '';
-                    document.getElementById('support-link').value = config.supportLink || '';
-                    document.getElementById('ad-reward').value = config.adReward || 0.001;
-                    document.getElementById('daily-limit').value = config.dailyLimit || 15;
-                    document.getElementById('min-withdraw').value = config.minWithdraw || 0.10;
-                    document.getElementById('cooldown').value = config.cooldown || 30;
-                    document.getElementById('referral-reward').value = config.referralReward || 0.01;
-                    document.getElementById('zone-id').value = config.zoneId || '11573980';
-                    document.getElementById('withdraw-methods').value = config.withdrawMethods?.join('\n') || 'Binance\nBikash\nNogad';
-                    document.getElementById('welcome-msg').value = config.welcomeMessage || '';
-                    document.getElementById('conversion-rate').value = config.conversionRate || 1000;
-                    document.getElementById('recharge-amount').value = config.rechargeAmount || 1000;
-                    document.getElementById('recharge-hours').value = config.rechargeCooldownHours || 1;
-                    
-                    updatePreview();
-                }
-            });
-        }
-
-        // ============================================================
-        // INITIALIZE
-        // ============================================================
-        loadConfig();
-        loadDashboard();
-        loadMiningSettings();
-
-        setInterval(() => {
-            const active = document.querySelector('.page.active');
-            if (active) {
-                const id = active.id;
-                if (id === 'page-dashboard') loadDashboard();
-                if (id === 'page-withdrawals') loadWithdrawals();
-                if (id === 'page-users') loadUsers();
-                if (id === 'page-bonus') loadBonusTasks();
-                if (id === 'page-live-mining') loadLiveMining();
-            }
-        }, 30000);
-
-        console.log('✅ Admin Panel Loaded Successfully!');
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
