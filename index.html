@@ -1996,7 +1996,6 @@
                 status: document.getElementById('editAdStatus').value
             };
 
-            // Update endDate if duration changed
             if (data.duration) {
                 data.endDate = Date.now() + (data.duration * 24 * 60 * 60 * 1000);
             }
@@ -2204,7 +2203,6 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tab}`)?.classList.add('active');
 
-            // Refresh data on tab switch
             if (tab === 'withdrawals') renderWithdrawals();
             if (tab === 'deposits') renderDeposits();
             if (tab === 'ads') renderAds();
