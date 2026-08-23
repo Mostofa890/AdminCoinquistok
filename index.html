@@ -349,6 +349,8 @@
         .status-badge.verified { background: rgba(59, 130, 246, 0.2); color: var(--info); }
         .status-badge.expired { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         .status-badge.refunded { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .status-badge.banned { background: rgba(239, 68, 68, 0.3); color: var(--danger); }
+        .status-badge.active-user { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 
         .action-btn {
             padding: 5px 14px;
@@ -374,6 +376,9 @@
         .action-btn.refund { background: var(--warning); color: white; }
         .action-btn.detail { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
         .action-btn.detail:hover { border-color: var(--primary); color: var(--primary); }
+        .action-btn.ban { background: var(--danger); color: white; }
+        .action-btn.unban { background: var(--success); color: white; }
+        .action-btn.chat { background: var(--info); color: white; }
 
         /* ===== FORMS ===== */
         .form-group {
@@ -690,6 +695,83 @@
             text-decoration: underline;
         }
 
+        /* ===== CHAT ===== */
+        .chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .chat-message {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .chat-message.admin {
+            background: var(--gradient);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-message.user {
+            background: var(--card);
+            border: 1px solid var(--border);
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-message .time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-group input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .chat-input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-input-group button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            background: var(--gradient);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .chat-input-group button:hover {
+            transform: scale(1.03);
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -982,6 +1064,7 @@
                             <th>Balance</th>
                             <th>Wallet</th>
                             <th>Ads</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -1052,6 +1135,16 @@
                         <div class="form-group">
                             <label>Referral Reward ($)</label>
                             <input type="number" id="settingReferralReward" step="0.001" value="0.01">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Minimum Budget ($)</label>
+                            <input type="number" id="settingMinBudget" step="0.01" value="1.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Duration (Days)</label>
+                            <input type="number" id="settingMinDuration" value="7">
                         </div>
                     </div>
                 </div>
@@ -1167,8 +1260,11 @@
             users: [],
             verifications: [],
             bonusTasks: [],
-            adminConfig: {}
+            adminConfig: {},
+            chats: {}
         };
+        let chatListener = null;
+        let currentChatUserId = null;
 
         // ============================================================
         // INIT
@@ -1484,7 +1580,7 @@
         function filterAdsTable() { renderAds(); }
 
         // ============================================================
-        // RENDER USERS
+        // RENDER USERS (with Ban/Unban & Chat)
         // ============================================================
         function renderUsers() {
             const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
@@ -1499,26 +1595,131 @@
             const tbody = document.getElementById('usersBody');
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.map(u => `
-                <tr>
-                    <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
-                    <td><span class="user-id">${escapeHTML(u.id || '')}</span></td>
-                    <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
-                    <td>$${(u.walletBalance || 0).toFixed(3)}</td>
-                    <td>${u.adCount || 0}</td>
-                    <td>
-                        <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = filtered.map(u => {
+                const isBanned = u.banned === true;
+                return `
+                    <tr>
+                        <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
+                        <td><span class="user-id">${escapeHTML(u.id || '')}</span></td>
+                        <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
+                        <td>$${(u.walletBalance || 0).toFixed(3)}</td>
+                        <td>${u.adCount || 0}</td>
+                        <td><span class="status-badge ${isBanned ? 'banned' : 'active-user'}">${isBanned ? '🚫 Banned' : '✅ Active'}</span></td>
+                        <td>
+                            <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
+                            <button class="action-btn chat" onclick="openChat('${u.id}')"><i class="fa-solid fa-comment"></i></button>
+                            ${isBanned ? 
+                                `<button class="action-btn unban" onclick="unbanUser('${u.id}')"><i class="fa-solid fa-check"></i></button>` :
+                                `<button class="action-btn ban" onclick="banUser('${u.id}')"><i class="fa-solid fa-ban"></i></button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function filterUsers() { renderUsers(); }
+
+        // ============================================================
+        // BAN / UNBAN USER
+        // ============================================================
+        async function banUser(userId) {
+            if (!confirm('Are you sure you want to BAN this user? They will not be able to use the app.')) return;
+            try {
+                await firebaseDb.ref(`users/${userId}/banned`).set(true);
+                showToast('✅ User banned successfully!', 'success');
+                renderUsers();
+            } catch (e) {
+                showToast('❌ Failed to ban user', 'error');
+            }
+        }
+
+        async function unbanUser(userId) {
+            if (!confirm('Unban this user?')) return;
+            try {
+                await firebaseDb.ref(`users/${userId}/banned`).set(false);
+                showToast('✅ User unbanned successfully!', 'success');
+                renderUsers();
+            } catch (e) {
+                showToast('❌ Failed to unban user', 'error');
+            }
+        }
+
+        // ============================================================
+        // CHAT SYSTEM
+        // ============================================================
+        function openChat(userId) {
+            currentChatUserId = userId;
+            const user = allData.users.find(u => u.id === userId);
+            if (!user) return;
+
+            showModal(
+                `💬 Chat with ${escapeHTML(user.name || 'User')}`,
+                `
+                <div id="chatMessages" class="chat-container"></div>
+                <div class="chat-input-group">
+                    <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+                `,
+                `<button class="btn-secondary" onclick="closeChat()">Close</button>`
+            );
+
+            // Load chat messages
+            if (chatListener) chatListener();
+            chatListener = firebaseDb.ref(`chats/${userId}`).on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                const messages = Object.entries(data).map(([id, msg]) => ({ id, ...msg }));
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
+                const container = document.getElementById('chatMessages');
+                if (!container) return;
+
+                if (messages.length === 0) {
+                    container.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = messages.map(msg => `
+                    <div class="chat-message ${msg.sender === 'admin' ? 'admin' : 'user'}">
+                        ${escapeHTML(msg.text)}
+                        <span class="time">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                `).join('');
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function closeChat() {
+            if (chatListener) {
+                chatListener();
+                chatListener = null;
+            }
+            currentChatUserId = null;
+            closeModal();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !currentChatUserId) return;
+
+            try {
+                await firebaseDb.ref(`chats/${currentChatUserId}`).push({
+                    text: text,
+                    sender: 'admin',
+                    timestamp: Date.now()
+                });
+                input.value = '';
+            } catch (e) {
+                showToast('❌ Failed to send message', 'error');
+            }
+        }
 
         // ============================================================
         // RENDER VERIFICATIONS - WITH LINK PREVIEW
@@ -1534,7 +1735,6 @@
             }
 
             tbody.innerHTML = items.map(v => {
-                // Find the ad to get link/description
                 const ad = allData.ads.find(a => a.id === v.adId);
                 const adLink = ad?.link || ad?.desc || 'No link provided';
                 const linkPreview = adLink.match(/https?:\/\/[^\s]+/g) || [];
@@ -1813,6 +2013,8 @@
             document.getElementById('settingReferralReward').value = config.referralReward || 0.01;
             document.getElementById('settingWelcomeTitle').value = config.welcomeTitle || 'Welcome to NexEarn! 🎉';
             document.getElementById('settingWelcomeMsg').value = config.welcomeMessage || 'Please follow the rules to ensure you receive your payment.';
+            document.getElementById('settingMinBudget').value = config.minBudget || 1.00;
+            document.getElementById('settingMinDuration').value = config.minDuration || 7;
         }
 
         // ============================================================
@@ -1828,7 +2030,9 @@
                 cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
                 referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
                 welcomeTitle: document.getElementById('settingWelcomeTitle').value || 'Welcome to NexEarn! 🎉',
-                welcomeMessage: document.getElementById('settingWelcomeMsg').value || ''
+                welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
+                minBudget: parseFloat(document.getElementById('settingMinBudget').value) || 1.00,
+                minDuration: parseInt(document.getElementById('settingMinDuration').value) || 7
             };
             try {
                 await firebaseDb.ref('adminConfig').update(settings);
@@ -1992,6 +2196,13 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editUserStatus">
+                        <option value="active" ${!user.banned ? 'selected' : ''}>Active</option>
+                        <option value="banned" ${user.banned ? 'selected' : ''}>Banned</option>
+                    </select>
+                </div>
                 `,
                 `<button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button>
                  <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
@@ -2004,7 +2215,8 @@
                 balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
                 walletBalance: parseFloat(document.getElementById('editUserWallet').value) || 0,
                 adCount: parseInt(document.getElementById('editUserAds').value) || 0,
-                userRole: document.getElementById('editUserRole').value
+                userRole: document.getElementById('editUserRole').value,
+                banned: document.getElementById('editUserStatus').value === 'banned'
             };
             try {
                 await firebaseDb.ref(`users/${id}`).update(data);
@@ -2027,6 +2239,7 @@
                     <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
                     <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
                     <div><strong>Role:</strong> ${user.userRole || 'Publisher'}</div>
+                    <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
                 </div>
                 `,
                 `<button class="btn-secondary" onclick="closeModal()">Close</button>`
