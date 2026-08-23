@@ -13,47 +13,52 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        
+        /* ===== ROOT ===== */
         :root {
             --primary: #FF6B35;
             --primary-rgb: 255, 107, 53;
             --secondary: #E85D04;
-            --bg: #0a0a12;
-            --card: #141420;
+            --bg: #0a0a1a;
+            --card: #141428;
             --text: #ffffff;
-            --text-light: #8e8ea0;
-            --border: #2a2a3a;
+            --text-light: #a0a0b8;
+            --border: #2a2a4a;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
-            --radius: 14px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --radius: 16px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.5);
             --transition: all 0.3s ease;
+            --gradient: linear-gradient(135deg, #FF6B35, #FF2E7D);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             padding: 16px 12px 20px 12px;
             min-height: 100vh;
         }
 
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         /* ===== HEADER ===== */
@@ -65,36 +70,46 @@
             animation: fadeIn 0.4s ease;
             flex-wrap: wrap;
             gap: 12px;
+            background: var(--card);
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
 
         .admin-header .logo {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
-            color: var(--primary);
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .admin-header .logo span { color: var(--text); }
+        .admin-header .logo span { 
+            -webkit-text-fill-color: var(--text);
+        }
 
         .admin-header .badge {
-            background: var(--primary);
+            background: var(--gradient);
             color: white;
-            padding: 4px 14px;
+            padding: 4px 16px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
+            animation: pulse 2s infinite;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .back-btn {
-            background: var(--card);
+            background: rgba(255,255,255,0.06);
             border: 1px solid var(--border);
             color: var(--text);
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 10px;
             cursor: pointer;
             font-family: inherit;
@@ -109,13 +124,14 @@
         .back-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.1);
         }
 
         .refresh-btn {
-            background: var(--card);
+            background: rgba(255,255,255,0.06);
             border: 1px solid var(--border);
             color: var(--text-light);
-            padding: 8px 14px;
+            padding: 8px 16px;
             border-radius: 10px;
             cursor: pointer;
             font-family: inherit;
@@ -128,11 +144,9 @@
             color: var(--text);
         }
 
-        .refresh-btn .fa-spin {
-            animation: spin 1s linear infinite;
-        }
+        .refresh-btn .fa-spin { animation: spin 1s linear infinite; }
 
-        /* ===== STATS GRID ===== */
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -143,27 +157,44 @@
 
         .stat-card {
             background: var(--card);
-            padding: 16px;
+            padding: 18px 16px;
             border-radius: var(--radius);
             border: 1px solid var(--border);
             transition: var(--transition);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+            opacity: 0.6;
         }
 
         .stat-card:hover {
             border-color: var(--primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.15);
         }
 
         .stat-card .icon {
-            font-size: 22px;
+            font-size: 24px;
             margin-bottom: 6px;
             color: var(--primary);
         }
 
         .stat-card .value {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .stat-card .label {
@@ -188,12 +219,16 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
             animation: fadeIn 0.6s ease;
+            background: var(--card);
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
 
         .tab-btn {
             padding: 10px 20px;
             border-radius: 10px;
-            border: 1px solid var(--border);
+            border: 1px solid transparent;
             background: transparent;
             color: var(--text-light);
             cursor: pointer;
@@ -207,19 +242,20 @@
         }
 
         .tab-btn:hover {
-            border-color: var(--text-light);
+            background: rgba(255,255,255,0.05);
             color: var(--text);
         }
 
         .tab-btn.active {
-            background: var(--primary);
+            background: var(--gradient);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.25);
         }
 
         .tab-btn .count {
             background: rgba(255,255,255,0.15);
-            padding: 1px 8px;
+            padding: 1px 10px;
             border-radius: 12px;
             font-size: 11px;
         }
@@ -231,17 +267,22 @@
         /* ===== CARDS ===== */
         .card {
             background: var(--card);
-            padding: 18px 16px;
+            padding: 20px 18px;
             border-radius: var(--radius);
             margin-bottom: 16px;
             border: 1px solid var(--border);
             animation: fadeIn 0.7s ease;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: rgba(var(--primary-rgb), 0.2);
         }
 
         .card-title {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -253,19 +294,14 @@
             font-weight: 600;
             color: var(--text-light);
             background: var(--bg);
-            padding: 2px 12px;
-            border-radius: 12px;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            padding: 2px 14px;
+            border-radius: 20px;
         }
 
         /* ===== TABLE ===== */
         .table-container {
             overflow-x: auto;
+            border-radius: 10px;
         }
 
         table {
@@ -276,15 +312,18 @@
 
         th {
             text-align: left;
-            padding: 10px 8px;
+            padding: 12px 10px;
             color: var(--text-light);
             font-weight: 600;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid var(--border);
             white-space: nowrap;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 10px 8px;
+            padding: 12px 10px;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
         }
@@ -294,11 +333,12 @@
         }
 
         .status-badge {
-            padding: 2px 12px;
-            border-radius: 12px;
+            padding: 3px 14px;
+            border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             display: inline-block;
+            text-transform: capitalize;
         }
 
         .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
@@ -311,32 +351,29 @@
         .status-badge.refunded { background: rgba(59, 130, 246, 0.2); color: var(--info); }
 
         .action-btn {
-            padding: 4px 12px;
+            padding: 5px 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
             font-family: inherit;
             margin: 2px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
         }
 
+        .action-btn:hover { transform: scale(1.04); }
         .action-btn.approve { background: var(--success); color: white; }
-        .action-btn.approve:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.reject { background: var(--danger); color: white; }
-        .action-btn.reject:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.edit { background: var(--info); color: white; }
-        .action-btn.edit:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.delete { background: var(--danger); color: white; }
-        .action-btn.delete:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.view { background: var(--primary); color: white; }
-        .action-btn.view:hover { opacity: 0.8; transform: scale(1.02); }
         .action-btn.refund { background: var(--warning); color: white; }
-        .action-btn.refund:hover { opacity: 0.8; transform: scale(1.02); }
+        .action-btn.detail { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
+        .action-btn.detail:hover { border-color: var(--primary); color: var(--primary); }
 
         /* ===== FORMS ===== */
         .form-group {
@@ -355,7 +392,7 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border: 1px solid var(--border);
             border-radius: 10px;
             font-family: 'Inter', sans-serif;
@@ -388,45 +425,29 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 24px;
+            padding: 12px 28px;
             border: none;
-            border-radius: 10px;
-            background: var(--primary);
+            border-radius: 12px;
+            background: var(--gradient);
             color: white;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: var(--transition);
             font-family: inherit;
+            justify-content: center;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+            box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.3);
         }
 
-        .btn-success {
-            background: var(--success);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .btn-secondary {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--text-light);
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-secondary { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); }
+        .btn-secondary:hover { border-color: var(--text-light); background: rgba(255,255,255,0.1); }
+        .btn-sm { padding: 6px 16px; font-size: 12px; }
 
         /* ===== MODAL ===== */
         .modal {
@@ -435,6 +456,8 @@
             z-index: 1000;
             inset: 0;
             background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             align-items: center;
             justify-content: center;
             padding: 16px;
@@ -447,24 +470,29 @@
 
         .modal-content {
             background: var(--card);
-            padding: 24px;
+            padding: 28px;
             border-radius: var(--radius);
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
             max-height: 90vh;
             overflow-y: auto;
             border: 1px solid var(--border);
             animation: fadeIn 0.3s ease;
             position: relative;
+            box-shadow: var(--shadow);
         }
 
         .modal-content .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .modal-content .modal-title i {
+            color: var(--primary);
         }
 
         .modal-content .close-modal {
@@ -474,7 +502,7 @@
             background: none;
             border: none;
             color: var(--text-light);
-            font-size: 24px;
+            font-size: 26px;
             cursor: pointer;
             font-family: inherit;
             transition: var(--transition);
@@ -487,8 +515,8 @@
 
         .modal-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .modal-actions .btn-primary { flex: 1; justify-content: center; }
@@ -503,15 +531,15 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-width: 360px;
+            max-width: 380px;
             width: 100%;
         }
 
         .toast {
             background: var(--card);
             color: var(--text);
-            padding: 14px 18px;
-            border-radius: 12px;
+            padding: 14px 20px;
+            border-radius: 14px;
             font-size: 14px;
             font-weight: 600;
             border: 1px solid var(--border);
@@ -519,8 +547,7 @@
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
+            gap: 12px;
         }
 
         .toast.success { border-color: var(--success); }
@@ -528,7 +555,7 @@
         .toast.warning { border-color: var(--warning); }
         .toast.info { border-color: var(--info); }
 
-        .toast .toast-icon { font-size: 18px; }
+        .toast .toast-icon { font-size: 20px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
         .toast.warning .toast-icon { color: var(--warning); }
@@ -537,27 +564,27 @@
         /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: var(--text-light);
         }
 
         .empty-state i {
-            font-size: 40px;
-            margin-bottom: 12px;
-            opacity: 0.3;
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.2;
         }
 
-        /* ===== SEARCH & FILTER ===== */
+        /* ===== SEARCH ===== */
         .search-box {
             display: flex;
-            gap: 10px;
-            margin-bottom: 14px;
+            gap: 12px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
 
         .search-box input {
             flex: 1;
-            padding: 10px 14px;
+            padding: 12px 16px;
             border: 1px solid var(--border);
             border-radius: 10px;
             background: var(--bg);
@@ -574,7 +601,7 @@
         }
 
         .search-box select {
-            padding: 10px 14px;
+            padding: 12px 16px;
             border: 1px solid var(--border);
             border-radius: 10px;
             background: var(--bg);
@@ -582,7 +609,7 @@
             font-family: inherit;
             font-size: 14px;
             transition: var(--transition);
-            min-width: 120px;
+            min-width: 140px;
         }
 
         .search-box select:focus {
@@ -600,26 +627,78 @@
             animation: fadeIn 0.4s ease;
         }
 
-        /* ===== LOADING ===== */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-light);
+        /* ===== SETTINGS ===== */
+        .settings-group {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .loading i {
-            font-size: 30px;
-            animation: spin 1s linear infinite;
+        .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .settings-group .group-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .method-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .method-item:hover {
+            border-color: var(--primary);
+        }
+
+        .method-item .method-name { font-weight: 600; }
+        .method-item .method-number { color: var(--text-light); font-family: monospace; }
+        .method-item .method-icon { font-size: 22px; }
+        .method-item .method-actions { display: flex; gap: 4px; }
+
+        /* ===== VERIFICATION LINK PREVIEW ===== */
+        .link-preview {
+            background: var(--bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin: 6px 0;
+            word-break: break-all;
+        }
+
+        .link-preview a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .link-preview a:hover {
+            text-decoration: underline;
         }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .form-row { grid-template-columns: 1fr; }
-            .admin-header { flex-wrap: wrap; gap: 10px; }
-            .tabs { gap: 6px; }
-            .tab-btn { padding: 8px 14px; font-size: 12px; }
-            .modal-content { padding: 18px; }
+            .admin-header { flex-direction: column; align-items: stretch; text-align: center; }
+            .header-actions { justify-content: center; }
+            .tabs { gap: 4px; padding: 6px 8px; }
+            .tab-btn { padding: 8px 12px; font-size: 12px; }
+            .modal-content { padding: 20px; }
             .search-box { flex-direction: column; }
         }
 
@@ -627,15 +706,15 @@
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .stat-card { padding: 12px; }
             .stat-card .value { font-size: 18px; }
-            body { padding: 12px 8px; }
+            body { padding: 10px 6px; }
         }
 
-        /* ===== SCROLLBAR ===== */
+        /* ===== MODAL SCROLLBAR ===== */
         .modal-content::-webkit-scrollbar { width: 4px; }
         .modal-content::-webkit-scrollbar-track { background: var(--bg); }
         .modal-content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 
-        /* ===== ADDITIONAL ===== */
+        /* ===== UTILITY ===== */
         .text-muted { color: var(--text-light); font-size: 12px; }
         .text-truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
         .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
@@ -649,53 +728,20 @@
         .flex-center { display: flex; align-items: center; gap: 8px; }
         .gap-8 { gap: 8px; }
         .gap-4 { gap: 4px; }
+        .w-full { width: 100%; }
 
-        .settings-group {
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .settings-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .settings-group .group-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 10px;
+        .reason-box {
+            background: rgba(239, 68, 68, 0.08);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border-left: 3px solid var(--danger);
+            margin: 8px 0;
+            font-size: 13px;
             color: var(--text-light);
         }
 
-        .method-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 12px;
-            background: var(--bg);
-            border-radius: 8px;
-            margin-bottom: 6px;
-            border: 1px solid var(--border);
-        }
-
-        .method-item .method-name {
-            font-weight: 600;
-        }
-
-        .method-item .method-number {
-            color: var(--text-light);
-            font-family: monospace;
-        }
-
-        .method-item .method-icon {
-            font-size: 20px;
-        }
-
-        .method-item .method-actions {
-            display: flex;
-            gap: 4px;
+        .reason-box strong {
+            color: var(--danger);
         }
     </style>
 </head>
@@ -709,7 +755,7 @@
         </div>
         <div class="header-actions">
             <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">
-                <i class="fa-solid fa-sync"></i>
+                <i class="fa-solid fa-sync"></i> Refresh
             </button>
             <span class="badge">👑 Admin</span>
             <a href="javascript:void(0)" class="back-btn" onclick="window.history.back()">
@@ -720,29 +766,25 @@
 
     <!-- ===== STATS ===== -->
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card" onclick="switchTab('withdrawals')">
+        <div class="stat-card" onclick="switchTab('users')">
             <div class="icon"><i class="fa-solid fa-users"></i></div>
             <div class="value" id="statUsers">0</div>
             <div class="label">Total Users</div>
-            <div class="change up" id="statUsersChange">+0 this week</div>
         </div>
         <div class="stat-card" onclick="switchTab('withdrawals')">
             <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
             <div class="value" id="statEarnings">$0</div>
             <div class="label">Total Earnings</div>
-            <div class="change up" id="statEarningsChange">+$0 this week</div>
         </div>
         <div class="stat-card" onclick="switchTab('ads')">
             <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
             <div class="value" id="statAds">0</div>
             <div class="label">Total Ads</div>
-            <div class="change" id="statAdsChange">0 active</div>
         </div>
         <div class="stat-card" onclick="switchTab('withdrawals')">
             <div class="icon"><i class="fa-solid fa-clock"></i></div>
             <div class="value" id="statPending">0</div>
             <div class="label">Pending Requests</div>
-            <div class="change" id="statPendingChange">Needs action</div>
         </div>
     </div>
 
@@ -939,8 +981,7 @@
                             <th>ID</th>
                             <th>Balance</th>
                             <th>Wallet</th>
-                            <th>Ads Watched</th>
-                            <th>Joined</th>
+                            <th>Ads</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -962,11 +1003,11 @@
                     <thead>
                         <tr>
                             <th>User</th>
-                            <th>Ad</th>
+                            <th>Ad ID</th>
                             <th>Title</th>
                             <th>Screenshot</th>
+                            <th>Link Preview</th>
                             <th>Status</th>
-                            <th>Date</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -981,7 +1022,6 @@
         <div class="card">
             <div class="card-title">⚙️ System Settings</div>
             <form id="settingsForm">
-                <!-- General Settings -->
                 <div class="settings-group">
                     <div class="group-title">💰 General Settings</div>
                     <div class="form-row">
@@ -996,11 +1036,11 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Minimum Withdrawal ($)</label>
+                            <label>Min Withdrawal ($)</label>
                             <input type="number" id="settingMinWithdraw" step="0.01" value="0.10">
                         </div>
                         <div class="form-group">
-                            <label>Minimum Deposit (BDT)</label>
+                            <label>Min Deposit (BDT)</label>
                             <input type="number" id="settingMinDeposit" value="10">
                         </div>
                     </div>
@@ -1016,41 +1056,26 @@
                     </div>
                 </div>
 
-                <!-- Withdrawal Methods -->
                 <div class="settings-group">
                     <div class="group-title">💸 Withdrawal Methods</div>
                     <div id="withdrawMethodsContainer"></div>
-                    <div class="form-row" style="margin-top:10px;">
-                        <div class="form-group">
-                            <input type="text" id="newWithdrawMethod" placeholder="New method name">
-                        </div>
-                        <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()">
-                            <i class="fa-solid fa-plus"></i> Add
-                        </button>
+                    <div class="flex" style="margin-top:10px; gap:8px;">
+                        <input type="text" id="newWithdrawMethod" placeholder="New method name" style="flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()"><i class="fa-solid fa-plus"></i> Add</button>
                     </div>
                 </div>
 
-                <!-- Deposit Methods -->
                 <div class="settings-group">
                     <div class="group-title">💳 Deposit Methods</div>
                     <div id="depositMethodsContainer"></div>
-                    <div class="form-row" style="margin-top:10px;">
-                        <div class="form-group">
-                            <input type="text" id="newDepositMethodName" placeholder="Method name">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="newDepositMethodNumber" placeholder="Number">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="newDepositMethodIcon" placeholder="Icon (emoji)">
-                        </div>
-                        <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()">
-                            <i class="fa-solid fa-plus"></i> Add
-                        </button>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; margin-top:10px;">
+                        <input type="text" id="newDepositMethodName" placeholder="Name" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <input type="text" id="newDepositMethodNumber" placeholder="Number" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <input type="text" id="newDepositMethodIcon" placeholder="Icon (emoji)" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
 
-                <!-- Welcome Message -->
                 <div class="settings-group">
                     <div class="group-title">📝 Welcome Message</div>
                     <div class="form-group">
@@ -1063,7 +1088,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">
+                <button type="submit" class="btn-primary w-full" style="justify-content:center;">
                     <i class="fa-solid fa-save"></i> Save All Settings
                 </button>
             </form>
@@ -1079,7 +1104,7 @@
             </div>
             <div id="bonusTasksList"></div>
 
-            <form id="bonusForm" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+            <form id="bonusForm" style="margin-top:18px; border-top:1px solid var(--border); padding-top:18px;">
                 <div class="form-row">
                     <div class="form-group">
                         <label>Task Title</label>
@@ -1100,7 +1125,7 @@
                         <input type="number" id="bonusDuration" value="10" required>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary btn-success" style="width:100%; justify-content:center;">
+                <button type="submit" class="btn-primary btn-success w-full" style="justify-content:center;">
                     <i class="fa-solid fa-plus"></i> Add Bonus Task
                 </button>
             </form>
@@ -1111,7 +1136,7 @@
     <div class="modal" id="actionModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">&times;</button>
-            <div class="modal-title" id="modalTitle">Action</div>
+            <div class="modal-title" id="modalTitle"><i class="fa-solid fa-pen"></i> Action</div>
             <div id="modalBody"></div>
             <div class="modal-actions" id="modalActions"></div>
         </div>
@@ -1144,7 +1169,6 @@
             bonusTasks: [],
             adminConfig: {}
         };
-        let filteredData = {};
 
         // ============================================================
         // INIT
@@ -1165,7 +1189,6 @@
         // LOAD DATA
         // ============================================================
         function loadAllData() {
-            // Load Withdrawals
             firebaseDb.ref('withdrawals').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.withdrawals = Object.entries(data).map(([id, item]) => ({ id, ...item }));
@@ -1174,7 +1197,6 @@
                 updateDashboard();
             });
 
-            // Load Deposits
             firebaseDb.ref('deposits').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.deposits = Object.entries(data).map(([id, item]) => ({ id, ...item }));
@@ -1183,7 +1205,6 @@
                 updateDashboard();
             });
 
-            // Load Ads
             firebaseDb.ref('ads').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.ads = Object.entries(data).map(([id, item]) => ({ id, ...item }));
@@ -1192,7 +1213,6 @@
                 updateDashboard();
             });
 
-            // Load Users
             firebaseDb.ref('users').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.users = Object.entries(data).map(([id, item]) => ({ id, ...item }));
@@ -1201,7 +1221,6 @@
                 updateDashboard();
             });
 
-            // Load Verifications
             firebaseDb.ref('verifications').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.verifications = Object.entries(data).map(([id, item]) => ({ id, ...item }));
@@ -1210,7 +1229,6 @@
                 updateDashboard();
             });
 
-            // Load Bonus Tasks
             firebaseDb.ref('bonusTasks').on('value', (snapshot) => {
                 const data = snapshot.val() || [];
                 allData.bonusTasks = data;
@@ -1218,7 +1236,6 @@
                 updateStats();
             });
 
-            // Load Settings
             firebaseDb.ref('adminConfig').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 allData.adminConfig = data;
@@ -1235,9 +1252,7 @@
             document.getElementById('statUsers').textContent = allData.users.length;
 
             let totalEarnings = 0;
-            allData.users.forEach(u => {
-                totalEarnings += u.balance || 0;
-            });
+            allData.users.forEach(u => totalEarnings += (u.balance || 0));
             document.getElementById('statEarnings').textContent = `$${totalEarnings.toFixed(3)}`;
 
             document.getElementById('statAds').textContent = allData.ads.length;
@@ -1267,7 +1282,6 @@
             document.getElementById('dashPendingVerifications').textContent = pendingVerifications.length;
             document.getElementById('dashPendingAds').textContent = pendingAds.length;
 
-            // Recent Activity
             const all = [];
             allData.withdrawals.forEach(w => all.push({ ...w, type: 'withdrawal' }));
             allData.deposits.forEach(d => all.push({ ...d, type: 'deposit' }));
@@ -1275,8 +1289,7 @@
             allData.ads.forEach(a => all.push({ ...a, type: 'ad' }));
 
             all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-            const recent = all.slice(0, 10);
+            const recent = all.slice(0, 12);
             const container = document.getElementById('recentActivity');
 
             if (recent.length === 0) {
@@ -1299,11 +1312,11 @@
                     status = item.status || 'Pending';
                 } else if (item.type === 'verification') {
                     icon = 'fa-solid fa-check-double';
-                    label = `Verification for ${item.adTitle || 'Ad'}`;
+                    label = `Verification for "${item.adTitle || 'Ad'}"`;
                     status = item.status || 'Pending';
                 } else if (item.type === 'ad') {
                     icon = 'fa-solid fa-rectangle-ad';
-                    label = `Ad: ${item.title || 'Untitled'}`;
+                    label = `Ad: "${item.title || 'Untitled'}"`;
                     status = item.approved ? 'Approved' : 'Pending';
                 }
 
@@ -1312,12 +1325,12 @@
                                    status.toLowerCase() === 'rejected' ? 'danger' : 'info';
 
                 return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <i class="${icon}" style="color:var(--primary);"></i>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <i class="${icon}" style="color:var(--primary); width:20px;"></i>
                             <div>
-                                <div style="font-weight:600; font-size:13px;">${label}</div>
-                                <div style="font-size:11px; color:var(--text-light);">${new Date(item.createdAt).toLocaleDateString()}</div>
+                                <div style="font-weight:600; font-size:14px;">${label}</div>
+                                <div style="font-size:12px; color:var(--text-light);">${new Date(item.createdAt || item.date).toLocaleDateString()}</div>
                             </div>
                         </div>
                         <span class="status-badge ${statusClass}">${status}</span>
@@ -1334,21 +1347,16 @@
             const filter = document.getElementById('withdrawFilter')?.value || 'all';
 
             let filtered = allData.withdrawals;
-            if (filter !== 'all') {
-                filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
-            }
-            if (search) {
-                filtered = filtered.filter(w =>
-                    (w.userName || '').toLowerCase().includes(search) ||
-                    (w.id || '').toLowerCase().includes(search)
-                );
-            }
-
+            if (filter !== 'all') filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
+            if (search) filtered = filtered.filter(w =>
+                (w.userName || '').toLowerCase().includes(search) ||
+                (w.id || '').toLowerCase().includes(search)
+            );
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             document.getElementById('withdrawCountTitle').textContent = filtered.length;
-
             const tbody = document.getElementById('withdrawalsBody');
+
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals found</p></div></td></tr>`;
                 return;
@@ -1364,9 +1372,9 @@
                     <td>
                         ${w.status === 'Pending' || w.status === 'pending' ? `
                             <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="rejectWithdrawal('${w.id}')"><i class="fa-solid fa-times"></i></button>
+                            <button class="action-btn reject" onclick="openRejectModal('withdrawal','${w.id}')"><i class="fa-solid fa-times"></i></button>
                         ` : `
-                            <span class="text-muted">Done</span>
+                            <span class="text-muted">${w.status || 'Done'}</span>
                         `}
                     </td>
                 </tr>
@@ -1383,21 +1391,16 @@
             const filter = document.getElementById('depositFilter')?.value || 'all';
 
             let filtered = allData.deposits;
-            if (filter !== 'all') {
-                filtered = filtered.filter(d => d.status === filter);
-            }
-            if (search) {
-                filtered = filtered.filter(d =>
-                    (d.userName || '').toLowerCase().includes(search) ||
-                    (d.method || '').toLowerCase().includes(search)
-                );
-            }
-
+            if (filter !== 'all') filtered = filtered.filter(d => d.status === filter);
+            if (search) filtered = filtered.filter(d =>
+                (d.userName || '').toLowerCase().includes(search) ||
+                (d.method || '').toLowerCase().includes(search)
+            );
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
             document.getElementById('depositCountTitle').textContent = filtered.length;
-
             const tbody = document.getElementById('depositsBody');
+
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits found</p></div></td></tr>`;
                 return;
@@ -1413,9 +1416,9 @@
                     <td>
                         ${d.status === 'pending' ? `
                             <button class="action-btn approve" onclick="approveDeposit('${d.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="rejectDeposit('${d.id}')"><i class="fa-solid fa-times"></i></button>
+                            <button class="action-btn reject" onclick="openRejectModal('deposit','${d.id}')"><i class="fa-solid fa-times"></i></button>
                         ` : `
-                            <span class="text-muted">Done</span>
+                            <span class="text-muted">${d.status || 'Done'}</span>
                         `}
                     </td>
                 </tr>
@@ -1432,20 +1435,14 @@
             const filter = document.getElementById('adsFilter')?.value || 'all';
 
             let filtered = allData.ads;
-            if (filter === 'pending') {
-                filtered = filtered.filter(a => a.approved === false || a.approved === undefined);
-            } else if (filter !== 'all') {
-                filtered = filtered.filter(a => a.status === filter);
-            }
-            if (search) {
-                filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
-            }
-
+            if (filter === 'pending') filtered = filtered.filter(a => a.approved === false || a.approved === undefined);
+            else if (filter !== 'all') filtered = filtered.filter(a => a.status === filter);
+            if (search) filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
             filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
             document.getElementById('adsCountTitle').textContent = filtered.length;
-
             const tbody = document.getElementById('adsBody');
+
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
                 return;
@@ -1471,13 +1468,12 @@
                         <td>
                             ${!isApproved ? `
                                 <button class="action-btn approve" onclick="approveAd('${ad.id}')"><i class="fa-solid fa-check"></i></button>
-                                <button class="action-btn reject" onclick="rejectAd('${ad.id}')"><i class="fa-solid fa-times"></i></button>
+                                <button class="action-btn reject" onclick="openRejectModal('ad','${ad.id}')"><i class="fa-solid fa-times"></i></button>
                             ` : `
                                 <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
                                 <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
-                                <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">
-                                    ${ad.status === 'active' ? '⏸' : '▶️'}
-                                </button>
+                                <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">${ad.status === 'active' ? '⏸' : '▶️'}</button>
+                                <button class="action-btn detail" onclick="viewAdDetails('${ad.id}')"><i class="fa-solid fa-eye"></i></button>
                             `}
                         </td>
                     </tr>
@@ -1492,22 +1488,18 @@
         // ============================================================
         function renderUsers() {
             const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
-
             let filtered = allData.users;
-            if (search) {
-                filtered = filtered.filter(u =>
-                    (u.name || '').toLowerCase().includes(search) ||
-                    (u.id || '').toLowerCase().includes(search)
-                );
-            }
-
+            if (search) filtered = filtered.filter(u =>
+                (u.name || '').toLowerCase().includes(search) ||
+                (u.id || '').toLowerCase().includes(search)
+            );
             filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
 
             document.getElementById('usersCountTitle').textContent = filtered.length;
-
             const tbody = document.getElementById('usersBody');
+
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
                 return;
             }
 
@@ -1518,10 +1510,9 @@
                     <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
                     <td>$${(u.walletBalance || 0).toFixed(3)}</td>
                     <td>${u.adCount || 0}</td>
-                    <td class="text-muted">${u.lastAdWatchedDate || 'Never'}</td>
                     <td>
                         <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn view" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
+                        <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -1530,35 +1521,116 @@
         function filterUsers() { renderUsers(); }
 
         // ============================================================
-        // RENDER VERIFICATIONS
+        // RENDER VERIFICATIONS - WITH LINK PREVIEW
         // ============================================================
         function renderVerifications() {
             const items = allData.verifications.filter(v => v.status === 'pending');
-
             document.getElementById('verificationCountTitle').textContent = items.length;
-
             const tbody = document.getElementById('verificationsBody');
+
             if (items.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = items.map(v => `
-                <tr>
-                    <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
-                    <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
-                    <td>${escapeHTML(v.adTitle || 'N/A')}</td>
-                    <td>
-                        ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
-                    </td>
-                    <td><span class="status-badge pending">Pending</span></td>
-                    <td class="text-muted">${new Date(v.createdAt).toLocaleDateString()}</td>
-                    <td>
-                        <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
-                        <button class="action-btn reject" onclick="rejectVerification('${v.id}')"><i class="fa-solid fa-times"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = items.map(v => {
+                // Find the ad to get link/description
+                const ad = allData.ads.find(a => a.id === v.adId);
+                const adLink = ad?.link || ad?.desc || 'No link provided';
+                const linkPreview = adLink.match(/https?:\/\/[^\s]+/g) || [];
+
+                return `
+                    <tr>
+                        <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
+                        <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
+                        <td>${escapeHTML(v.adTitle || 'N/A')}</td>
+                        <td>
+                            ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
+                        </td>
+                        <td>
+                            <div class="link-preview">
+                                ${linkPreview.length > 0 ? linkPreview.map(l => `<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>') : escapeHTML(adLink.substring(0, 60))}
+                            </div>
+                        </td>
+                        <td><span class="status-badge pending">Pending</span></td>
+                        <td>
+                            <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
+                            <button class="action-btn reject" onclick="openRejectModal('verification','${v.id}')"><i class="fa-solid fa-times"></i></button>
+                            <button class="action-btn detail" onclick="viewVerificationDetails('${v.id}')"><i class="fa-solid fa-eye"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
+        // VIEW VERIFICATION DETAILS
+        // ============================================================
+        function viewVerificationDetails(id) {
+            const v = allData.verifications.find(item => item.id === id);
+            if (!v) return;
+
+            const ad = allData.ads.find(a => a.id === v.adId);
+            const adLink = ad?.link || ad?.desc || 'No link provided';
+            const linkPreview = adLink.match(/https?:\/\/[^\s]+/g) || [];
+
+            showModal(
+                '📸 Verification Details',
+                `
+                <div style="display:grid; gap:12px; font-size:14px;">
+                    <div><strong>User:</strong> ${escapeHTML(v.userName || 'Unknown')}</div>
+                    <div><strong>User ID:</strong> <span class="user-id">${escapeHTML(v.userId)}</span></div>
+                    <div><strong>Ad ID:</strong> <span class="user-id">${escapeHTML(v.adId)}</span></div>
+                    <div><strong>Title:</strong> ${escapeHTML(v.adTitle || 'N/A')}</div>
+                    <div><strong>Description:</strong> ${escapeHTML(v.adDescription || 'N/A')}</div>
+                    <div><strong>Link Preview:</strong></div>
+                    <div class="link-preview">
+                        ${linkPreview.length > 0 ? linkPreview.map(l => `<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>') : escapeHTML(adLink)}
+                    </div>
+                    <div><strong>Screenshot:</strong> ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);">View Screenshot</a>` : 'No image'}</div>
+                    <div><strong>Created:</strong> ${new Date(v.createdAt).toLocaleString()}</div>
+                </div>
+                `,
+                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
+            );
+        }
+
+        // ============================================================
+        // VIEW AD DETAILS (with link preview)
+        // ============================================================
+        function viewAdDetails(id) {
+            const ad = allData.ads.find(a => a.id === id);
+            if (!ad) return;
+
+            const descWithLinks = (ad.desc || '').replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank" rel="noopener" style="color:var(--primary);">$1</a>'
+            );
+
+            showModal(
+                '📢 Ad Details',
+                `
+                <div style="display:grid; gap:10px; font-size:14px;">
+                    <div><strong>Title:</strong> ${escapeHTML(ad.title || 'Untitled')}</div>
+                    <div><strong>Creator:</strong> ${escapeHTML(ad.creatorName || 'Unknown')}</div>
+                    <div><strong>Creator ID:</strong> <span class="user-id">${escapeHTML(ad.createdBy || '')}</span></div>
+                    <div><strong>Category:</strong> ${escapeHTML(ad.category || 'General')}</div>
+                    <div><strong>Description:</strong></div>
+                    <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--border);">${descWithLinks || 'No description'}</div>
+                    <div><strong>Requirements:</strong> ${escapeHTML(ad.requirements || 'N/A')}</div>
+                    <div><strong>Instructions:</strong> ${escapeHTML(ad.instructions || 'N/A')}</div>
+                    <div><strong>Reward:</strong> $${ad.reward?.toFixed(3) || '0.001'}</div>
+                    <div><strong>Views:</strong> ${ad.views || 0}/${ad.totalViews || 100}</div>
+                    <div><strong>Budget:</strong> $${ad.budget?.toFixed(2) || '0.00'}</div>
+                    <div><strong>Duration:</strong> ${ad.duration || 7} days</div>
+                    <div><strong>Status:</strong> <span class="status-badge ${ad.status || 'pending'}">${ad.status || 'Pending'}</span></div>
+                    <div><strong>Approved:</strong> ${ad.approved ? '✅ Yes' : '❌ No'}</div>
+                    <div><strong>Created:</strong> ${new Date(ad.createdAt).toLocaleString()}</div>
+                    ${ad.imageUrl ? `<div><img src="${ad.imageUrl}" style="max-width:100%; max-height:150px; border-radius:8px; border:1px solid var(--border);"></div>` : ''}
+                </div>
+                `,
+                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
+            );
         }
 
         // ============================================================
@@ -1574,10 +1646,11 @@
             }
 
             container.innerHTML = allData.bonusTasks.map((task, index) => `
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
                     <div>
                         <div style="font-weight:600; font-size:14px;">${escapeHTML(task.title)}</div>
-                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s | ${escapeHTML(task.link || '')}</div>
+                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s</div>
+                        <div style="font-size:11px; color:var(--text-light); word-break:break-all;">${escapeHTML(task.link || '')}</div>
                     </div>
                     <div>
                         <button class="action-btn edit" onclick="editBonusTask(${index})"><i class="fa-solid fa-pen"></i></button>
@@ -1588,7 +1661,7 @@
         }
 
         // ============================================================
-        // RENDER SETTINGS - Withdrawal Methods
+        // RENDER SETTINGS
         // ============================================================
         function renderWithdrawMethods() {
             const container = document.getElementById('withdrawMethodsContainer');
@@ -1608,65 +1681,48 @@
         function editWithdrawMethod(index) {
             const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
             const current = methods[index];
-
-            showModal(
-                'Edit Withdrawal Method',
-                `
-                <div class="form-group">
-                    <label>Method Name</label>
-                    <input type="text" id="editWithdrawMethodInput" value="${escapeHTML(current)}">
-                </div>
-                `,
-                `
-                <button class="btn-primary" onclick="saveWithdrawMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
+            showModal('Edit Withdrawal Method',
+                `<div class="form-group"><label>Method Name</label><input type="text" id="editWithdrawMethodInput" value="${escapeHTML(current)}"></div>`,
+                `<button class="btn-primary" onclick="saveWithdrawMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
 
         function saveWithdrawMethod(index) {
             const newName = document.getElementById('editWithdrawMethodInput').value.trim();
             if (!newName) { showToast('Please enter a method name', 'error'); return; }
-
             const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
             methods[index] = newName;
-
             firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
                 closeModal();
-                showToast('✅ Withdrawal method updated!', 'success');
+                showToast('✅ Updated!', 'success');
                 renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed to update', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
         function deleteWithdrawMethod(index) {
             if (!confirm('Delete this withdrawal method?')) return;
             const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
             methods.splice(index, 1);
-
             firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
-                showToast('✅ Method deleted!', 'success');
+                showToast('✅ Deleted!', 'success');
                 renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed to delete', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
         function addWithdrawMethod() {
             const input = document.getElementById('newWithdrawMethod');
             const name = input.value.trim();
             if (!name) { showToast('Please enter a method name', 'error'); return; }
-
             const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
             methods.push(name);
-
             firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
                 input.value = '';
-                showToast('✅ Method added!', 'success');
+                showToast('✅ Added!', 'success');
                 renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed to add', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
-        // ============================================================
-        // RENDER SETTINGS - Deposit Methods
-        // ============================================================
         function renderDepositMethodsSettings() {
             const container = document.getElementById('depositMethodsContainer');
             const methods = allData.adminConfig.depositMethods || [
@@ -1693,27 +1749,14 @@
         function editDepositMethod(index) {
             const methods = allData.adminConfig.depositMethods || [];
             const current = methods[index] || { name: '', number: '', icon: '💰' };
-
-            showModal(
-                'Edit Deposit Method',
+            showModal('Edit Deposit Method',
                 `
-                <div class="form-group">
-                    <label>Method Name</label>
-                    <input type="text" id="editDepositName" value="${escapeHTML(current.name)}">
-                </div>
-                <div class="form-group">
-                    <label>Number</label>
-                    <input type="text" id="editDepositNumber" value="${escapeHTML(current.number)}">
-                </div>
-                <div class="form-group">
-                    <label>Icon (emoji)</label>
-                    <input type="text" id="editDepositIcon" value="${escapeHTML(current.icon || '💰')}">
-                </div>
+                <div class="form-group"><label>Method Name</label><input type="text" id="editDepositName" value="${escapeHTML(current.name)}"></div>
+                <div class="form-group"><label>Number</label><input type="text" id="editDepositNumber" value="${escapeHTML(current.number)}"></div>
+                <div class="form-group"><label>Icon (emoji)</label><input type="text" id="editDepositIcon" value="${escapeHTML(current.icon || '💰')}"></div>
                 `,
-                `
-                <button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
+                `<button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
 
@@ -1721,47 +1764,40 @@
             const name = document.getElementById('editDepositName').value.trim();
             const number = document.getElementById('editDepositNumber').value.trim();
             const icon = document.getElementById('editDepositIcon').value.trim() || '💰';
-
             if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
-
             const methods = allData.adminConfig.depositMethods || [];
             methods[index] = { name, number, icon };
-
             firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
                 closeModal();
-                showToast('✅ Deposit method updated!', 'success');
+                showToast('✅ Updated!', 'success');
                 renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed to update', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
         function deleteDepositMethod(index) {
             if (!confirm('Delete this deposit method?')) return;
             const methods = allData.adminConfig.depositMethods || [];
             methods.splice(index, 1);
-
             firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
-                showToast('✅ Method deleted!', 'success');
+                showToast('✅ Deleted!', 'success');
                 renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed to delete', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
         function addDepositMethod() {
             const name = document.getElementById('newDepositMethodName').value.trim();
             const number = document.getElementById('newDepositMethodNumber').value.trim();
             const icon = document.getElementById('newDepositMethodIcon').value.trim() || '💰';
-
             if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
-
             const methods = allData.adminConfig.depositMethods || [];
             methods.push({ name, number, icon });
-
             firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
                 document.getElementById('newDepositMethodName').value = '';
                 document.getElementById('newDepositMethodNumber').value = '';
                 document.getElementById('newDepositMethodIcon').value = '';
-                showToast('✅ Method added!', 'success');
+                showToast('✅ Added!', 'success');
                 renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed to add', 'error'));
+            }).catch(() => showToast('❌ Failed', 'error'));
         }
 
         // ============================================================
@@ -1784,7 +1820,6 @@
         // ============================================================
         document.getElementById('settingsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const settings = {
                 adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
                 dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
@@ -1795,12 +1830,11 @@
                 welcomeTitle: document.getElementById('settingWelcomeTitle').value || 'Welcome to NexEarn! 🎉',
                 welcomeMessage: document.getElementById('settingWelcomeMsg').value || ''
             };
-
             try {
                 await firebaseDb.ref('adminConfig').update(settings);
                 showToast('✅ Settings saved!', 'success');
             } catch (e) {
-                showToast('❌ Failed to save settings', 'error');
+                showToast('❌ Failed to save', 'error');
             }
         });
 
@@ -1809,7 +1843,6 @@
         // ============================================================
         document.getElementById('bonusForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const task = {
                 id: Date.now().toString(),
                 title: document.getElementById('bonusTitle').value.trim(),
@@ -1817,19 +1850,14 @@
                 reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
                 duration: parseInt(document.getElementById('bonusDuration').value) || 10
             };
-
-            if (!task.title || !task.link) {
-                showToast('❌ Please fill all fields', 'error');
-                return;
-            }
-
+            if (!task.title || !task.link) { showToast('❌ Please fill all fields', 'error'); return; }
             try {
                 allData.bonusTasks.push(task);
                 await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
                 this.reset();
                 showToast('✅ Bonus task added!', 'success');
             } catch (e) {
-                showToast('❌ Failed to add task', 'error');
+                showToast('❌ Failed to add', 'error');
             }
         });
 
@@ -1843,19 +1871,7 @@
             try {
                 await firebaseDb.ref(`withdrawals/${id}/status`).set('Approved');
                 showToast('✅ Withdrawal approved!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to approve', 'error');
-            }
-        }
-
-        async function rejectWithdrawal(id) {
-            if (!confirm('Reject this withdrawal?')) return;
-            try {
-                await firebaseDb.ref(`withdrawals/${id}/status`).set('Rejected');
-                showToast('❌ Withdrawal rejected', 'error');
-            } catch (e) {
-                showToast('❌ Failed to reject', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         // Deposits
@@ -1865,26 +1881,11 @@
                 const snapshot = await firebaseDb.ref(`deposits/${id}`).once('value');
                 const data = snapshot.val();
                 if (!data) return;
-
                 await firebaseDb.ref(`deposits/${id}/status`).set('approved');
-
                 const amount = data.amount / 100;
                 await firebaseDb.ref(`users/${data.userId}/walletBalance`).transaction((current) => (current || 0) + amount);
-
                 showToast('✅ Deposit approved!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to approve', 'error');
-            }
-        }
-
-        async function rejectDeposit(id) {
-            if (!confirm('Reject this deposit?')) return;
-            try {
-                await firebaseDb.ref(`deposits/${id}/status`).set('rejected');
-                showToast('❌ Deposit rejected', 'error');
-            } catch (e) {
-                showToast('❌ Failed to reject', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         // Ads
@@ -1893,21 +1894,7 @@
             try {
                 await firebaseDb.ref(`ads/${id}/approved`).set(true);
                 showToast('✅ Ad approved!', 'success');
-                renderAds();
-            } catch (e) {
-                showToast('❌ Failed to approve', 'error');
-            }
-        }
-
-        async function rejectAd(id) {
-            if (!confirm('Reject this ad?')) return;
-            try {
-                await firebaseDb.ref(`ads/${id}/status`).set('rejected');
-                showToast('❌ Ad rejected', 'error');
-                renderAds();
-            } catch (e) {
-                showToast('❌ Failed to reject', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         async function deleteAd(id) {
@@ -1915,9 +1902,7 @@
             try {
                 await firebaseDb.ref(`ads/${id}`).remove();
                 showToast('✅ Ad deleted!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to delete', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         async function toggleAdStatus(id) {
@@ -1928,9 +1913,7 @@
                 const newStatus = ad.status === 'active' ? 'paused' : 'active';
                 await firebaseDb.ref(`ads/${id}/status`).set(newStatus);
                 showToast(`✅ Ad ${newStatus === 'active' ? 'activated' : 'paused'}!`, 'success');
-            } catch (e) {
-                showToast('❌ Failed to update', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         async function editAd(id) {
@@ -1938,38 +1921,20 @@
             const ad = snapshot.val();
             if (!ad) return;
 
-            showModal(
-                'Edit Ad',
+            showModal('✏️ Edit Ad',
                 `
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="editAdTitle" value="${escapeHTML(ad.title || '')}">
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="editAdDesc">${escapeHTML(ad.desc || '')}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>Link</label>
-                    <input type="url" id="editAdLink" value="${escapeHTML(ad.link || '')}">
+                <div class="form-group"><label>Title</label><input type="text" id="editAdTitle" value="${escapeHTML(ad.title || '')}"></div>
+                <div class="form-group"><label>Description</label><textarea id="editAdDesc">${escapeHTML(ad.desc || '')}</textarea></div>
+                <div class="form-group"><label>Link (in description)</label><input type="url" id="editAdLink" value="${escapeHTML(ad.link || '')}"></div>
+                <div class="form-group"><label>Requirements</label><textarea id="editAdRequirements">${escapeHTML(ad.requirements || '')}</textarea></div>
+                <div class="form-group"><label>Instructions</label><textarea id="editAdInstructions">${escapeHTML(ad.instructions || '')}</textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Reward ($)</label><input type="number" id="editAdReward" step="0.001" value="${ad.reward || 0.001}"></div>
+                    <div class="form-group"><label>Total Views</label><input type="number" id="editAdViews" value="${ad.totalViews || 100}"></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Reward ($)</label>
-                        <input type="number" id="editAdReward" step="0.001" value="${ad.reward || 0.001}">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Views</label>
-                        <input type="number" id="editAdViews" value="${ad.totalViews || 100}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Duration (Days)</label>
-                        <input type="number" id="editAdDuration" value="${ad.duration || 7}">
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
+                    <div class="form-group"><label>Duration (Days)</label><input type="number" id="editAdDuration" value="${ad.duration || 7}"></div>
+                    <div class="form-group"><label>Status</label>
                         <select id="editAdStatus">
                             <option value="active" ${ad.status === 'active' ? 'selected' : ''}>Active</option>
                             <option value="paused" ${ad.status === 'paused' ? 'selected' : ''}>Paused</option>
@@ -1977,11 +1942,10 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group"><label>Budget ($)</label><input type="number" id="editAdBudget" step="0.01" value="${ad.budget || 1.00}"></div>
                 `,
-                `
-                <button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
+                `<button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
 
@@ -1990,23 +1954,20 @@
                 title: document.getElementById('editAdTitle').value,
                 desc: document.getElementById('editAdDesc').value,
                 link: document.getElementById('editAdLink').value,
+                requirements: document.getElementById('editAdRequirements').value,
+                instructions: document.getElementById('editAdInstructions').value,
                 reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
                 totalViews: parseInt(document.getElementById('editAdViews').value) || 100,
                 duration: parseInt(document.getElementById('editAdDuration').value) || 7,
-                status: document.getElementById('editAdStatus').value
+                status: document.getElementById('editAdStatus').value,
+                budget: parseFloat(document.getElementById('editAdBudget').value) || 1.00
             };
-
-            if (data.duration) {
-                data.endDate = Date.now() + (data.duration * 24 * 60 * 60 * 1000);
-            }
-
+            if (data.duration) data.endDate = Date.now() + (data.duration * 24 * 60 * 60 * 1000);
             try {
                 await firebaseDb.ref(`ads/${id}`).update(data);
                 closeModal();
                 showToast('✅ Ad updated!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to update', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         // Users
@@ -2015,30 +1976,16 @@
             const user = snapshot.val();
             if (!user) return;
 
-            showModal(
-                'Edit User',
+            showModal('✏️ Edit User',
                 `
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="editUserName" value="${escapeHTML(user.name || '')}">
+                <div class="form-group"><label>Name</label><input type="text" id="editUserName" value="${escapeHTML(user.name || '')}"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Balance ($)</label><input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}"></div>
+                    <div class="form-group"><label>Wallet ($)</label><input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}"></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Balance ($)</label>
-                        <input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}">
-                    </div>
-                    <div class="form-group">
-                        <label>Wallet Balance ($)</label>
-                        <input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Ads Watched</label>
-                        <input type="number" id="editUserAds" value="${user.adCount || 0}">
-                    </div>
-                    <div class="form-group">
-                        <label>Role</label>
+                    <div class="form-group"><label>Ads Watched</label><input type="number" id="editUserAds" value="${user.adCount || 0}"></div>
+                    <div class="form-group"><label>Role</label>
                         <select id="editUserRole">
                             <option value="publisher" ${user.userRole === 'publisher' ? 'selected' : ''}>Publisher</option>
                             <option value="advertiser" ${user.userRole === 'advertiser' ? 'selected' : ''}>Advertiser</option>
@@ -2046,10 +1993,8 @@
                     </div>
                 </div>
                 `,
-                `
-                <button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
+                `<button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
 
@@ -2061,22 +2006,17 @@
                 adCount: parseInt(document.getElementById('editUserAds').value) || 0,
                 userRole: document.getElementById('editUserRole').value
             };
-
             try {
                 await firebaseDb.ref(`users/${id}`).update(data);
                 closeModal();
                 showToast('✅ User updated!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to update', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         function viewUser(id) {
             const user = allData.users.find(u => u.id === id);
             if (!user) return;
-
-            showModal(
-                'User Details',
+            showModal('👤 User Details',
                 `
                 <div style="display:grid; gap:8px; font-size:14px;">
                     <div><strong>Name:</strong> ${escapeHTML(user.name || 'Unknown')}</div>
@@ -2087,7 +2027,6 @@
                     <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
                     <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
                     <div><strong>Role:</strong> ${user.userRole || 'Publisher'}</div>
-                    <div><strong>Joined:</strong> ${user.lastAdWatchedDate || 'N/A'}</div>
                 </div>
                 `,
                 `<button class="btn-secondary" onclick="closeModal()">Close</button>`
@@ -2101,76 +2040,85 @@
                 const snapshot = await firebaseDb.ref(`verifications/${id}`).once('value');
                 const data = snapshot.val();
                 if (!data) return;
-
                 await firebaseDb.ref(`verifications/${id}/status`).set('approved');
-
                 const adSnapshot = await firebaseDb.ref(`ads/${data.adId}`).once('value');
                 const ad = adSnapshot.val();
-
                 if (ad) {
                     await firebaseDb.ref(`users/${data.userId}/balance`).transaction((current) => (current || 0) + ad.reward);
                 }
-
                 await firebaseDb.ref(`ads/${data.adId}/verified`).set(true);
-
                 showToast('✅ Verification approved!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to approve', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
-        async function rejectVerification(id) {
-            if (!confirm('Reject this verification?')) return;
+        // ============================================================
+        // REJECT WITH REASON - FOR ALL TYPES
+        // ============================================================
+        let rejectContext = { type: '', id: '' };
+
+        function openRejectModal(type, id) {
+            rejectContext = { type, id };
+            showModal('❌ Reject with Reason',
+                `
+                <div class="form-group">
+                    <label>Rejection Reason *</label>
+                    <textarea id="rejectReasonInput" placeholder="Explain why this is being rejected..." rows="4" required></textarea>
+                </div>
+                `,
+                `<button class="btn-danger" onclick="confirmReject()"><i class="fa-solid fa-times"></i> Reject</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
+            );
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason || reason.length < 3) {
+                showToast('❌ Please provide a valid reason (min 3 characters)', 'error');
+                return;
+            }
+
+            const { type, id } = rejectContext;
+            if (!id || !type) { showToast('❌ Invalid context', 'error'); return; }
+
             try {
-                await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
-                showToast('❌ Verification rejected', 'error');
+                if (type === 'withdrawal') {
+                    await firebaseDb.ref(`withdrawals/${id}/status`).set('Rejected');
+                    await firebaseDb.ref(`withdrawals/${id}/rejectReason`).set(reason);
+                } else if (type === 'deposit') {
+                    await firebaseDb.ref(`deposits/${id}/status`).set('rejected');
+                    await firebaseDb.ref(`deposits/${id}/rejectReason`).set(reason);
+                } else if (type === 'ad') {
+                    await firebaseDb.ref(`ads/${id}/status`).set('rejected');
+                    await firebaseDb.ref(`ads/${id}/rejectReason`).set(reason);
+                } else if (type === 'verification') {
+                    await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
+                    await firebaseDb.ref(`verifications/${id}/rejectReason`).set(reason);
+                }
+                closeModal();
+                showToast('❌ Rejected with reason', 'error');
             } catch (e) {
                 showToast('❌ Failed to reject', 'error');
             }
         }
 
-        // Bonus Tasks
-        async function deleteBonusTask(index) {
-            if (!confirm('Delete this bonus task?')) return;
-            try {
-                allData.bonusTasks.splice(index, 1);
-                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                showToast('✅ Bonus task deleted!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to delete', 'error');
-            }
-        }
-
+        // ============================================================
+        // BONUS TASK EDIT/DELETE
+        // ============================================================
         function editBonusTask(index) {
             const task = allData.bonusTasks[index];
             if (!task) return;
 
-            showModal(
-                'Edit Bonus Task',
+            showModal('✏️ Edit Bonus Task',
                 `
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="editBonusTitle" value="${escapeHTML(task.title || '')}">
-                </div>
-                <div class="form-group">
-                    <label>Link</label>
-                    <input type="url" id="editBonusLink" value="${escapeHTML(task.link || '')}">
-                </div>
+                <div class="form-group"><label>Title</label><input type="text" id="editBonusTitle" value="${escapeHTML(task.title || '')}"></div>
+                <div class="form-group"><label>Link</label><input type="url" id="editBonusLink" value="${escapeHTML(task.link || '')}"></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Reward ($)</label>
-                        <input type="number" id="editBonusReward" step="0.001" value="${task.reward || 0.01}">
-                    </div>
-                    <div class="form-group">
-                        <label>Duration (seconds)</label>
-                        <input type="number" id="editBonusDuration" value="${task.duration || 10}">
-                    </div>
+                    <div class="form-group"><label>Reward ($)</label><input type="number" id="editBonusReward" step="0.001" value="${task.reward || 0.01}"></div>
+                    <div class="form-group"><label>Duration (s)</label><input type="number" id="editBonusDuration" value="${task.duration || 10}"></div>
                 </div>
                 `,
-                `
-                <button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-                `
+                `<button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button>
+                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
 
@@ -2182,15 +2130,21 @@
                 reward: parseFloat(document.getElementById('editBonusReward').value) || 0.01,
                 duration: parseInt(document.getElementById('editBonusDuration').value) || 10
             };
-
             try {
                 allData.bonusTasks[index] = data;
                 await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
                 closeModal();
                 showToast('✅ Bonus task updated!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to update', 'error');
-            }
+            } catch (e) { showToast('❌ Failed', 'error'); }
+        }
+
+        async function deleteBonusTask(index) {
+            if (!confirm('Delete this bonus task?')) return;
+            try {
+                allData.bonusTasks.splice(index, 1);
+                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
+                showToast('✅ Deleted!', 'success');
+            } catch (e) { showToast('❌ Failed', 'error'); }
         }
 
         // ============================================================
@@ -2199,7 +2153,6 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(`tab-${tab}`)?.classList.add('active');
 
@@ -2216,7 +2169,7 @@
         // MODAL
         // ============================================================
         function showModal(title, body, actions) {
-            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalTitle').innerHTML = title;
             document.getElementById('modalBody').innerHTML = body;
             document.getElementById('modalActions').innerHTML = actions || '';
             document.getElementById('actionModal').classList.add('show');
@@ -2268,12 +2221,11 @@
         // ============================================================
         function refreshData() {
             const btn = document.getElementById('refreshBtn');
-            btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i>';
+            btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Refreshing...';
             btn.disabled = true;
-
             setTimeout(() => {
                 loadAllData();
-                btn.innerHTML = '<i class="fa-solid fa-sync"></i>';
+                btn.innerHTML = '<i class="fa-solid fa-sync"></i> Refresh';
                 btn.disabled = false;
                 showToast('🔄 Data refreshed!', 'success');
             }, 1000);
@@ -2299,7 +2251,6 @@
                     </div>`;
                 return;
             }
-
             loadAllData();
             showToast('✅ Admin panel loaded', 'success');
         }
