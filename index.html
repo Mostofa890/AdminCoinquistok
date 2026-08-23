@@ -13,7 +13,7 @@
 
     <style>
         /* ================================================================
-               MODERN DARK THEME - NEXEARN ADMIN
+               NEXEARN ADMIN - ULTRA MODERN SIDEBAR LAYOUT
             ================================================================ */
         * {
             margin: 0;
@@ -22,16 +22,17 @@
         }
 
         :root {
-            --bg-primary: #0B0A0F;
-            --bg-secondary: #14121A;
-            --bg-card: #1C1A26;
-            --bg-card-hover: #25223A;
-            --bg-input: #12101A;
-            --border-color: #2A2740;
-            --border-light: #3D3A5C;
+            --bg-primary: #08070D;
+            --bg-secondary: #0F0E17;
+            --bg-card: #1A1730;
+            --bg-card-hover: #242145;
+            --bg-sidebar: #0D0C1A;
+            --bg-input: #12102A;
+            --border-color: #2A2648;
+            --border-light: #3D3970;
             --text-primary: #F0EEFF;
-            --text-secondary: #A8A2C0;
-            --text-muted: #6F6A8A;
+            --text-secondary: #A8A2D0;
+            --text-muted: #6F6A9A;
             --accent-1: #8B5CF6;
             --accent-2: #EC4899;
             --accent-3: #F59E0B;
@@ -40,20 +41,22 @@
             --danger: #EF4444;
             --warning: #F59E0B;
             --info: #3B82F6;
-            --radius: 14px;
+            --radius: 16px;
             --radius-sm: 10px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 260px;
+            --header-height: 70px;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            padding: 18px 14px 30px;
             min-height: 100vh;
-            background-image: radial-gradient(ellipse at 10% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse at 90% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+            display: flex;
+            background-image: radial-gradient(ellipse at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 90% 80%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
         }
 
         ::-webkit-scrollbar {
@@ -77,6 +80,16 @@
                 transform: translateY(0);
             }
         }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
         @keyframes pulse {
             0%,
             100% {
@@ -91,65 +104,178 @@
                 transform: rotate(360deg);
             }
         }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
 
-        /* ---- HEADER ---- */
-        .admin-header {
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            margin-bottom: 24px;
-            animation: fadeIn 0.4s ease;
-            flex-wrap: wrap;
-            gap: 12px;
-            backdrop-filter: blur(12px);
+            flex-direction: column;
         }
 
-        .admin-header .logo {
+        .sidebar .logo {
+            padding: 0 24px 28px;
             font-size: 26px;
-            font-weight: 800;
+            font-weight: 900;
             letter-spacing: -0.5px;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .admin-header .logo span {
+        .sidebar .logo span {
             -webkit-text-fill-color: var(--text-primary);
         }
-        .admin-header .logo small {
-            font-size: 13px;
+        .sidebar .logo small {
+            font-size: 12px;
             font-weight: 500;
             -webkit-text-fill-color: var(--text-secondary);
-            margin-left: 6px;
+            display: block;
+            margin-top: 2px;
         }
 
-        .admin-header .badge {
+        .sidebar .nav-section {
+            padding: 0 12px;
+            flex: 1;
+        }
+
+        .sidebar .nav-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            padding: 8px 16px 12px;
+            font-weight: 700;
+        }
+
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: inherit;
+            position: relative;
+        }
+        .sidebar .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+        .sidebar .nav-item.active {
             background: var(--accent-gradient);
-            padding: 4px 18px;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+        }
+        .sidebar .nav-item i {
+            width: 22px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .sidebar .nav-item .badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 2px 10px;
             border-radius: 30px;
             font-size: 11px;
             font-weight: 700;
-            color: #fff;
-            animation: pulse 2s infinite;
+        }
+        .sidebar .nav-item.active .badge {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .header-actions {
+        .sidebar .chat-btn {
+            margin: 16px 12px;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-gradient);
+            color: #fff;
+            border: none;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+        .sidebar .chat-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+        .sidebar .chat-btn .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        .sidebar .chat-btn .dot.hidden {
+            display: none;
+        }
+
+        .sidebar .footer-info {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 24px 32px 40px;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .topbar .page-title {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .topbar .page-title i {
+            color: var(--accent-1);
+            margin-right: 10px;
+        }
+
+        .topbar .actions {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
             align-items: center;
         }
 
@@ -177,18 +303,18 @@
             animation: spin 1s linear infinite;
         }
 
-        /* ---- STATS ---- */
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 24px;
-            animation: fadeIn 0.5s ease;
+            gap: 16px;
+            margin-bottom: 28px;
+            animation: fadeIn 0.4s ease;
         }
 
         .stat-card {
             background: var(--bg-card);
-            padding: 20px 18px;
+            padding: 20px 22px;
             border-radius: var(--radius);
             border: 1px solid var(--border-color);
             transition: var(--transition);
@@ -204,25 +330,25 @@
             right: 0;
             height: 3px;
             background: var(--accent-gradient);
-            opacity: 0.5;
+            opacity: 0.4;
             transition: var(--transition);
         }
         .stat-card:hover {
             border-color: var(--accent-1);
             transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.12);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.1);
         }
         .stat-card:hover::before {
             opacity: 1;
         }
         .stat-card .icon {
-            font-size: 20px;
+            font-size: 18px;
             color: var(--accent-1);
             margin-bottom: 6px;
             opacity: 0.8;
         }
         .stat-card .value {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
@@ -230,95 +356,47 @@
             line-height: 1.2;
         }
         .stat-card .label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
             margin-top: 2px;
             font-weight: 500;
         }
-        .stat-card .change {
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 4px;
+
+        /* ===== PAGE CONTAINER ===== */
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
         }
-        .stat-card .change.up {
-            color: var(--success);
-        }
-        .stat-card .change.down {
-            color: var(--danger);
+        .page.active {
+            display: block;
         }
 
-        /* ---- TABS ---- */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            background: var(--bg-card);
-            padding: 6px 8px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.6s ease;
-        }
-
-        .tab-btn {
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .tab-btn:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.04);
-        }
-        .tab-btn.active {
-            background: var(--accent-gradient);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
-        }
-        .tab-btn .count {
-            background: rgba(255, 255, 255, 0.12);
-            padding: 1px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .tab-btn.active .count {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* ---- CARDS ---- */
+        /* ===== CARDS ===== */
         .card {
             background: var(--bg-card);
-            padding: 22px 20px;
+            padding: 24px;
             border-radius: var(--radius);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             border: 1px solid var(--border-color);
-            animation: fadeIn 0.7s ease;
             transition: var(--transition);
         }
         .card:hover {
             border-color: rgba(139, 92, 246, 0.15);
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 18px;
+        .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .card-title .count {
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .card-header .count {
             font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary);
@@ -327,7 +405,7 @@
             border-radius: 30px;
         }
 
-        /* ---- TABLES ---- */
+        /* ===== TABLES ===== */
         .table-wrap {
             overflow-x: auto;
             border-radius: var(--radius-sm);
@@ -341,7 +419,7 @@
 
         th {
             text-align: left;
-            padding: 12px 12px;
+            padding: 12px 14px;
             color: var(--text-secondary);
             font-weight: 600;
             border-bottom: 2px solid var(--border-color);
@@ -352,7 +430,7 @@
         }
 
         td {
-            padding: 12px 12px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
@@ -451,180 +529,46 @@
             color: #fff;
         }
 
-        /* ---- FLOATING CHAT ---- */
-        .fab-chat {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 999;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--accent-gradient);
-            border: none;
-            color: #fff;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
-            transition: var(--transition);
+        /* ===== SEARCH ===== */
+        .search-box {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
-        .fab-chat:hover {
-            transform: scale(1.08) rotate(-4deg);
-            box-shadow: 0 12px 44px rgba(139, 92, 246, 0.5);
-        }
-        .fab-chat .badge-dot {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 16px;
-            height: 16px;
-            background: var(--danger);
-            border-radius: 50%;
-            border: 2px solid var(--bg-primary);
-            animation: pulse 1.5s infinite;
-            display: none;
-        }
-        .fab-chat .badge-dot.show {
-            display: block;
-        }
-
-        .chat-float {
-            position: fixed;
-            bottom: 108px;
-            right: 28px;
-            z-index: 1000;
-            width: 400px;
-            max-width: calc(100vw - 40px);
-            max-height: 520px;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
-            display: none;
-            flex-direction: column;
-            animation: slideUp 0.3s ease;
-            overflow: hidden;
-        }
-        .chat-float.active {
-            display: flex;
-        }
-
-        .chat-float-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-weight: 700;
-            font-size: 15px;
-        }
-        .chat-float-header .close-chat {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: var(--transition);
-        }
-        .chat-float-header .close-chat:hover {
-            opacity: 1;
-            transform: rotate(90deg);
-        }
-
-        .chat-float-body {
+        .search-box input {
             flex: 1;
-            overflow-y: auto;
-            padding: 14px 18px;
-            max-height: 320px;
-            background: var(--bg-primary);
-        }
-        .chat-float-body .msg {
-            padding: 8px 16px;
-            margin-bottom: 6px;
-            border-radius: 12px;
-            max-width: 85%;
-            word-wrap: break-word;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        .chat-float-body .msg.admin {
-            background: var(--accent-gradient);
-            color: #fff;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-        .chat-float-body .msg.user {
-            background: var(--bg-card);
+            padding: 11px 16px;
             border: 1px solid var(--border-color);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-        }
-        .chat-float-body .msg .time {
-            font-size: 10px;
-            opacity: 0.5;
-            display: block;
-            margin-top: 4px;
-        }
-        .chat-float-body .user-select {
-            width: 100%;
-            padding: 10px 14px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
             background: var(--bg-input);
             color: var(--text-primary);
             font-family: inherit;
-            font-size: 13px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            appearance: none;
+            font-size: 14px;
+            min-width: 150px;
+            transition: var(--transition);
         }
-        .chat-float-body .user-select:focus {
+        .search-box input:focus {
             outline: none;
             border-color: var(--accent-1);
         }
-
-        .chat-float-footer {
-            display: flex;
-            gap: 10px;
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-        }
-        .chat-float-footer input {
-            flex: 1;
-            padding: 10px 16px;
-            border-radius: var(--radius-sm);
+        .search-box select {
+            padding: 11px 16px;
             border: 1px solid var(--border-color);
-            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
             color: var(--text-primary);
             font-family: inherit;
-            font-size: 13px;
+            font-size: 14px;
+            min-width: 140px;
             transition: var(--transition);
         }
-        .chat-float-footer input:focus {
+        .search-box select:focus {
             outline: none;
             border-color: var(--accent-1);
         }
-        .chat-float-footer button {
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .chat-float-footer button:hover {
-            transform: scale(1.04);
-        }
 
-        /* ---- FORMS ---- */
+        /* ===== FORMS ===== */
         .form-group {
             margin-bottom: 14px;
         }
@@ -709,179 +653,7 @@
             justify-content: center;
         }
 
-        /* ---- MODAL ---- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-overlay.show {
-            display: flex;
-        }
-        .modal-box {
-            background: var(--bg-card);
-            padding: 28px;
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 560px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            animation: slideUp 0.3s ease;
-            position: relative;
-        }
-        .modal-box .modal-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .modal-box .modal-title i {
-            color: var(--accent-1);
-        }
-        .modal-box .close-modal {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 26px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .modal-box .close-modal:hover {
-            color: var(--text-primary);
-            transform: rotate(90deg);
-        }
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .modal-actions .btn-primary {
-            flex: 1;
-            justify-content: center;
-        }
-        .modal-actions .btn-secondary {
-            flex: 1;
-            justify-content: center;
-        }
-
-        /* ---- TOAST ---- */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 380px;
-            width: 100%;
-        }
-        .toast {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.3s ease;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .toast.success {
-            border-color: var(--success);
-        }
-        .toast.error {
-            border-color: var(--danger);
-        }
-        .toast.warning {
-            border-color: var(--warning);
-        }
-        .toast.info {
-            border-color: var(--info);
-        }
-        .toast .toast-icon {
-            font-size: 20px;
-        }
-        .toast.success .toast-icon {
-            color: var(--success);
-        }
-        .toast.error .toast-icon {
-            color: var(--danger);
-        }
-        .toast.warning .toast-icon {
-            color: var(--warning);
-        }
-        .toast.info .toast-icon {
-            color: var(--info);
-        }
-
-        /* ---- EMPTY ---- */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.2;
-        }
-
-        /* ---- SEARCH ---- */
-        .search-box {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .search-box input {
-            flex: 1;
-            padding: 11px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 14px;
-            min-width: 150px;
-            transition: var(--transition);
-        }
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent-1);
-        }
-        .search-box select {
-            padding: 11px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 14px;
-            min-width: 140px;
-            transition: var(--transition);
-        }
-        .search-box select:focus {
-            outline: none;
-            border-color: var(--accent-1);
-        }
-
-        /* ---- SETTINGS ---- */
+        /* ===== SETTINGS ===== */
         .settings-group {
             margin-bottom: 22px;
             padding-bottom: 22px;
@@ -957,29 +729,181 @@
             font-size: 12px;
         }
 
-        /* ---- RESPONSIVE ---- */
-        @media (max-width: 768px) {
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--bg-card);
+            padding: 28px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+        .modal-box .modal-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .modal-box .modal-title i {
+            color: var(--accent-1);
+        }
+        .modal-box .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 26px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-box .close-modal:hover {
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal-actions .btn-primary {
+            flex: 1;
+            justify-content: center;
+        }
+        .modal-actions .btn-secondary {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .toast {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toast.success {
+            border-color: var(--success);
+        }
+        .toast.error {
+            border-color: var(--danger);
+        }
+        .toast.warning {
+            border-color: var(--warning);
+        }
+        .toast.info {
+            border-color: var(--info);
+        }
+        .toast .toast-icon {
+            font-size: 20px;
+        }
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
+        .toast.warning .toast-icon {
+            color: var(--warning);
+        }
+        .toast.info .toast-icon {
+            color: var(--info);
+        }
+
+        /* ===== EMPTY ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.2;
+        }
+
+        /* ===== CHAT SIDEBAR BUTTON ===== */
+        .chat-sidebar-toggle {
+            display: none;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            .chat-sidebar-toggle {
+                display: inline-flex;
+            }
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             .form-row {
                 grid-template-columns: 1fr;
             }
-            .admin-header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
             }
-            .header-actions {
-                justify-content: center;
+            .stat-card {
+                padding: 14px 16px;
             }
-            .tabs {
-                gap: 4px;
-                padding: 4px 6px;
+            .stat-card .value {
+                font-size: 20px;
             }
-            .tab-btn {
-                padding: 8px 12px;
-                font-size: 12px;
+            .topbar .page-title {
+                font-size: 18px;
             }
             .modal-box {
                 padding: 20px;
@@ -987,244 +911,298 @@
             .search-box {
                 flex-direction: column;
             }
-            .chat-float {
-                right: 10px;
-                width: calc(100vw - 20px);
-                bottom: 90px;
-            }
-            .fab-chat {
-                right: 16px;
-                bottom: 20px;
-                width: 56px;
-                height: 56px;
-                font-size: 24px;
+        }
+
+        /* ===== MOBILE HAMBURGER ===== */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        @media (max-width: 992px) {
+            .hamburger {
+                display: block;
             }
         }
 
-        @media (max-width: 400px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .stat-card {
-                padding: 14px 12px;
-            }
-            .stat-card .value {
-                font-size: 20px;
-            }
-            body {
-                padding: 12px 8px;
+        /* ===== OVERLAY ===== */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        @media (min-width: 993px) {
+            .sidebar-overlay {
+                display: none !important;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
-    <header class="admin-header">
-        <div class="logo">Nex<span>Earn</span> <small>Admin</small></div>
-        <div class="header-actions">
-            <button class="btn-ghost" onclick="refreshData()" id="refreshBtn"><i class="fa-solid fa-sync"></i> Refresh</button>
-            <span class="badge">👑 Admin</span>
-            <button class="btn-ghost" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        </div>
-    </header>
+    <!-- ===== SIDEBAR OVERLAY ===== -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ===== STATS ===== -->
-    <section class="stats-grid">
-        <div class="stat-card" onclick="switchTab('users')">
-            <div class="icon"><i class="fa-solid fa-users"></i></div>
-            <div class="value" id="statUsers">0</div>
-            <div class="label">Total Users</div>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            Nex<span>Earn</span>
+            <small>Admin Panel</small>
         </div>
-        <div class="stat-card" onclick="switchTab('withdrawals')">
-            <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
-            <div class="value" id="statEarnings">$0</div>
-            <div class="label">Total Earnings</div>
-        </div>
-        <div class="stat-card" onclick="switchTab('ads')">
-            <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
-            <div class="value" id="statAds">0</div>
-            <div class="label">Total Ads</div>
-        </div>
-        <div class="stat-card" onclick="switchTab('withdrawals')">
-            <div class="icon"><i class="fa-solid fa-clock"></i></div>
-            <div class="value" id="statPending">0</div>
-            <div class="label">Pending Requests</div>
-        </div>
-    </section>
 
-    <!-- ===== TABS ===== -->
-    <nav class="tabs">
-        <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
-        <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals <span class="count" id="withdrawCount">0</span></button>
-        <button class="tab-btn" data-tab="deposits" onclick="switchTab('deposits')"><i class="fa-solid fa-credit-card"></i> Deposits <span class="count" id="depositCount">0</span></button>
-        <button class="tab-btn" data-tab="ads" onclick="switchTab('ads')"><i class="fa-solid fa-rectangle-ad"></i> Ads <span class="count" id="adsCount">0</span></button>
-        <button class="tab-btn" data-tab="users" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> Users <span class="count" id="usersCount">0</span></button>
-        <button class="tab-btn" data-tab="verifications" onclick="switchTab('verifications')"><i class="fa-solid fa-check-double"></i> Verifications <span class="count" id="verificationCount">0</span></button>
-        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
-        <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')"><i class="fa-solid fa-star"></i> Bonus <span class="count" id="bonusCount">0</span></button>
-    </nav>
-
-    <!-- ===== DASHBOARD ===== -->
-    <div class="tab-content active" id="tab-dashboard">
-        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingWithdrawals">0</div><div class="label">Pending Withdrawals</div></div>
-            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingDeposits">0</div><div class="label">Pending Deposits</div></div>
-            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingVerifications">0</div><div class="label">Pending Verifications</div></div>
-            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingAds">0</div><div class="label">Pending Ads</div></div>
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+                <i class="fa-solid fa-gauge-high"></i> Dashboard
+            </button>
+            <button class="nav-item" data-page="withdrawals" onclick="navigateTo('withdrawals')">
+                <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
+                <span class="badge" id="navWithdrawCount">0</span>
+            </button>
+            <button class="nav-item" data-page="deposits" onclick="navigateTo('deposits')">
+                <i class="fa-solid fa-credit-card"></i> Deposits
+                <span class="badge" id="navDepositCount">0</span>
+            </button>
+            <button class="nav-item" data-page="ads" onclick="navigateTo('ads')">
+                <i class="fa-solid fa-rectangle-ad"></i> Ads
+                <span class="badge" id="navAdsCount">0</span>
+            </button>
+            <button class="nav-item" data-page="users" onclick="navigateTo('users')">
+                <i class="fa-solid fa-users"></i> Users
+                <span class="badge" id="navUsersCount">0</span>
+            </button>
+            <button class="nav-item" data-page="verifications" onclick="navigateTo('verifications')">
+                <i class="fa-solid fa-check-double"></i> Verifications
+                <span class="badge" id="navVerifCount">0</span>
+            </button>
         </div>
-        <div class="card"><div class="card-title">📊 Recent Activity</div><div id="recentActivity"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div></div></div>
-    </div>
 
-    <!-- ===== WITHDRAWALS ===== -->
-    <div class="tab-content" id="tab-withdrawals">
-        <div class="card">
-            <div class="card-title">💸 Withdrawals <span class="count" id="withdrawCountTitle">0</span></div>
-            <div class="search-box">
-                <input type="text" id="withdrawSearch" placeholder="Search..." oninput="filterWithdrawals()">
-                <select id="withdrawFilter" onchange="filterWithdrawals()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+        <div class="nav-section">
+            <div class="nav-label">Management</div>
+            <button class="nav-item" data-page="settings" onclick="navigateTo('settings')">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+            <button class="nav-item" data-page="bonus" onclick="navigateTo('bonus')">
+                <i class="fa-solid fa-star"></i> Bonus Tasks
+                <span class="badge" id="navBonusCount">0</span>
+            </button>
+        </div>
+
+        <button class="chat-btn" onclick="toggleChat()">
+            <i class="fa-solid fa-comment-dots"></i> Live Chat
+            <span class="dot" id="chatDot"></span>
+        </button>
+
+        <div class="footer-info">
+            NexEarn v3.0 &bull; Admin
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+        <!-- ===== TOP BAR ===== -->
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <h1 class="page-title" id="pageTitle"><i class="fa-solid fa-gauge-high"></i> Dashboard</h1>
             </div>
-            <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
-        </div>
-    </div>
-
-    <!-- ===== DEPOSITS ===== -->
-    <div class="tab-content" id="tab-deposits">
-        <div class="card">
-            <div class="card-title">💳 Deposits <span class="count" id="depositCountTitle">0</span></div>
-            <div class="search-box">
-                <input type="text" id="depositSearch" placeholder="Search..." oninput="filterDeposits()">
-                <select id="depositFilter" onchange="filterDeposits()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
-            </div>
-            <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
-        </div>
-    </div>
-
-    <!-- ===== ADS ===== -->
-    <div class="tab-content" id="tab-ads">
-        <div class="card">
-            <div class="card-title">📢 Ads <span class="count" id="adsCountTitle">0</span></div>
-            <div class="search-box">
-                <input type="text" id="adsSearch" placeholder="Search..." oninput="filterAdsTable()">
-                <select id="adsFilter" onchange="filterAdsTable()"><option value="all">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="expired">Expired</option></select>
-            </div>
-            <div class="table-wrap"><table><thead><tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adsBody"></tbody></table></div>
-        </div>
-    </div>
-
-    <!-- ===== USERS ===== -->
-    <div class="tab-content" id="tab-users">
-        <div class="card">
-            <div class="card-title">👥 Users <span class="count" id="usersCountTitle">0</span></div>
-            <div class="search-box"><input type="text" id="usersSearch" placeholder="Search..." oninput="filterUsers()"></div>
-            <div class="table-wrap"><table><thead><tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div>
-        </div>
-    </div>
-
-    <!-- ===== VERIFICATIONS ===== -->
-    <div class="tab-content" id="tab-verifications">
-        <div class="card">
-            <div class="card-title">📸 Verifications <span class="count" id="verificationCountTitle">0</span></div>
-            <div class="table-wrap"><table><thead><tr><th>User</th><th>Ad ID</th><th>Title</th><th>Screenshot</th><th>Link Preview</th><th>Status</th><th>Action</th></tr></thead><tbody id="verificationsBody"></tbody></table></div>
-        </div>
-    </div>
-
-    <!-- ===== SETTINGS ===== -->
-    <div class="tab-content" id="tab-settings">
-        <div class="card">
-            <div class="card-title">⚙️ Settings</div>
-            <form id="settingsForm">
-                <div class="settings-group">
-                    <div class="group-title">💰 General</div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Ad Reward ($)</label><input type="number" id="settingAdReward" step="0.001" value="0.001"></div>
-                        <div class="form-group"><label>Daily Ad Limit</label><input type="number" id="settingDailyLimit" value="15"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Min Withdrawal ($)</label><input type="number" id="settingMinWithdraw" step="0.01" value="0.10"></div>
-                        <div class="form-group"><label>Min Deposit (BDT)</label><input type="number" id="settingMinDeposit" value="10"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Cooldown (min)</label><input type="number" id="settingCooldown" value="30"></div>
-                        <div class="form-group"><label>Referral Reward ($)</label><input type="number" id="settingReferralReward" step="0.001" value="0.01"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Min Budget ($)</label><input type="number" id="settingMinBudget" step="0.01" value="1.00"></div>
-                        <div class="form-group"><label>Min Duration (Days)</label><input type="number" id="settingMinDuration" value="7"></div>
-                    </div>
-                </div>
-                <div class="settings-group">
-                    <div class="group-title">💸 Withdrawal Methods</div>
-                    <div id="withdrawMethodsContainer"></div>
-                    <div style="display:flex; gap:10px; margin-top:10px;">
-                        <input type="text" id="newWithdrawMethod" placeholder="New method" style="flex:1; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                        <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()"><i class="fa-solid fa-plus"></i> Add</button>
-                    </div>
-                </div>
-                <div class="settings-group">
-                    <div class="group-title">💳 Deposit Methods</div>
-                    <div id="depositMethodsContainer"></div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; margin-top:10px;">
-                        <input type="text" id="newDepositMethodName" placeholder="Name" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                        <input type="text" id="newDepositMethodNumber" placeholder="Number" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                        <input type="text" id="newDepositMethodIcon" placeholder="Icon" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                        <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                </div>
-                <div class="settings-group">
-                    <div class="group-title">📝 Welcome Message</div>
-                    <div class="form-group"><label>Title</label><input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉"></div>
-                    <div class="form-group"><label>Message</label><textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea></div>
-                </div>
-                <button type="submit" class="btn-primary w-full"><i class="fa-solid fa-save"></i> Save All</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== BONUS ===== -->
-    <div class="tab-content" id="tab-bonus">
-        <div class="card">
-            <div class="card-title">⭐ Bonus Tasks <span class="count" id="bonusCountTitle">0</span></div>
-            <div id="bonusTasksList"></div>
-            <form id="bonusForm" style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:18px;">
-                <div class="form-row">
-                    <div class="form-group"><label>Title</label><input type="text" id="bonusTitle" placeholder="Task title" required></div>
-                    <div class="form-group"><label>Reward ($)</label><input type="number" id="bonusReward" step="0.001" value="0.01" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Link</label><input type="url" id="bonusLink" placeholder="https://t.me/..." required></div>
-                    <div class="form-group"><label>Duration (s)</label><input type="number" id="bonusDuration" value="10" required></div>
-                </div>
-                <button type="submit" class="btn-primary btn-success w-full"><i class="fa-solid fa-plus"></i> Add Bonus</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== FLOATING CHAT ===== -->
-    <button class="fab-chat" id="fabChat" onclick="toggleChat()">
-        <i class="fa-solid fa-comment-dots"></i>
-        <span class="badge-dot" id="chatBadgeDot"></span>
-    </button>
-
-    <div class="chat-float" id="chatFloat">
-        <div class="chat-float-header">
-            <span><i class="fa-solid fa-comment-dots"></i> Live Chat</span>
-            <button class="close-chat" onclick="toggleChat()"><i class="fa-solid fa-times"></i></button>
-        </div>
-        <div class="chat-float-body">
-            <select class="user-select" id="chatUserSelect" onchange="loadChat()">
-                <option value="">-- Select User --</option>
-            </select>
-            <div id="chatMessages">
-                <div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div>
+            <div class="actions">
+                <button class="btn-ghost" onclick="refreshData()" id="refreshBtn"><i class="fa-solid fa-sync"></i> Refresh</button>
+                <span class="btn-ghost" style="border-color:var(--accent-1);color:var(--accent-1);">👑 Admin</span>
             </div>
         </div>
-        <div class="chat-float-footer">
-            <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChat()">
-            <button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+
+        <!-- ===== STATS ===== -->
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card" onclick="navigateTo('users')">
+                <div class="icon"><i class="fa-solid fa-users"></i></div>
+                <div class="value" id="statUsers">0</div>
+                <div class="label">Total Users</div>
+            </div>
+            <div class="stat-card" onclick="navigateTo('withdrawals')">
+                <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
+                <div class="value" id="statEarnings">$0</div>
+                <div class="label">Total Earnings</div>
+            </div>
+            <div class="stat-card" onclick="navigateTo('ads')">
+                <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
+                <div class="value" id="statAds">0</div>
+                <div class="label">Total Ads</div>
+            </div>
+            <div class="stat-card" onclick="navigateTo('withdrawals')">
+                <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="value" id="statPending">0</div>
+                <div class="label">Pending Requests</div>
+            </div>
+        </section>
+
+        <!-- ===== PAGE: DASHBOARD ===== -->
+        <div class="page active" id="page-dashboard">
+            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingWithdrawals">0</div><div class="label">Pending Withdrawals</div></div>
+                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingDeposits">0</div><div class="label">Pending Deposits</div></div>
+                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingVerifications">0</div><div class="label">Pending Verifications</div></div>
+                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingAds">0</div><div class="label">Pending Ads</div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3>📊 Recent Activity</h3></div>
+                <div id="recentActivity"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div></div>
+            </div>
         </div>
-    </div>
+
+        <!-- ===== PAGE: WITHDRAWALS ===== -->
+        <div class="page" id="page-withdrawals">
+            <div class="card">
+                <div class="card-header">
+                    <h3>💸 Withdrawals</h3>
+                    <span class="count" id="withdrawCountTitle">0</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="withdrawSearch" placeholder="Search..." oninput="filterWithdrawals()">
+                    <select id="withdrawFilter" onchange="filterWithdrawals()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+                </div>
+                <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: DEPOSITS ===== -->
+        <div class="page" id="page-deposits">
+            <div class="card">
+                <div class="card-header">
+                    <h3>💳 Deposits</h3>
+                    <span class="count" id="depositCountTitle">0</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="depositSearch" placeholder="Search..." oninput="filterDeposits()">
+                    <select id="depositFilter" onchange="filterDeposits()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
+                </div>
+                <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: ADS ===== -->
+        <div class="page" id="page-ads">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📢 Ads</h3>
+                    <span class="count" id="adsCountTitle">0</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="adsSearch" placeholder="Search..." oninput="filterAdsTable()">
+                    <select id="adsFilter" onchange="filterAdsTable()"><option value="all">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="expired">Expired</option></select>
+                </div>
+                <div class="table-wrap"><table><thead><tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adsBody"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: USERS ===== -->
+        <div class="page" id="page-users">
+            <div class="card">
+                <div class="card-header">
+                    <h3>👥 Users</h3>
+                    <span class="count" id="usersCountTitle">0</span>
+                </div>
+                <div class="search-box"><input type="text" id="usersSearch" placeholder="Search..." oninput="filterUsers()"></div>
+                <div class="table-wrap"><table><thead><tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: VERIFICATIONS ===== -->
+        <div class="page" id="page-verifications">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📸 Verifications</h3>
+                    <span class="count" id="verificationCountTitle">0</span>
+                </div>
+                <div class="table-wrap"><table><thead><tr><th>User</th><th>Ad ID</th><th>Title</th><th>Screenshot</th><th>Link Preview</th><th>Status</th><th>Action</th></tr></thead><tbody id="verificationsBody"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: SETTINGS ===== -->
+        <div class="page" id="page-settings">
+            <div class="card">
+                <div class="card-header"><h3>⚙️ Settings</h3></div>
+                <form id="settingsForm">
+                    <div class="settings-group">
+                        <div class="group-title">💰 General</div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Ad Reward ($)</label><input type="number" id="settingAdReward" step="0.001" value="0.001"></div>
+                            <div class="form-group"><label>Daily Ad Limit</label><input type="number" id="settingDailyLimit" value="15"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Min Withdrawal ($)</label><input type="number" id="settingMinWithdraw" step="0.01" value="0.10"></div>
+                            <div class="form-group"><label>Min Deposit (BDT)</label><input type="number" id="settingMinDeposit" value="10"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Cooldown (min)</label><input type="number" id="settingCooldown" value="30"></div>
+                            <div class="form-group"><label>Referral Reward ($)</label><input type="number" id="settingReferralReward" step="0.001" value="0.01"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Min Budget ($)</label><input type="number" id="settingMinBudget" step="0.01" value="1.00"></div>
+                            <div class="form-group"><label>Min Duration (Days)</label><input type="number" id="settingMinDuration" value="7"></div>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <div class="group-title">💸 Withdrawal Methods</div>
+                        <div id="withdrawMethodsContainer"></div>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="text" id="newWithdrawMethod" placeholder="New method" style="flex:1; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
+                            <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()"><i class="fa-solid fa-plus"></i> Add</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <div class="group-title">💳 Deposit Methods</div>
+                        <div id="depositMethodsContainer"></div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; margin-top:10px;">
+                            <input type="text" id="newDepositMethodName" placeholder="Name" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
+                            <input type="text" id="newDepositMethodNumber" placeholder="Number" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
+                            <input type="text" id="newDepositMethodIcon" placeholder="Icon" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
+                            <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <div class="group-title">📝 Welcome Message</div>
+                        <div class="form-group"><label>Title</label><input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉"></div>
+                        <div class="form-group"><label>Message</label><textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea></div>
+                    </div>
+                    <button type="submit" class="btn-primary w-full"><i class="fa-solid fa-save"></i> Save All</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== PAGE: BONUS ===== -->
+        <div class="page" id="page-bonus">
+            <div class="card">
+                <div class="card-header">
+                    <h3>⭐ Bonus Tasks</h3>
+                    <span class="count" id="bonusCountTitle">0</span>
+                </div>
+                <div id="bonusTasksList"></div>
+                <form id="bonusForm" style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:18px;">
+                    <div class="form-row">
+                        <div class="form-group"><label>Title</label><input type="text" id="bonusTitle" placeholder="Task title" required></div>
+                        <div class="form-group"><label>Reward ($)</label><input type="number" id="bonusReward" step="0.001" value="0.01" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Link</label><input type="url" id="bonusLink" placeholder="https://t.me/..." required></div>
+                        <div class="form-group"><label>Duration (s)</label><input type="number" id="bonusDuration" value="10" required></div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-success w-full"><i class="fa-solid fa-plus"></i> Add Bonus</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
 
     <!-- ===== MODAL ===== -->
     <div class="modal-overlay" id="actionModal">
@@ -1233,6 +1211,24 @@
             <div class="modal-title" id="modalTitle"><i class="fa-solid fa-pen"></i> Action</div>
             <div id="modalBody"></div>
             <div class="modal-actions" id="modalActions"></div>
+        </div>
+    </div>
+
+    <!-- ===== CHAT FLOATING (for mobile) ===== -->
+    <div class="chat-float" id="chatFloat" style="display:none; position:fixed; bottom:20px; right:20px; z-index:3000; width:380px; max-width:calc(100vw - 40px); max-height:500px; background:var(--bg-card); border-radius:var(--radius); border:1px solid var(--border-color); box-shadow:0 24px 64px rgba(0,0,0,0.8); flex-direction:column; overflow:hidden; animation:fadeIn 0.3s ease;">
+        <div class="chat-float-header" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--accent-gradient);color:#fff;font-weight:700;font-size:15px;">
+            <span><i class="fa-solid fa-comment-dots"></i> Live Chat</span>
+            <button class="close-chat" onclick="toggleChat()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:0.7;transition:var(--transition);">&times;</button>
+        </div>
+        <div class="chat-float-body" style="flex:1;overflow-y:auto;padding:14px 18px;max-height:320px;background:var(--bg-primary);">
+            <select class="user-select" id="chatUserSelect" onchange="loadChat()" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-family:inherit;font-size:13px;margin-bottom:12px;cursor:pointer;">
+                <option value="">-- Select User --</option>
+            </select>
+            <div id="chatMessages"><div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div></div>
+        </div>
+        <div class="chat-float-footer" style="display:flex;gap:10px;padding:12px 16px;background:var(--bg-primary);border-top:1px solid var(--border-color);">
+            <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChat()" style="flex:1;padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);font-family:inherit;font-size:13px;transition:var(--transition);">
+            <button onclick="sendChat()" style="padding:10px 20px;border-radius:var(--radius-sm);border:none;background:var(--accent-gradient);color:#fff;font-weight:700;cursor:pointer;transition:var(--transition);"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -1258,6 +1254,7 @@
             chats: {} };
         let chatListener = null;
         let currentChatUserId = null;
+        let isChatOpen = false;
 
         // ============================================================
         // INIT
@@ -1315,14 +1312,14 @@
             const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
             const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
             const pendingAds = allData.ads.filter(a => a.approved === false || a.approved === undefined);
-            document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications
-                .length + pendingAds.length;
-            document.getElementById('withdrawCount').textContent = pending.length;
-            document.getElementById('depositCount').textContent = pendingDeposits.length;
-            document.getElementById('verificationCount').textContent = pendingVerifications.length;
-            document.getElementById('adsCount').textContent = pendingAds.length;
-            document.getElementById('usersCount').textContent = allData.users.length;
-            document.getElementById('bonusCount').textContent = allData.bonusTasks.length;
+            const totalPending = pending.length + pendingDeposits.length + pendingVerifications.length + pendingAds.length;
+            document.getElementById('statPending').textContent = totalPending;
+            document.getElementById('navWithdrawCount').textContent = pending.length;
+            document.getElementById('navDepositCount').textContent = pendingDeposits.length;
+            document.getElementById('navVerifCount').textContent = pendingVerifications.length;
+            document.getElementById('navAdsCount').textContent = pendingAds.length;
+            document.getElementById('navUsersCount').textContent = allData.users.length;
+            document.getElementById('navBonusCount').textContent = allData.bonusTasks.length;
         }
 
         function updateDashboard() {
@@ -1367,6 +1364,70 @@
                         <div><div style="font-weight:600;font-size:14px;">${label}</div><div style="font-size:12px;color:var(--text-secondary);">${new Date(item.createdAt||item.date).toLocaleDateString()}</div></div></div>
                         <span class="status-badge ${cls}">${status}</span></div>`;
             }).join('');
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        const pageTitles = {
+            dashboard: 'Dashboard',
+            withdrawals: 'Withdrawals',
+            deposits: 'Deposits',
+            ads: 'Ads',
+            users: 'Users',
+            verifications: 'Verifications',
+            settings: 'Settings',
+            bonus: 'Bonus Tasks'
+        };
+        const pageIcons = {
+            dashboard: 'fa-gauge-high',
+            withdrawals: 'fa-money-bill-transfer',
+            deposits: 'fa-credit-card',
+            ads: 'fa-rectangle-ad',
+            users: 'fa-users',
+            verifications: 'fa-check-double',
+            settings: 'fa-gear',
+            bonus: 'fa-star'
+        };
+
+        function navigateTo(page) {
+            // Update sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+
+            // Update pages
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.getElementById(`page-${page}`)?.classList.add('active');
+
+            // Update title
+            document.getElementById('pageTitle').innerHTML =
+                `<i class="fa-solid ${pageIcons[page] || 'fa-circle'}"></i> ${pageTitles[page] || page}`;
+
+            // Close sidebar on mobile
+            closeSidebar();
+
+            // Render data for page
+            if (page === 'withdrawals') renderWithdrawals();
+            if (page === 'deposits') renderDeposits();
+            if (page === 'ads') renderAds();
+            if (page === 'users') renderUsers();
+            if (page === 'verifications') renderVerifications();
+            if (page === 'bonus') renderBonusTasks();
+            if (page === 'settings') { renderWithdrawMethods();
+                renderDepositMethodsSettings(); }
+        }
+
+        // ============================================================
+        // SIDEBAR TOGGLE
+        // ============================================================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
         // ============================================================
@@ -1530,7 +1591,7 @@
             if (!allData.bonusTasks.length) { container.innerHTML =
                     `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`; return; }
             container.innerHTML = allData.bonusTasks.map((t, i) =>
-                `
+                    `
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--border-color);">
                             <div><div style="font-weight:600;">${escapeHTML(t.title)}</div><div style="font-size:12px;color:var(--text-secondary);">+$${t.reward?.toFixed(3)||'0.00'} | ${t.duration||10}s</div></div>
                             <div><button class="action-btn edit" onclick="editBonusTask(${i})"><i class="fa-solid fa-pen"></i></button><button class="action-btn delete" onclick="deleteBonusTask(${i})"><i class="fa-solid fa-trash"></i></button></div>
@@ -1557,7 +1618,7 @@
         }
 
         function updateChatBadge() {
-            const dot = document.getElementById('chatBadgeDot');
+            const dot = document.getElementById('chatDot');
             let hasUnread = false;
             if (allData.chats) {
                 for (const userId in allData.chats) {
@@ -1566,13 +1627,14 @@
                     if (last && last.sender === 'user') { hasUnread = true; break; }
                 }
             }
-            dot.classList.toggle('show', hasUnread);
+            dot.classList.toggle('hidden', !hasUnread);
         }
 
         function toggleChat() {
-            const modal = document.getElementById('chatFloat');
-            modal.classList.toggle('active');
-            if (modal.classList.contains('active')) { updateChatUsers();
+            const el = document.getElementById('chatFloat');
+            isChatOpen = !isChatOpen;
+            el.style.display = isChatOpen ? 'flex' : 'none';
+            if (isChatOpen) { updateChatUsers();
                 loadChat(); }
         }
 
@@ -1592,9 +1654,9 @@
                         `<div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`; return; }
                 container.innerHTML = msgs.map(m =>
                         `
-                            <div class="msg ${m.sender === 'admin' ? 'admin' : 'user'}">
+                            <div style="padding:8px 16px;margin-bottom:6px;border-radius:12px;max-width:85%;word-wrap:break-word;font-size:13px;line-height:1.5;${m.sender === 'admin' ? 'background:var(--accent-gradient);color:#fff;margin-left:auto;border-bottom-right-radius:4px;' : 'background:var(--bg-card);border:1px solid var(--border-color);margin-right:auto;border-bottom-left-radius:4px;'}">
                                 ${escapeHTML(m.text)}
-                                <span class="time">${new Date(m.timestamp).toLocaleTimeString()}</span>
+                                <span style="font-size:10px;opacity:0.5;display:block;margin-top:4px;">${new Date(m.timestamp).toLocaleTimeString()}</span>
                             </div>
                         `
                     ).join('');
@@ -2001,24 +2063,6 @@
                 this.reset();
                 showToast('✅ Added', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
         });
-
-        // ============================================================
-        // TABS
-        // ============================================================
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tab}`)?.classList.add('active');
-            if (tab === 'withdrawals') renderWithdrawals();
-            if (tab === 'deposits') renderDeposits();
-            if (tab === 'ads') renderAds();
-            if (tab === 'users') renderUsers();
-            if (tab === 'verifications') renderVerifications();
-            if (tab === 'bonus') renderBonusTasks();
-            if (tab === 'settings') { renderWithdrawMethods();
-                renderDepositMethodsSettings(); }
-        }
 
         // ============================================================
         // MODAL
