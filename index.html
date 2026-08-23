@@ -3,132 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NexEarn Admin Panel</title>
+    <title>NexEarn Admin</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        /* ===== ROOT ===== */
+        /* ===== RESET & ROOT ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #FF6B35;
-            --primary-rgb: 255, 107, 53;
-            --secondary: #E85D04;
-            --bg: #0a0a1a;
-            --card: #141428;
-            --text: #ffffff;
-            --text-light: #a0a0b8;
-            --border: #2a2a4a;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
+            --primary: #7C3AED;
+            --primary-light: #A78BFA;
+            --primary-dark: #5B21B6;
+            --bg: #0F0A1A;
+            --card: #1A1228;
+            --card-hover: #241A34;
+            --text: #F3F0FF;
+            --text-light: #B8B0D0;
+            --border: #2D2040;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
             --radius: 16px;
-            --shadow: 0 8px 32px rgba(0,0,0,0.5);
-            --transition: all 0.3s ease;
-            --gradient: linear-gradient(135deg, #FF6B35, #FF2E7D);
+            --shadow: 0 8px 32px rgba(0,0,0,0.6);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --gradient: linear-gradient(135deg, #7C3AED, #EC4899);
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
-            padding: 16px 12px 20px 12px;
+            padding: 16px 12px 20px;
             min-height: 100vh;
+            background-image: radial-gradient(ellipse at 20% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 60%);
         }
 
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
         /* ===== HEADER ===== */
         .admin-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
             margin-bottom: 24px;
             animation: fadeIn 0.4s ease;
             flex-wrap: wrap;
             gap: 12px;
-            background: var(--card);
-            padding: 14px 20px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
         }
 
         .admin-header .logo {
-            font-size: 26px;
-            font-weight: 900;
+            font-size: 24px;
+            font-weight: 800;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .admin-header .logo span { 
-            -webkit-text-fill-color: var(--text);
-        }
+        .admin-header .logo span { -webkit-text-fill-color: var(--text); }
 
         .admin-header .badge {
             background: var(--gradient);
-            color: white;
             padding: 4px 16px;
-            border-radius: 20px;
+            border-radius: 30px;
             font-size: 11px;
             font-weight: 700;
+            color: #fff;
             animation: pulse 2s infinite;
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
-        .back-btn {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: rgba(var(--primary-rgb), 0.1);
-        }
-
-        .refresh-btn {
-            background: rgba(255,255,255,0.06);
+        .back-btn, .refresh-btn {
+            background: rgba(255,255,255,0.05);
             border: 1px solid var(--border);
             color: var(--text-light);
             padding: 8px 16px;
@@ -137,13 +99,15 @@
             font-family: inherit;
             font-size: 13px;
             transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-
-        .refresh-btn:hover {
-            border-color: var(--text-light);
+        .back-btn:hover, .refresh-btn:hover {
+            border-color: var(--primary);
             color: var(--text);
+            background: rgba(124, 58, 237, 0.1);
         }
-
         .refresh-btn .fa-spin { animation: spin 1s linear infinite; }
 
         /* ===== STATS ===== */
@@ -154,7 +118,6 @@
             margin-bottom: 20px;
             animation: fadeIn 0.5s ease;
         }
-
         .stat-card {
             background: var(--card);
             padding: 18px 16px;
@@ -165,8 +128,7 @@
             position: relative;
             overflow: hidden;
         }
-
-        .stat-card::after {
+        .stat-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -174,61 +136,36 @@
             right: 0;
             height: 3px;
             background: var(--gradient);
-            opacity: 0.6;
+            opacity: 0.5;
         }
-
         .stat-card:hover {
             border-color: var(--primary);
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.15);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.15);
         }
-
-        .stat-card .icon {
-            font-size: 24px;
-            margin-bottom: 6px;
-            color: var(--primary);
-        }
-
-        .stat-card .value {
-            font-size: 24px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-card .label {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-top: 2px;
-        }
-
-        .stat-card .change {
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-
+        .stat-card .icon { font-size: 22px; color: var(--primary-light); margin-bottom: 4px; }
+        .stat-card .value { font-size: 24px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card .label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+        .stat-card .change { font-size: 11px; font-weight: 600; margin-top: 4px; }
         .stat-card .change.up { color: var(--success); }
         .stat-card .change.down { color: var(--danger); }
 
         /* ===== TABS ===== */
         .tabs {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 20px;
             flex-wrap: wrap;
-            animation: fadeIn 0.6s ease;
             background: var(--card);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: var(--radius);
             border: 1px solid var(--border);
+            animation: fadeIn 0.6s ease;
         }
-
         .tab-btn {
-            padding: 10px 20px;
+            padding: 10px 18px;
             border-radius: 10px;
-            border: 1px solid transparent;
+            border: none;
             background: transparent;
             color: var(--text-light);
             cursor: pointer;
@@ -240,29 +177,19 @@
             align-items: center;
             gap: 8px;
         }
-
-        .tab-btn:hover {
-            background: rgba(255,255,255,0.05);
-            color: var(--text);
-        }
-
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
         .tab-btn.active {
             background: var(--gradient);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.25);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
         }
-
         .tab-btn .count {
             background: rgba(255,255,255,0.15);
             padding: 1px 10px;
-            border-radius: 12px;
+            border-radius: 20px;
             font-size: 11px;
         }
-
-        .tab-btn.active .count {
-            background: rgba(255,255,255,0.2);
-        }
+        .tab-btn.active .count { background: rgba(255,255,255,0.2); }
 
         /* ===== CARDS ===== */
         .card {
@@ -274,11 +201,7 @@
             animation: fadeIn 0.7s ease;
             transition: var(--transition);
         }
-
-        .card:hover {
-            border-color: rgba(var(--primary-rgb), 0.2);
-        }
-
+        .card:hover { border-color: rgba(124, 58, 237, 0.2); }
         .card-title {
             font-size: 18px;
             font-weight: 700;
@@ -288,28 +211,18 @@
             justify-content: space-between;
             gap: 8px;
         }
-
         .card-title .count {
             font-size: 13px;
             font-weight: 600;
             color: var(--text-light);
             background: var(--bg);
             padding: 2px 14px;
-            border-radius: 20px;
+            border-radius: 30px;
         }
 
         /* ===== TABLE ===== */
-        .table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
+        .table-container { overflow-x: auto; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th {
             text-align: left;
             padding: 12px 10px;
@@ -317,43 +230,30 @@
             font-weight: 600;
             border-bottom: 2px solid var(--border);
             white-space: nowrap;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
+        td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
 
         .status-badge {
             padding: 3px 14px;
-            border-radius: 20px;
+            border-radius: 30px;
             font-size: 11px;
             font-weight: 700;
             display: inline-block;
-            text-transform: capitalize;
         }
-
-        .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .status-badge.approved { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-badge.rejected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .status-badge.active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-badge.paused { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .status-badge.verified { background: rgba(59, 130, 246, 0.2); color: var(--info); }
-        .status-badge.expired { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .status-badge.refunded { background: rgba(59, 130, 246, 0.2); color: var(--info); }
-        .status-badge.banned { background: rgba(239, 68, 68, 0.3); color: var(--danger); }
-        .status-badge.active-user { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-badge.pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-badge.approved { background: rgba(16,185,129,0.2); color: var(--success); }
+        .status-badge.rejected { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .status-badge.active { background: rgba(16,185,129,0.2); color: var(--success); }
+        .status-badge.paused { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-badge.banned { background: rgba(239,68,68,0.25); color: var(--danger); }
+        .status-badge.active-user { background: rgba(16,185,129,0.2); color: var(--success); }
 
         .action-btn {
-            padding: 5px 14px;
+            padding: 5px 12px;
             border: none;
             border-radius: 8px;
             font-size: 11px;
@@ -364,67 +264,193 @@
             margin: 2px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
-
-        .action-btn:hover { transform: scale(1.04); }
-        .action-btn.approve { background: var(--success); color: white; }
-        .action-btn.reject { background: var(--danger); color: white; }
-        .action-btn.edit { background: var(--info); color: white; }
-        .action-btn.delete { background: var(--danger); color: white; }
-        .action-btn.view { background: var(--primary); color: white; }
-        .action-btn.refund { background: var(--warning); color: white; }
-        .action-btn.detail { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
+        .action-btn:hover { transform: scale(1.05); }
+        .action-btn.approve { background: var(--success); color: #fff; }
+        .action-btn.reject { background: var(--danger); color: #fff; }
+        .action-btn.edit { background: var(--info); color: #fff; }
+        .action-btn.delete { background: var(--danger); color: #fff; }
+        .action-btn.view { background: var(--primary); color: #fff; }
+        .action-btn.detail { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
         .action-btn.detail:hover { border-color: var(--primary); color: var(--primary); }
-        .action-btn.ban { background: var(--danger); color: white; }
-        .action-btn.unban { background: var(--success); color: white; }
-        .action-btn.chat { background: var(--info); color: white; }
+        .action-btn.ban { background: var(--danger); color: #fff; }
+        .action-btn.unban { background: var(--success); color: #fff; }
+
+        /* ===== FLOATING CHAT BUTTON ===== */
+        .fab-chat {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--gradient);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.4);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab-chat:hover { transform: scale(1.1) rotate(-5deg); }
+        .fab-chat .badge-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 16px;
+            height: 16px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            animation: pulse 1.5s infinite;
+            display: none;
+        }
+        .fab-chat .badge-dot.show { display: block; }
+
+        /* ===== CHAT MODAL (Floating) ===== */
+        .chat-float-modal {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            z-index: 1000;
+            width: 380px;
+            max-width: calc(100vw - 40px);
+            max-height: 500px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+            overflow: hidden;
+        }
+        .chat-float-modal.active { display: flex; }
+
+        .chat-float-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--gradient);
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .chat-float-header .close-chat {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        .chat-float-header .close-chat:hover { opacity: 1; transform: rotate(90deg); }
+
+        .chat-float-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            max-height: 320px;
+            background: var(--bg);
+        }
+        .chat-float-body .msg {
+            padding: 8px 14px;
+            margin-bottom: 6px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+            font-size: 13px;
+        }
+        .chat-float-body .msg.admin {
+            background: var(--gradient);
+            color: #fff;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-float-body .msg.user {
+            background: var(--card);
+            border: 1px solid var(--border);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-float-body .msg .time {
+            font-size: 10px;
+            opacity: 0.5;
+            display: block;
+            margin-top: 4px;
+        }
+        .chat-float-body .user-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .chat-float-body .user-select:focus { outline: none; border-color: var(--primary); }
+
+        .chat-float-footer {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+        }
+        .chat-float-footer input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+        }
+        .chat-float-footer input:focus { outline: none; border-color: var(--primary); }
+        .chat-float-footer button {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            background: var(--gradient);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chat-float-footer button:hover { transform: scale(1.03); }
 
         /* ===== FORMS ===== */
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-light);
-            margin-bottom: 4px;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
+        .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid var(--border);
             border-radius: 10px;
-            font-family: 'Inter', sans-serif;
+            font-family: inherit;
             font-size: 14px;
             background: var(--bg);
             color: var(--text);
             transition: var(--transition);
         }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
         }
-
-        .form-group textarea {
-            min-height: 60px;
-            resize: vertical;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .form-group textarea { min-height: 60px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         .btn-primary {
             display: inline-flex;
@@ -434,7 +460,7 @@
             border: none;
             border-radius: 12px;
             background: var(--gradient);
-            color: white;
+            color: #fff;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
@@ -442,37 +468,27 @@
             font-family: inherit;
             justify-content: center;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.3);
-        }
-
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.3); }
         .btn-success { background: var(--success); }
         .btn-danger { background: var(--danger); }
         .btn-secondary { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); }
-        .btn-secondary:hover { border-color: var(--text-light); background: rgba(255,255,255,0.1); }
+        .btn-secondary:hover { border-color: var(--text-light); background: rgba(255,255,255,0.08); }
         .btn-sm { padding: 6px 16px; font-size: 12px; }
+        .w-full { width: 100%; justify-content: center; }
 
         /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             inset: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             align-items: center;
             justify-content: center;
             padding: 16px;
-            animation: fadeIn 0.3s ease;
         }
-
-        .modal.show {
-            display: flex;
-        }
-
+        .modal.show { display: flex; }
         .modal-content {
             background: var(--card);
             padding: 28px;
@@ -484,22 +500,9 @@
             border: 1px solid var(--border);
             animation: fadeIn 0.3s ease;
             position: relative;
-            box-shadow: var(--shadow);
         }
-
-        .modal-content .modal-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .modal-content .modal-title i {
-            color: var(--primary);
-        }
-
+        .modal-content .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+        .modal-content .modal-title i { color: var(--primary); }
         .modal-content .close-modal {
             position: absolute;
             top: 16px;
@@ -509,21 +512,10 @@
             color: var(--text-light);
             font-size: 26px;
             cursor: pointer;
-            font-family: inherit;
             transition: var(--transition);
         }
-
-        .modal-content .close-modal:hover {
-            color: var(--text);
-            transform: rotate(90deg);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
+        .modal-content .close-modal:hover { color: var(--text); transform: rotate(90deg); }
+        .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
         .modal-actions .btn-primary { flex: 1; justify-content: center; }
         .modal-actions .btn-secondary { flex: 1; justify-content: center; }
 
@@ -539,7 +531,6 @@
             max-width: 380px;
             width: 100%;
         }
-
         .toast {
             background: var(--card);
             color: var(--text);
@@ -554,39 +545,22 @@
             align-items: center;
             gap: 12px;
         }
-
         .toast.success { border-color: var(--success); }
         .toast.error { border-color: var(--danger); }
         .toast.warning { border-color: var(--warning); }
         .toast.info { border-color: var(--info); }
-
         .toast .toast-icon { font-size: 20px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
         .toast.warning .toast-icon { color: var(--warning); }
         .toast.info .toast-icon { color: var(--info); }
 
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.2;
-        }
+        /* ===== EMPTY ===== */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.2; }
 
         /* ===== SEARCH ===== */
-        .search-box {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
+        .search-box { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
         .search-box input {
             flex: 1;
             padding: 12px 16px;
@@ -596,15 +570,9 @@
             color: var(--text);
             font-family: inherit;
             font-size: 14px;
-            transition: var(--transition);
             min-width: 150px;
         }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
+        .search-box input:focus { outline: none; border-color: var(--primary); }
         .search-box select {
             padding: 12px 16px;
             border: 1px solid var(--border);
@@ -613,48 +581,14 @@
             color: var(--text);
             font-family: inherit;
             font-size: 14px;
-            transition: var(--transition);
             min-width: 140px;
         }
-
-        .search-box select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* ===== TAB CONTENT ===== */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
+        .search-box select:focus { outline: none; border-color: var(--primary); }
 
         /* ===== SETTINGS ===== */
-        .settings-group {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .settings-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .settings-group .group-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .settings-group { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .settings-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .settings-group .group-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-light); display: flex; align-items: center; gap: 8px; }
         .method-item {
             display: flex;
             align-items: center;
@@ -666,17 +600,12 @@
             border: 1px solid var(--border);
             transition: var(--transition);
         }
-
-        .method-item:hover {
-            border-color: var(--primary);
-        }
-
+        .method-item:hover { border-color: var(--primary); }
         .method-item .method-name { font-weight: 600; }
         .method-item .method-number { color: var(--text-light); font-family: monospace; }
         .method-item .method-icon { font-size: 22px; }
         .method-item .method-actions { display: flex; gap: 4px; }
 
-        /* ===== VERIFICATION LINK PREVIEW ===== */
         .link-preview {
             background: var(--bg);
             padding: 10px 14px;
@@ -685,92 +614,11 @@
             margin: 6px 0;
             word-break: break-all;
         }
+        .link-preview a { color: var(--primary); text-decoration: none; }
+        .link-preview a:hover { text-decoration: underline; }
 
-        .link-preview a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .link-preview a:hover {
-            text-decoration: underline;
-        }
-
-        /* ===== CHAT ===== */
-        .chat-container {
-            max-height: 300px;
-            overflow-y: auto;
-            background: var(--bg);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .chat-message {
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            border-radius: 10px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-
-        .chat-message.admin {
-            background: var(--gradient);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-message.user {
-            background: var(--card);
-            border: 1px solid var(--border);
-            margin-right: auto;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-message .time {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 4px;
-            display: block;
-        }
-
-        .chat-input-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .chat-input-group input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 14px;
-        }
-
-        .chat-input-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .chat-input-group button {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 10px;
-            background: var(--gradient);
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .chat-input-group button:hover {
-            transform: scale(1.03);
-        }
+        .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
+        .text-muted { color: var(--text-light); font-size: 12px; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -782,48 +630,14 @@
             .tab-btn { padding: 8px 12px; font-size: 12px; }
             .modal-content { padding: 20px; }
             .search-box { flex-direction: column; }
+            .chat-float-modal { right: 10px; width: calc(100vw - 20px); bottom: 90px; }
+            .fab-chat { right: 16px; bottom: 20px; width: 56px; height: 56px; font-size: 24px; }
         }
-
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .stat-card { padding: 12px; }
             .stat-card .value { font-size: 18px; }
             body { padding: 10px 6px; }
-        }
-
-        /* ===== MODAL SCROLLBAR ===== */
-        .modal-content::-webkit-scrollbar { width: 4px; }
-        .modal-content::-webkit-scrollbar-track { background: var(--bg); }
-        .modal-content::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-
-        /* ===== UTILITY ===== */
-        .text-muted { color: var(--text-light); font-size: 12px; }
-        .text-truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
-        .user-id { font-size: 11px; color: var(--text-light); font-family: monospace; }
-        .text-success { color: var(--success); }
-        .text-danger { color: var(--danger); }
-        .text-warning { color: var(--warning); }
-        .text-info { color: var(--info); }
-        .mt-8 { margin-top: 8px; }
-        .mb-8 { margin-bottom: 8px; }
-        .flex { display: flex; }
-        .flex-center { display: flex; align-items: center; gap: 8px; }
-        .gap-8 { gap: 8px; }
-        .gap-4 { gap: 4px; }
-        .w-full { width: 100%; }
-
-        .reason-box {
-            background: rgba(239, 68, 68, 0.08);
-            padding: 12px 16px;
-            border-radius: 10px;
-            border-left: 3px solid var(--danger);
-            margin: 8px 0;
-            font-size: 13px;
-            color: var(--text-light);
-        }
-
-        .reason-box strong {
-            color: var(--danger);
         }
     </style>
 </head>
@@ -831,23 +645,16 @@
 
     <!-- ===== HEADER ===== -->
     <div class="admin-header">
-        <div>
-            <div class="logo">Nex<span>Earn</span></div>
-            <div style="font-size:12px; color:var(--text-light);">Admin Panel v3.0</div>
-        </div>
+        <div class="logo">Nex<span>Earn</span> <span style="font-size:12px; -webkit-text-fill-color: var(--text-light);">Admin</span></div>
         <div class="header-actions">
-            <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">
-                <i class="fa-solid fa-sync"></i> Refresh
-            </button>
+            <button class="refresh-btn" onclick="refreshData()" id="refreshBtn"><i class="fa-solid fa-sync"></i> Refresh</button>
             <span class="badge">👑 Admin</span>
-            <a href="javascript:void(0)" class="back-btn" onclick="window.history.back()">
-                <i class="fa-solid fa-arrow-left"></i> Back
-            </a>
+            <button class="back-btn" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
         </div>
     </div>
 
     <!-- ===== STATS ===== -->
-    <div class="stats-grid" id="statsGrid">
+    <div class="stats-grid">
         <div class="stat-card" onclick="switchTab('users')">
             <div class="icon"><i class="fa-solid fa-users"></i></div>
             <div class="value" id="statUsers">0</div>
@@ -872,360 +679,178 @@
 
     <!-- ===== TABS ===== -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
-            <i class="fa-solid fa-gauge-high"></i> Dashboard
-        </button>
-        <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')">
-            <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
-            <span class="count" id="withdrawCount">0</span>
-        </button>
-        <button class="tab-btn" data-tab="deposits" onclick="switchTab('deposits')">
-            <i class="fa-solid fa-credit-card"></i> Deposits
-            <span class="count" id="depositCount">0</span>
-        </button>
-        <button class="tab-btn" data-tab="ads" onclick="switchTab('ads')">
-            <i class="fa-solid fa-rectangle-ad"></i> Ads
-            <span class="count" id="adsCount">0</span>
-        </button>
-        <button class="tab-btn" data-tab="users" onclick="switchTab('users')">
-            <i class="fa-solid fa-users"></i> Users
-            <span class="count" id="usersCount">0</span>
-        </button>
-        <button class="tab-btn" data-tab="verifications" onclick="switchTab('verifications')">
-            <i class="fa-solid fa-check-double"></i> Verifications
-            <span class="count" id="verificationCount">0</span>
-        </button>
-        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
-            <i class="fa-solid fa-gear"></i> Settings
-        </button>
-        <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')">
-            <i class="fa-solid fa-star"></i> Bonus Tasks
-            <span class="count" id="bonusCount">0</span>
-        </button>
+        <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+        <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')"><i class="fa-solid fa-money-bill-transfer"></i> Withdrawals <span class="count" id="withdrawCount">0</span></button>
+        <button class="tab-btn" data-tab="deposits" onclick="switchTab('deposits')"><i class="fa-solid fa-credit-card"></i> Deposits <span class="count" id="depositCount">0</span></button>
+        <button class="tab-btn" data-tab="ads" onclick="switchTab('ads')"><i class="fa-solid fa-rectangle-ad"></i> Ads <span class="count" id="adsCount">0</span></button>
+        <button class="tab-btn" data-tab="users" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> Users <span class="count" id="usersCount">0</span></button>
+        <button class="tab-btn" data-tab="verifications" onclick="switchTab('verifications')"><i class="fa-solid fa-check-double"></i> Verifications <span class="count" id="verificationCount">0</span></button>
+        <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
+        <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')"><i class="fa-solid fa-star"></i> Bonus <span class="count" id="bonusCount">0</span></button>
     </div>
 
-    <!-- ===== TAB: DASHBOARD ===== -->
+    <!-- ===== DASHBOARD ===== -->
     <div class="tab-content active" id="tab-dashboard">
         <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <div class="stat-card">
-                <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="value" id="dashPendingWithdrawals">0</div>
-                <div class="label">Pending Withdrawals</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="value" id="dashPendingDeposits">0</div>
-                <div class="label">Pending Deposits</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="value" id="dashPendingVerifications">0</div>
-                <div class="label">Pending Verifications</div>
-            </div>
-            <div class="stat-card">
-                <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="value" id="dashPendingAds">0</div>
-                <div class="label">Pending Ads Approval</div>
-            </div>
+            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingWithdrawals">0</div><div class="label">Pending Withdrawals</div></div>
+            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingDeposits">0</div><div class="label">Pending Deposits</div></div>
+            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingVerifications">0</div><div class="label">Pending Verifications</div></div>
+            <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingAds">0</div><div class="label">Pending Ads</div></div>
         </div>
-
-        <div class="card">
-            <div class="card-title">
-                <span>📊 Recent Activity</span>
-            </div>
-            <div id="recentActivity">
-                <div class="empty-state">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                    <p>No recent activity</p>
-                </div>
-            </div>
-        </div>
+        <div class="card"><div class="card-title">📊 Recent Activity</div><div id="recentActivity"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div></div></div>
     </div>
 
-    <!-- ===== TAB: WITHDRAWALS ===== -->
+    <!-- ===== WITHDRAWALS ===== -->
     <div class="tab-content" id="tab-withdrawals">
         <div class="card">
-            <div class="card-title">
-                <span>💸 Withdrawal Requests</span>
-                <span class="count" id="withdrawCountTitle">0</span>
-            </div>
+            <div class="card-title">💸 Withdrawals <span class="count" id="withdrawCountTitle">0</span></div>
             <div class="search-box">
-                <input type="text" id="withdrawSearch" placeholder="Search by user or ID..." oninput="filterWithdrawals()">
-                <select id="withdrawFilter" onchange="filterWithdrawals()">
-                    <option value="all">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                </select>
+                <input type="text" id="withdrawSearch" placeholder="Search..." oninput="filterWithdrawals()">
+                <select id="withdrawFilter" onchange="filterWithdrawals()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Method</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="withdrawalsBody"></tbody>
-                </table>
-            </div>
+            <div class="table-container"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ===== TAB: DEPOSITS ===== -->
+    <!-- ===== DEPOSITS ===== -->
     <div class="tab-content" id="tab-deposits">
         <div class="card">
-            <div class="card-title">
-                <span>💳 Deposit Requests</span>
-                <span class="count" id="depositCountTitle">0</span>
-            </div>
+            <div class="card-title">💳 Deposits <span class="count" id="depositCountTitle">0</span></div>
             <div class="search-box">
-                <input type="text" id="depositSearch" placeholder="Search by user..." oninput="filterDeposits()">
-                <select id="depositFilter" onchange="filterDeposits()">
-                    <option value="all">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                </select>
+                <input type="text" id="depositSearch" placeholder="Search..." oninput="filterDeposits()">
+                <select id="depositFilter" onchange="filterDeposits()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Method</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="depositsBody"></tbody>
-                </table>
-            </div>
+            <div class="table-container"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ===== TAB: ADS ===== -->
+    <!-- ===== ADS ===== -->
     <div class="tab-content" id="tab-ads">
         <div class="card">
-            <div class="card-title">
-                <span>📢 All Ads</span>
-                <span class="count" id="adsCountTitle">0</span>
-            </div>
+            <div class="card-title">📢 Ads <span class="count" id="adsCountTitle">0</span></div>
             <div class="search-box">
-                <input type="text" id="adsSearch" placeholder="Search by title..." oninput="filterAdsTable()">
-                <select id="adsFilter" onchange="filterAdsTable()">
-                    <option value="all">All</option>
-                    <option value="pending">Pending Approval</option>
-                    <option value="active">Active</option>
-                    <option value="paused">Paused</option>
-                    <option value="expired">Expired</option>
-                </select>
+                <input type="text" id="adsSearch" placeholder="Search..." oninput="filterAdsTable()">
+                <select id="adsFilter" onchange="filterAdsTable()"><option value="all">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="expired">Expired</option></select>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Creator</th>
-                            <th>Views</th>
-                            <th>Reward</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adsBody"></tbody>
-                </table>
-            </div>
+            <div class="table-container"><table><thead><tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adsBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ===== TAB: USERS ===== -->
+    <!-- ===== USERS ===== -->
     <div class="tab-content" id="tab-users">
         <div class="card">
-            <div class="card-title">
-                <span>👥 All Users</span>
-                <span class="count" id="usersCountTitle">0</span>
-            </div>
-            <div class="search-box">
-                <input type="text" id="usersSearch" placeholder="Search by name or ID..." oninput="filterUsers()">
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>ID</th>
-                            <th>Balance</th>
-                            <th>Wallet</th>
-                            <th>Ads</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersBody"></tbody>
-                </table>
-            </div>
+            <div class="card-title">👥 Users <span class="count" id="usersCountTitle">0</span></div>
+            <div class="search-box"><input type="text" id="usersSearch" placeholder="Search..." oninput="filterUsers()"></div>
+            <div class="table-container"><table><thead><tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ===== TAB: VERIFICATIONS ===== -->
+    <!-- ===== VERIFICATIONS ===== -->
     <div class="tab-content" id="tab-verifications">
         <div class="card">
-            <div class="card-title">
-                <span>📸 Verification Requests</span>
-                <span class="count" id="verificationCountTitle">0</span>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Ad ID</th>
-                            <th>Title</th>
-                            <th>Screenshot</th>
-                            <th>Link Preview</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="verificationsBody"></tbody>
-                </table>
-            </div>
+            <div class="card-title">📸 Verifications <span class="count" id="verificationCountTitle">0</span></div>
+            <div class="table-container"><table><thead><tr><th>User</th><th>Ad ID</th><th>Title</th><th>Screenshot</th><th>Link Preview</th><th>Status</th><th>Action</th></tr></thead><tbody id="verificationsBody"></tbody></table></div>
         </div>
     </div>
 
-    <!-- ===== TAB: SETTINGS ===== -->
+    <!-- ===== SETTINGS ===== -->
     <div class="tab-content" id="tab-settings">
         <div class="card">
-            <div class="card-title">⚙️ System Settings</div>
+            <div class="card-title">⚙️ Settings</div>
             <form id="settingsForm">
                 <div class="settings-group">
-                    <div class="group-title">💰 General Settings</div>
+                    <div class="group-title">💰 General</div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Ad Reward ($)</label>
-                            <input type="number" id="settingAdReward" step="0.001" value="0.001">
-                        </div>
-                        <div class="form-group">
-                            <label>Daily Ad Limit</label>
-                            <input type="number" id="settingDailyLimit" value="15">
-                        </div>
+                        <div class="form-group"><label>Ad Reward ($)</label><input type="number" id="settingAdReward" step="0.001" value="0.001"></div>
+                        <div class="form-group"><label>Daily Ad Limit</label><input type="number" id="settingDailyLimit" value="15"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Min Withdrawal ($)</label>
-                            <input type="number" id="settingMinWithdraw" step="0.01" value="0.10">
-                        </div>
-                        <div class="form-group">
-                            <label>Min Deposit (BDT)</label>
-                            <input type="number" id="settingMinDeposit" value="10">
-                        </div>
+                        <div class="form-group"><label>Min Withdrawal ($)</label><input type="number" id="settingMinWithdraw" step="0.01" value="0.10"></div>
+                        <div class="form-group"><label>Min Deposit (BDT)</label><input type="number" id="settingMinDeposit" value="10"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Cooldown (minutes)</label>
-                            <input type="number" id="settingCooldown" value="30">
-                        </div>
-                        <div class="form-group">
-                            <label>Referral Reward ($)</label>
-                            <input type="number" id="settingReferralReward" step="0.001" value="0.01">
-                        </div>
+                        <div class="form-group"><label>Cooldown (min)</label><input type="number" id="settingCooldown" value="30"></div>
+                        <div class="form-group"><label>Referral Reward ($)</label><input type="number" id="settingReferralReward" step="0.001" value="0.01"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Minimum Budget ($)</label>
-                            <input type="number" id="settingMinBudget" step="0.01" value="1.00">
-                        </div>
-                        <div class="form-group">
-                            <label>Minimum Duration (Days)</label>
-                            <input type="number" id="settingMinDuration" value="7">
-                        </div>
+                        <div class="form-group"><label>Min Budget ($)</label><input type="number" id="settingMinBudget" step="0.01" value="1.00"></div>
+                        <div class="form-group"><label>Min Duration (Days)</label><input type="number" id="settingMinDuration" value="7"></div>
                     </div>
                 </div>
-
                 <div class="settings-group">
                     <div class="group-title">💸 Withdrawal Methods</div>
                     <div id="withdrawMethodsContainer"></div>
                     <div class="flex" style="margin-top:10px; gap:8px;">
-                        <input type="text" id="newWithdrawMethod" placeholder="New method name" style="flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <input type="text" id="newWithdrawMethod" placeholder="New method" style="flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
                         <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()"><i class="fa-solid fa-plus"></i> Add</button>
                     </div>
                 </div>
-
                 <div class="settings-group">
                     <div class="group-title">💳 Deposit Methods</div>
                     <div id="depositMethodsContainer"></div>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; margin-top:10px;">
                         <input type="text" id="newDepositMethodName" placeholder="Name" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
                         <input type="text" id="newDepositMethodNumber" placeholder="Number" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
-                        <input type="text" id="newDepositMethodIcon" placeholder="Icon (emoji)" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
+                        <input type="text" id="newDepositMethodIcon" placeholder="Icon" style="padding:10px 14px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text);">
                         <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
-
                 <div class="settings-group">
                     <div class="group-title">📝 Welcome Message</div>
-                    <div class="form-group">
-                        <label>Welcome Title</label>
-                        <input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉">
-                    </div>
-                    <div class="form-group">
-                        <label>Welcome Message</label>
-                        <textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea>
-                    </div>
+                    <div class="form-group"><label>Title</label><input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉"></div>
+                    <div class="form-group"><label>Message</label><textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea></div>
                 </div>
-
-                <button type="submit" class="btn-primary w-full" style="justify-content:center;">
-                    <i class="fa-solid fa-save"></i> Save All Settings
-                </button>
+                <button type="submit" class="btn-primary w-full"><i class="fa-solid fa-save"></i> Save All</button>
             </form>
         </div>
     </div>
 
-    <!-- ===== TAB: BONUS TASKS ===== -->
+    <!-- ===== BONUS ===== -->
     <div class="tab-content" id="tab-bonus">
         <div class="card">
-            <div class="card-title">
-                <span>⭐ Bonus Tasks</span>
-                <span class="count" id="bonusCountTitle">0</span>
-            </div>
+            <div class="card-title">⭐ Bonus Tasks <span class="count" id="bonusCountTitle">0</span></div>
             <div id="bonusTasksList"></div>
-
             <form id="bonusForm" style="margin-top:18px; border-top:1px solid var(--border); padding-top:18px;">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Task Title</label>
-                        <input type="text" id="bonusTitle" placeholder="Enter task title" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Reward ($)</label>
-                        <input type="number" id="bonusReward" step="0.001" value="0.01" required>
-                    </div>
+                    <div class="form-group"><label>Title</label><input type="text" id="bonusTitle" placeholder="Task title" required></div>
+                    <div class="form-group"><label>Reward ($)</label><input type="number" id="bonusReward" step="0.001" value="0.01" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Task Link</label>
-                        <input type="url" id="bonusLink" placeholder="https://t.me/..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Duration (seconds)</label>
-                        <input type="number" id="bonusDuration" value="10" required>
-                    </div>
+                    <div class="form-group"><label>Link</label><input type="url" id="bonusLink" placeholder="https://t.me/..." required></div>
+                    <div class="form-group"><label>Duration (s)</label><input type="number" id="bonusDuration" value="10" required></div>
                 </div>
-                <button type="submit" class="btn-primary btn-success w-full" style="justify-content:center;">
-                    <i class="fa-solid fa-plus"></i> Add Bonus Task
-                </button>
+                <button type="submit" class="btn-primary btn-success w-full"><i class="fa-solid fa-plus"></i> Add Bonus</button>
             </form>
         </div>
     </div>
 
-    <!-- ===== MODAL ===== -->
+    <!-- ===== FLOATING CHAT BUTTON ===== -->
+    <button class="fab-chat" id="fabChat" onclick="toggleChatFloat()">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span class="badge-dot" id="chatBadgeDot"></span>
+    </button>
+
+    <!-- ===== FLOATING CHAT MODAL ===== -->
+    <div class="chat-float-modal" id="chatFloatModal">
+        <div class="chat-float-header">
+            <span><i class="fa-solid fa-comment-dots"></i> Live Chat</span>
+            <button class="close-chat" onclick="toggleChatFloat()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="chat-float-body" id="chatFloatBody">
+            <select class="user-select" id="chatUserSelect" onchange="loadChatMessages()">
+                <option value="">-- Select User --</option>
+            </select>
+            <div id="chatMessagesContainer">
+                <div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div>
+            </div>
+        </div>
+        <div class="chat-float-footer">
+            <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChatMessageFloat()">
+            <button onclick="sendChatMessageFloat()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- ===== ACTION MODAL ===== -->
     <div class="modal" id="actionModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">&times;</button>
@@ -1240,7 +865,7 @@
     <!-- ============================================================ -->
     <script>
         // ============================================================
-        // FIREBASE CONFIG
+        // FIREBASE
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyC_WvNxSQQ58TcJhDcBw5NUrAZjOQe1T2g",
@@ -1253,112 +878,40 @@
         };
 
         let firebaseDb = null;
-        let allData = {
-            withdrawals: [],
-            deposits: [],
-            ads: [],
-            users: [],
-            verifications: [],
-            bonusTasks: [],
-            adminConfig: {},
-            chats: {}
-        };
+        let allData = { withdrawals: [], deposits: [], ads: [], users: [], verifications: [], bonusTasks: [], adminConfig: {}, chats: {} };
         let chatListener = null;
         let currentChatUserId = null;
+        let isChatOpen = false;
 
         // ============================================================
         // INIT
         // ============================================================
         function initFirebase() {
-            try {
-                firebase.initializeApp(firebaseConfig);
-                firebaseDb = firebase.database();
-                console.log("✅ Firebase connected");
-                return true;
-            } catch (e) {
-                console.error("Firebase init error:", e);
-                return false;
-            }
+            try { firebase.initializeApp(firebaseConfig); firebaseDb = firebase.database(); return true; }
+            catch(e) { console.error("Firebase error:", e); return false; }
         }
 
-        // ============================================================
-        // LOAD DATA
-        // ============================================================
         function loadAllData() {
-            firebaseDb.ref('withdrawals').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.withdrawals = Object.entries(data).map(([id, item]) => ({ id, ...item }));
-                renderWithdrawals();
-                updateStats();
-                updateDashboard();
-            });
-
-            firebaseDb.ref('deposits').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.deposits = Object.entries(data).map(([id, item]) => ({ id, ...item }));
-                renderDeposits();
-                updateStats();
-                updateDashboard();
-            });
-
-            firebaseDb.ref('ads').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.ads = Object.entries(data).map(([id, item]) => ({ id, ...item }));
-                renderAds();
-                updateStats();
-                updateDashboard();
-            });
-
-            firebaseDb.ref('users').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.users = Object.entries(data).map(([id, item]) => ({ id, ...item }));
-                renderUsers();
-                updateStats();
-                updateDashboard();
-            });
-
-            firebaseDb.ref('verifications').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.verifications = Object.entries(data).map(([id, item]) => ({ id, ...item }));
-                renderVerifications();
-                updateStats();
-                updateDashboard();
-            });
-
-            firebaseDb.ref('bonusTasks').on('value', (snapshot) => {
-                const data = snapshot.val() || [];
-                allData.bonusTasks = data;
-                renderBonusTasks();
-                updateStats();
-            });
-
-            firebaseDb.ref('adminConfig').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                allData.adminConfig = data;
-                loadSettings();
-                renderWithdrawMethods();
-                renderDepositMethodsSettings();
-            });
+            firebaseDb.ref('withdrawals').on('value', s => { allData.withdrawals = Object.entries(s.val()||{}).map(([id,item])=>({id,...item})); renderWithdrawals(); updateStats(); updateDashboard(); });
+            firebaseDb.ref('deposits').on('value', s => { allData.deposits = Object.entries(s.val()||{}).map(([id,item])=>({id,...item})); renderDeposits(); updateStats(); updateDashboard(); });
+            firebaseDb.ref('ads').on('value', s => { allData.ads = Object.entries(s.val()||{}).map(([id,item])=>({id,...item})); renderAds(); updateStats(); updateDashboard(); });
+            firebaseDb.ref('users').on('value', s => { allData.users = Object.entries(s.val()||{}).map(([id,item])=>({id,...item})); renderUsers(); updateStats(); updateDashboard(); updateChatUsers(); });
+            firebaseDb.ref('verifications').on('value', s => { allData.verifications = Object.entries(s.val()||{}).map(([id,item])=>({id,...item})); renderVerifications(); updateStats(); updateDashboard(); });
+            firebaseDb.ref('bonusTasks').on('value', s => { allData.bonusTasks = s.val() || []; renderBonusTasks(); updateStats(); });
+            firebaseDb.ref('adminConfig').on('value', s => { allData.adminConfig = s.val() || {}; loadSettings(); renderWithdrawMethods(); renderDepositMethodsSettings(); });
+            firebaseDb.ref('chats').on('value', s => { allData.chats = s.val() || {}; updateChatBadge(); });
         }
 
-        // ============================================================
-        // UPDATE STATS
-        // ============================================================
         function updateStats() {
             document.getElementById('statUsers').textContent = allData.users.length;
-
-            let totalEarnings = 0;
-            allData.users.forEach(u => totalEarnings += (u.balance || 0));
-            document.getElementById('statEarnings').textContent = `$${totalEarnings.toFixed(3)}`;
-
+            let total = 0; allData.users.forEach(u => total += (u.balance||0));
+            document.getElementById('statEarnings').textContent = `$${total.toFixed(3)}`;
             document.getElementById('statAds').textContent = allData.ads.length;
-
-            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
-            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
-            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            const pendingAds = allData.ads.filter(ad => ad.approved === false || ad.approved === undefined);
+            const pending = allData.withdrawals.filter(w => w.status==='Pending'||w.status==='pending');
+            const pendingDeposits = allData.deposits.filter(d => d.status==='pending');
+            const pendingVerifications = allData.verifications.filter(v => v.status==='pending');
+            const pendingAds = allData.ads.filter(a => a.approved===false || a.approved===undefined);
             document.getElementById('statPending').textContent = pending.length + pendingDeposits.length + pendingVerifications.length + pendingAds.length;
-
             document.getElementById('withdrawCount').textContent = pending.length;
             document.getElementById('depositCount').textContent = pendingDeposits.length;
             document.getElementById('verificationCount').textContent = pendingVerifications.length;
@@ -1368,791 +921,317 @@
         }
 
         function updateDashboard() {
-            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
-            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
-            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            const pendingAds = allData.ads.filter(ad => ad.approved === false || ad.approved === undefined);
-
+            const pending = allData.withdrawals.filter(w => w.status==='Pending'||w.status==='pending');
+            const pendingDeposits = allData.deposits.filter(d => d.status==='pending');
+            const pendingVerifications = allData.verifications.filter(v => v.status==='pending');
+            const pendingAds = allData.ads.filter(a => a.approved===false || a.approved===undefined);
             document.getElementById('dashPendingWithdrawals').textContent = pending.length;
             document.getElementById('dashPendingDeposits').textContent = pendingDeposits.length;
             document.getElementById('dashPendingVerifications').textContent = pendingVerifications.length;
             document.getElementById('dashPendingAds').textContent = pendingAds.length;
 
             const all = [];
-            allData.withdrawals.forEach(w => all.push({ ...w, type: 'withdrawal' }));
-            allData.deposits.forEach(d => all.push({ ...d, type: 'deposit' }));
-            allData.verifications.forEach(v => all.push({ ...v, type: 'verification' }));
-            allData.ads.forEach(a => all.push({ ...a, type: 'ad' }));
-
-            all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            const recent = all.slice(0, 12);
+            allData.withdrawals.forEach(w => all.push({...w, type:'withdrawal'}));
+            allData.deposits.forEach(d => all.push({...d, type:'deposit'}));
+            allData.verifications.forEach(v => all.push({...v, type:'verification'}));
+            allData.ads.forEach(a => all.push({...a, type:'ad'}));
+            all.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+            const recent = all.slice(0,12);
             const container = document.getElementById('recentActivity');
-
-            if (recent.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div>`;
-                return;
-            }
-
+            if (!recent.length) { container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div>`; return; }
             container.innerHTML = recent.map(item => {
-                let icon = 'fa-solid fa-circle';
-                let label = 'Unknown';
-                let status = '';
-
-                if (item.type === 'withdrawal') {
-                    icon = 'fa-solid fa-money-bill-transfer';
-                    label = `Withdrawal $${item.amount?.toFixed(3)}`;
-                    status = item.status || 'Pending';
-                } else if (item.type === 'deposit') {
-                    icon = 'fa-solid fa-credit-card';
-                    label = `Deposit ${item.amount} BDT`;
-                    status = item.status || 'Pending';
-                } else if (item.type === 'verification') {
-                    icon = 'fa-solid fa-check-double';
-                    label = `Verification for "${item.adTitle || 'Ad'}"`;
-                    status = item.status || 'Pending';
-                } else if (item.type === 'ad') {
-                    icon = 'fa-solid fa-rectangle-ad';
-                    label = `Ad: "${item.title || 'Untitled'}"`;
-                    status = item.approved ? 'Approved' : 'Pending';
-                }
-
-                const statusClass = status.toLowerCase() === 'pending' ? 'warning' :
-                                   status.toLowerCase() === 'approved' ? 'success' :
-                                   status.toLowerCase() === 'rejected' ? 'danger' : 'info';
-
-                return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <i class="${icon}" style="color:var(--primary); width:20px;"></i>
-                            <div>
-                                <div style="font-weight:600; font-size:14px;">${label}</div>
-                                <div style="font-size:12px; color:var(--text-light);">${new Date(item.createdAt || item.date).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-                        <span class="status-badge ${statusClass}">${status}</span>
-                    </div>
-                `;
+                let icon='fa-solid fa-circle', label='Unknown', status='';
+                if (item.type==='withdrawal') { icon='fa-solid fa-money-bill-transfer'; label=`Withdrawal $${item.amount?.toFixed(3)}`; status=item.status||'Pending'; }
+                else if (item.type==='deposit') { icon='fa-solid fa-credit-card'; label=`Deposit ${item.amount} BDT`; status=item.status||'Pending'; }
+                else if (item.type==='verification') { icon='fa-solid fa-check-double'; label=`Verification "${item.adTitle||'Ad'}"`; status=item.status||'Pending'; }
+                else if (item.type==='ad') { icon='fa-solid fa-rectangle-ad'; label=`Ad "${item.title||'Untitled'}"`; status=item.approved?'Approved':'Pending'; }
+                const cls = status.toLowerCase()==='pending'?'warning':status.toLowerCase()==='approved'?'success':'info';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+                    <div style="display:flex;align-items:center;gap:12px;"><i class="${icon}" style="color:var(--primary-light);width:20px;"></i>
+                    <div><div style="font-weight:600;font-size:14px;">${label}</div><div style="font-size:12px;color:var(--text-light);">${new Date(item.createdAt||item.date).toLocaleDateString()}</div></div></div>
+                    <span class="status-badge ${cls}">${status}</span></div>`;
             }).join('');
         }
 
         // ============================================================
-        // RENDER WITHDRAWALS
+        // RENDER FUNCTIONS
         // ============================================================
         function renderWithdrawals() {
-            const search = document.getElementById('withdrawSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('withdrawFilter')?.value || 'all';
-
+            const search = document.getElementById('withdrawSearch')?.value?.toLowerCase()||'';
+            const filter = document.getElementById('withdrawFilter')?.value||'all';
             let filtered = allData.withdrawals;
-            if (filter !== 'all') filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
-            if (search) filtered = filtered.filter(w =>
-                (w.userName || '').toLowerCase().includes(search) ||
-                (w.id || '').toLowerCase().includes(search)
-            );
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+            if (filter!=='all') filtered = filtered.filter(w => w.status?.toLowerCase()===filter);
+            if (search) filtered = filtered.filter(w => (w.userName||'').toLowerCase().includes(search) || (w.id||'').toLowerCase().includes(search));
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
             document.getElementById('withdrawCountTitle').textContent = filtered.length;
             const tbody = document.getElementById('withdrawalsBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals found</p></div></td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(w => `
-                <tr>
-                    <td><strong>${escapeHTML(w.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(w.userId || '')}</span></td>
-                    <td>${escapeHTML(w.method)}<br><span class="text-muted">${escapeHTML(w.accountNumber || '')}</span></td>
-                    <td><strong>$${w.amount?.toFixed(3) || '0.000'}</strong></td>
-                    <td><span class="status-badge ${(w.status || 'pending').toLowerCase()}">${w.status || 'Pending'}</span></td>
-                    <td class="text-muted">${new Date(w.date).toLocaleDateString()}</td>
-                    <td>
-                        ${w.status === 'Pending' || w.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('withdrawal','${w.id}')"><i class="fa-solid fa-times"></i></button>
-                        ` : `
-                            <span class="text-muted">${w.status || 'Done'}</span>
-                        `}
-                    </td>
-                </tr>
-            `).join('');
+            if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals</p></div></td></tr>`; return; }
+            tbody.innerHTML = filtered.map(w => `<tr>
+                <td><strong>${escapeHTML(w.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(w.userId||'')}</span></td>
+                <td>${escapeHTML(w.method)}<br><span class="text-muted">${escapeHTML(w.accountNumber||'')}</span></td>
+                <td><strong>$${w.amount?.toFixed(3)||'0.000'}</strong></td>
+                <td><span class="status-badge ${(w.status||'pending').toLowerCase()}">${w.status||'Pending'}</span></td>
+                <td class="text-muted">${new Date(w.date).toLocaleDateString()}</td>
+                <td>${w.status==='Pending'||w.status==='pending'?`
+                    <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')"><i class="fa-solid fa-check"></i></button>
+                    <button class="action-btn reject" onclick="openRejectModal('withdrawal','${w.id}')"><i class="fa-solid fa-times"></i></button>
+                `:`<span class="text-muted">${w.status||'Done'}</span>`}</td>
+            </tr>`).join('');
         }
-
         function filterWithdrawals() { renderWithdrawals(); }
 
-        // ============================================================
-        // RENDER DEPOSITS
-        // ============================================================
         function renderDeposits() {
-            const search = document.getElementById('depositSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('depositFilter')?.value || 'all';
-
+            const search = document.getElementById('depositSearch')?.value?.toLowerCase()||'';
+            const filter = document.getElementById('depositFilter')?.value||'all';
             let filtered = allData.deposits;
-            if (filter !== 'all') filtered = filtered.filter(d => d.status === filter);
-            if (search) filtered = filtered.filter(d =>
-                (d.userName || '').toLowerCase().includes(search) ||
-                (d.method || '').toLowerCase().includes(search)
-            );
-            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
+            if (filter!=='all') filtered = filtered.filter(d => d.status===filter);
+            if (search) filtered = filtered.filter(d => (d.userName||'').toLowerCase().includes(search) || (d.method||'').toLowerCase().includes(search));
+            filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
             document.getElementById('depositCountTitle').textContent = filtered.length;
             const tbody = document.getElementById('depositsBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits found</p></div></td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(d => `
-                <tr>
-                    <td><strong>${escapeHTML(d.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId || '')}</span></td>
-                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number || '')}</span></td>
-                    <td><strong>${d.amount} BDT</strong></td>
-                    <td><span class="status-badge ${d.status || 'pending'}">${d.status || 'Pending'}</span></td>
-                    <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
-                    <td>
-                        ${d.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveDeposit('${d.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('deposit','${d.id}')"><i class="fa-solid fa-times"></i></button>
-                        ` : `
-                            <span class="text-muted">${d.status || 'Done'}</span>
-                        `}
-                    </td>
-                </tr>
-            `).join('');
+            if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits</p></div></td></tr>`; return; }
+            tbody.innerHTML = filtered.map(d => `<tr>
+                <td><strong>${escapeHTML(d.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId||'')}</span></td>
+                <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number||'')}</span></td>
+                <td><strong>${d.amount} BDT</strong></td>
+                <td><span class="status-badge ${d.status||'pending'}">${d.status||'Pending'}</span></td>
+                <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
+                <td>${d.status==='pending'?`
+                    <button class="action-btn approve" onclick="approveDeposit('${d.id}')"><i class="fa-solid fa-check"></i></button>
+                    <button class="action-btn reject" onclick="openRejectModal('deposit','${d.id}')"><i class="fa-solid fa-times"></i></button>
+                `:`<span class="text-muted">${d.status||'Done'}</span>`}</td>
+            </tr>`).join('');
         }
-
         function filterDeposits() { renderDeposits(); }
 
-        // ============================================================
-        // RENDER ADS
-        // ============================================================
         function renderAds() {
-            const search = document.getElementById('adsSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('adsFilter')?.value || 'all';
-
+            const search = document.getElementById('adsSearch')?.value?.toLowerCase()||'';
+            const filter = document.getElementById('adsFilter')?.value||'all';
             let filtered = allData.ads;
-            if (filter === 'pending') filtered = filtered.filter(a => a.approved === false || a.approved === undefined);
-            else if (filter !== 'all') filtered = filtered.filter(a => a.status === filter);
-            if (search) filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
-            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
+            if (filter==='pending') filtered = filtered.filter(a => a.approved===false || a.approved===undefined);
+            else if (filter!=='all') filtered = filtered.filter(a => a.status===filter);
+            if (search) filtered = filtered.filter(a => (a.title||'').toLowerCase().includes(search));
+            filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
             document.getElementById('adsCountTitle').textContent = filtered.length;
             const tbody = document.getElementById('adsBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads found</p></div></td></tr>`;
-                return;
-            }
-
+            if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads</p></div></td></tr>`; return; }
             tbody.innerHTML = filtered.map(ad => {
-                const views = ad.views || 0;
-                const totalViews = ad.totalViews || 100;
-                const progress = Math.min((views / totalViews) * 100, 100);
-                const isApproved = ad.approved || false;
-
-                let statusText = ad.status || 'pending';
-                let statusClass = statusText;
-                if (!isApproved) { statusText = 'Pending Approval'; statusClass = 'pending'; }
-
-                return `
-                    <tr>
-                        <td><strong>${escapeHTML(ad.title || 'Untitled')}</strong></td>
-                        <td><span class="user-id">${escapeHTML(ad.createdBy || 'Unknown')}</span></td>
-                        <td>${views}/${totalViews} (${Math.round(progress)}%)</td>
-                        <td>$${ad.reward?.toFixed(3) || '0.001'}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>
-                            ${!isApproved ? `
-                                <button class="action-btn approve" onclick="approveAd('${ad.id}')"><i class="fa-solid fa-check"></i></button>
-                                <button class="action-btn reject" onclick="openRejectModal('ad','${ad.id}')"><i class="fa-solid fa-times"></i></button>
-                            ` : `
-                                <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
-                                <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
-                                <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">${ad.status === 'active' ? '⏸' : '▶️'}</button>
-                                <button class="action-btn detail" onclick="viewAdDetails('${ad.id}')"><i class="fa-solid fa-eye"></i></button>
-                            `}
-                        </td>
-                    </tr>
-                `;
+                const views = ad.views||0, total = ad.totalViews||100, progress = Math.min((views/total)*100,100), isApproved = ad.approved||false;
+                let statusText = ad.status||'pending', statusClass = statusText;
+                if (!isApproved) { statusText='Pending Approval'; statusClass='pending'; }
+                return `<tr>
+                    <td><strong>${escapeHTML(ad.title||'Untitled')}</strong></td>
+                    <td><span class="user-id">${escapeHTML(ad.createdBy||'Unknown')}</span></td>
+                    <td>${views}/${total} (${Math.round(progress)}%)</td>
+                    <td>$${ad.reward?.toFixed(3)||'0.001'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${!isApproved?`
+                        <button class="action-btn approve" onclick="approveAd('${ad.id}')"><i class="fa-solid fa-check"></i></button>
+                        <button class="action-btn reject" onclick="openRejectModal('ad','${ad.id}')"><i class="fa-solid fa-times"></i></button>
+                    `:`
+                        <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">${ad.status==='active'?'⏸':'▶️'}</button>
+                        <button class="action-btn detail" onclick="viewAdDetails('${ad.id}')"><i class="fa-solid fa-eye"></i></button>
+                    `}</td>
+                </tr>`;
             }).join('');
         }
-
         function filterAdsTable() { renderAds(); }
 
-        // ============================================================
-        // RENDER USERS (with Ban/Unban & Chat)
-        // ============================================================
         function renderUsers() {
-            const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
+            const search = document.getElementById('usersSearch')?.value?.toLowerCase()||'';
             let filtered = allData.users;
-            if (search) filtered = filtered.filter(u =>
-                (u.name || '').toLowerCase().includes(search) ||
-                (u.id || '').toLowerCase().includes(search)
-            );
-            filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
-
+            if (search) filtered = filtered.filter(u => (u.name||'').toLowerCase().includes(search) || (u.id||'').toLowerCase().includes(search));
+            filtered.sort((a,b) => (b.balance||0) - (a.balance||0));
             document.getElementById('usersCountTitle').textContent = filtered.length;
             const tbody = document.getElementById('usersBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users found</p></div></td></tr>`;
-                return;
-            }
-
+            if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users</p></div></td></tr>`; return; }
             tbody.innerHTML = filtered.map(u => {
-                const isBanned = u.banned === true;
-                return `
-                    <tr>
-                        <td><strong>${escapeHTML(u.name || 'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username || 'N/A')}</span></td>
-                        <td><span class="user-id">${escapeHTML(u.id || '')}</span></td>
-                        <td><strong>$${(u.balance || 0).toFixed(3)}</strong></td>
-                        <td>$${(u.walletBalance || 0).toFixed(3)}</td>
-                        <td>${u.adCount || 0}</td>
-                        <td><span class="status-badge ${isBanned ? 'banned' : 'active-user'}">${isBanned ? '🚫 Banned' : '✅ Active'}</span></td>
-                        <td>
-                            <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
-                            <button class="action-btn chat" onclick="openChat('${u.id}')"><i class="fa-solid fa-comment"></i></button>
-                            ${isBanned ? 
-                                `<button class="action-btn unban" onclick="unbanUser('${u.id}')"><i class="fa-solid fa-check"></i></button>` :
-                                `<button class="action-btn ban" onclick="banUser('${u.id}')"><i class="fa-solid fa-ban"></i></button>`
-                            }
-                        </td>
-                    </tr>
-                `;
+                const isBanned = u.banned===true;
+                return `<tr>
+                    <td><strong>${escapeHTML(u.name||'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username||'N/A')}</span></td>
+                    <td><span class="user-id">${escapeHTML(u.id||'')}</span></td>
+                    <td><strong>$${(u.balance||0).toFixed(3)}</strong></td>
+                    <td>$${(u.walletBalance||0).toFixed(3)}</td>
+                    <td>${u.adCount||0}</td>
+                    <td><span class="status-badge ${isBanned?'banned':'active-user'}">${isBanned?'🚫 Banned':'✅ Active'}</span></td>
+                    <td>
+                        <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
+                        ${isBanned?`<button class="action-btn unban" onclick="unbanUser('${u.id}')"><i class="fa-solid fa-check"></i></button>`:`<button class="action-btn ban" onclick="banUser('${u.id}')"><i class="fa-solid fa-ban"></i></button>`}
+                    </td>
+                </tr>`;
             }).join('');
         }
-
         function filterUsers() { renderUsers(); }
 
-        // ============================================================
-        // BAN / UNBAN USER
-        // ============================================================
-        async function banUser(userId) {
-            if (!confirm('Are you sure you want to BAN this user? They will not be able to use the app.')) return;
-            try {
-                await firebaseDb.ref(`users/${userId}/banned`).set(true);
-                showToast('✅ User banned successfully!', 'success');
-                renderUsers();
-            } catch (e) {
-                showToast('❌ Failed to ban user', 'error');
-            }
-        }
-
-        async function unbanUser(userId) {
-            if (!confirm('Unban this user?')) return;
-            try {
-                await firebaseDb.ref(`users/${userId}/banned`).set(false);
-                showToast('✅ User unbanned successfully!', 'success');
-                renderUsers();
-            } catch (e) {
-                showToast('❌ Failed to unban user', 'error');
-            }
-        }
-
-        // ============================================================
-        // CHAT SYSTEM
-        // ============================================================
-        function openChat(userId) {
-            currentChatUserId = userId;
-            const user = allData.users.find(u => u.id === userId);
-            if (!user) return;
-
-            showModal(
-                `💬 Chat with ${escapeHTML(user.name || 'User')}`,
-                `
-                <div id="chatMessages" class="chat-container"></div>
-                <div class="chat-input-group">
-                    <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-                    <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-                </div>
-                `,
-                `<button class="btn-secondary" onclick="closeChat()">Close</button>`
-            );
-
-            // Load chat messages
-            if (chatListener) chatListener();
-            chatListener = firebaseDb.ref(`chats/${userId}`).on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                const messages = Object.entries(data).map(([id, msg]) => ({ id, ...msg }));
-                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                
-                const container = document.getElementById('chatMessages');
-                if (!container) return;
-
-                if (messages.length === 0) {
-                    container.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`;
-                    return;
-                }
-
-                container.innerHTML = messages.map(msg => `
-                    <div class="chat-message ${msg.sender === 'admin' ? 'admin' : 'user'}">
-                        ${escapeHTML(msg.text)}
-                        <span class="time">${new Date(msg.timestamp).toLocaleTimeString()}</span>
-                    </div>
-                `).join('');
-                container.scrollTop = container.scrollHeight;
-            });
-        }
-
-        function closeChat() {
-            if (chatListener) {
-                chatListener();
-                chatListener = null;
-            }
-            currentChatUserId = null;
-            closeModal();
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !currentChatUserId) return;
-
-            try {
-                await firebaseDb.ref(`chats/${currentChatUserId}`).push({
-                    text: text,
-                    sender: 'admin',
-                    timestamp: Date.now()
-                });
-                input.value = '';
-            } catch (e) {
-                showToast('❌ Failed to send message', 'error');
-            }
-        }
-
-        // ============================================================
-        // RENDER VERIFICATIONS - WITH LINK PREVIEW
-        // ============================================================
         function renderVerifications() {
-            const items = allData.verifications.filter(v => v.status === 'pending');
+            const items = allData.verifications.filter(v => v.status==='pending');
             document.getElementById('verificationCountTitle').textContent = items.length;
             const tbody = document.getElementById('verificationsBody');
-
-            if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`;
-                return;
-            }
-
+            if (!items.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`; return; }
             tbody.innerHTML = items.map(v => {
-                const ad = allData.ads.find(a => a.id === v.adId);
-                const adLink = ad?.link || ad?.desc || 'No link provided';
-                const linkPreview = adLink.match(/https?:\/\/[^\s]+/g) || [];
-
-                return `
-                    <tr>
-                        <td><strong>${escapeHTML(v.userName || 'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId || '')}</span></td>
-                        <td><span class="user-id">${escapeHTML(v.adId || '')}</span></td>
-                        <td>${escapeHTML(v.adTitle || 'N/A')}</td>
-                        <td>
-                            ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}
-                        </td>
-                        <td>
-                            <div class="link-preview">
-                                ${linkPreview.length > 0 ? linkPreview.map(l => `<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>') : escapeHTML(adLink.substring(0, 60))}
-                            </div>
-                        </td>
-                        <td><span class="status-badge pending">Pending</span></td>
-                        <td>
-                            <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('verification','${v.id}')"><i class="fa-solid fa-times"></i></button>
-                            <button class="action-btn detail" onclick="viewVerificationDetails('${v.id}')"><i class="fa-solid fa-eye"></i></button>
-                        </td>
-                    </tr>
-                `;
+                const ad = allData.ads.find(a => a.id===v.adId);
+                const adLink = ad?.link||ad?.desc||'No link';
+                const links = adLink.match(/https?:\/\/[^\s]+/g)||[];
+                return `<tr>
+                    <td><strong>${escapeHTML(v.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId||'')}</span></td>
+                    <td><span class="user-id">${escapeHTML(v.adId||'')}</span></td>
+                    <td>${escapeHTML(v.adTitle||'N/A')}</td>
+                    <td>${v.screenshot?`<a href="${v.screenshot}" target="_blank" style="color:var(--primary);"><i class="fa-solid fa-image"></i> View</a>`:'No image'}</td>
+                    <td><div class="link-preview">${links.length?links.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join('<br>'):escapeHTML(adLink.substring(0,60))}</div></td>
+                    <td><span class="status-badge pending">Pending</span></td>
+                    <td>
+                        <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
+                        <button class="action-btn reject" onclick="openRejectModal('verification','${v.id}')"><i class="fa-solid fa-times"></i></button>
+                        <button class="action-btn detail" onclick="viewVerificationDetails('${v.id}')"><i class="fa-solid fa-eye"></i></button>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
-        // ============================================================
-        // VIEW VERIFICATION DETAILS
-        // ============================================================
-        function viewVerificationDetails(id) {
-            const v = allData.verifications.find(item => item.id === id);
-            if (!v) return;
-
-            const ad = allData.ads.find(a => a.id === v.adId);
-            const adLink = ad?.link || ad?.desc || 'No link provided';
-            const linkPreview = adLink.match(/https?:\/\/[^\s]+/g) || [];
-
-            showModal(
-                '📸 Verification Details',
-                `
-                <div style="display:grid; gap:12px; font-size:14px;">
-                    <div><strong>User:</strong> ${escapeHTML(v.userName || 'Unknown')}</div>
-                    <div><strong>User ID:</strong> <span class="user-id">${escapeHTML(v.userId)}</span></div>
-                    <div><strong>Ad ID:</strong> <span class="user-id">${escapeHTML(v.adId)}</span></div>
-                    <div><strong>Title:</strong> ${escapeHTML(v.adTitle || 'N/A')}</div>
-                    <div><strong>Description:</strong> ${escapeHTML(v.adDescription || 'N/A')}</div>
-                    <div><strong>Link Preview:</strong></div>
-                    <div class="link-preview">
-                        ${linkPreview.length > 0 ? linkPreview.map(l => `<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>') : escapeHTML(adLink)}
-                    </div>
-                    <div><strong>Screenshot:</strong> ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--primary);">View Screenshot</a>` : 'No image'}</div>
-                    <div><strong>Created:</strong> ${new Date(v.createdAt).toLocaleString()}</div>
-                </div>
-                `,
-                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
-            );
-        }
-
-        // ============================================================
-        // VIEW AD DETAILS (with link preview)
-        // ============================================================
-        function viewAdDetails(id) {
-            const ad = allData.ads.find(a => a.id === id);
-            if (!ad) return;
-
-            const descWithLinks = (ad.desc || '').replace(
-                /(https?:\/\/[^\s]+)/g,
-                '<a href="$1" target="_blank" rel="noopener" style="color:var(--primary);">$1</a>'
-            );
-
-            showModal(
-                '📢 Ad Details',
-                `
-                <div style="display:grid; gap:10px; font-size:14px;">
-                    <div><strong>Title:</strong> ${escapeHTML(ad.title || 'Untitled')}</div>
-                    <div><strong>Creator:</strong> ${escapeHTML(ad.creatorName || 'Unknown')}</div>
-                    <div><strong>Creator ID:</strong> <span class="user-id">${escapeHTML(ad.createdBy || '')}</span></div>
-                    <div><strong>Category:</strong> ${escapeHTML(ad.category || 'General')}</div>
-                    <div><strong>Description:</strong></div>
-                    <div style="background:var(--bg); padding:10px; border-radius:8px; border:1px solid var(--border);">${descWithLinks || 'No description'}</div>
-                    <div><strong>Requirements:</strong> ${escapeHTML(ad.requirements || 'N/A')}</div>
-                    <div><strong>Instructions:</strong> ${escapeHTML(ad.instructions || 'N/A')}</div>
-                    <div><strong>Reward:</strong> $${ad.reward?.toFixed(3) || '0.001'}</div>
-                    <div><strong>Views:</strong> ${ad.views || 0}/${ad.totalViews || 100}</div>
-                    <div><strong>Budget:</strong> $${ad.budget?.toFixed(2) || '0.00'}</div>
-                    <div><strong>Duration:</strong> ${ad.duration || 7} days</div>
-                    <div><strong>Status:</strong> <span class="status-badge ${ad.status || 'pending'}">${ad.status || 'Pending'}</span></div>
-                    <div><strong>Approved:</strong> ${ad.approved ? '✅ Yes' : '❌ No'}</div>
-                    <div><strong>Created:</strong> ${new Date(ad.createdAt).toLocaleString()}</div>
-                    ${ad.imageUrl ? `<div><img src="${ad.imageUrl}" style="max-width:100%; max-height:150px; border-radius:8px; border:1px solid var(--border);"></div>` : ''}
-                </div>
-                `,
-                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
-            );
-        }
-
-        // ============================================================
-        // RENDER BONUS TASKS
-        // ============================================================
         function renderBonusTasks() {
             const container = document.getElementById('bonusTasksList');
             document.getElementById('bonusCountTitle').textContent = allData.bonusTasks.length;
+            if (!allData.bonusTasks.length) { container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`; return; }
+            container.innerHTML = allData.bonusTasks.map((t,i) => `
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-radius:10px;margin-bottom:8px;border:1px solid var(--border);">
+                    <div><div style="font-weight:600;">${escapeHTML(t.title)}</div><div style="font-size:12px;color:var(--text-light);">+$${t.reward?.toFixed(3)||'0.00'} | ${t.duration||10}s</div></div>
+                    <div><button class="action-btn edit" onclick="editBonusTask(${i})"><i class="fa-solid fa-pen"></i></button><button class="action-btn delete" onclick="deleteBonusTask(${i})"><i class="fa-solid fa-trash"></i></button></div>
+                </div>
+            `).join('');
+        }
 
-            if (allData.bonusTasks.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`;
-                return;
+        // ============================================================
+        // CHAT SYSTEM (Floating)
+        // ============================================================
+        function updateChatUsers() {
+            const select = document.getElementById('chatUserSelect');
+            if (!select) return;
+            const current = select.value;
+            select.innerHTML = `<option value="">-- Select User --</option>`;
+            allData.users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = `${u.name||'Unknown'} (@${u.username||'N/A'})`;
+                select.appendChild(opt);
+            });
+            if (current) select.value = current;
+        }
+
+        function updateChatBadge() {
+            const dot = document.getElementById('chatBadgeDot');
+            let hasUnread = false;
+            if (allData.chats) {
+                for (const userId in allData.chats) {
+                    const msgs = Object.values(allData.chats[userId]);
+                    const last = msgs[msgs.length-1];
+                    if (last && last.sender === 'user') { hasUnread = true; break; }
+                }
             }
+            dot.classList.toggle('show', hasUnread);
+        }
 
-            container.innerHTML = allData.bonusTasks.map((task, index) => `
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--bg); border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
-                    <div>
-                        <div style="font-weight:600; font-size:14px;">${escapeHTML(task.title)}</div>
-                        <div style="font-size:12px; color:var(--text-light);">+$${task.reward?.toFixed(3) || '0.00'} | ${task.duration || 10}s</div>
-                        <div style="font-size:11px; color:var(--text-light); word-break:break-all;">${escapeHTML(task.link || '')}</div>
+        function toggleChatFloat() {
+            const modal = document.getElementById('chatFloatModal');
+            isChatOpen = !isChatOpen;
+            modal.classList.toggle('active', isChatOpen);
+            if (isChatOpen) {
+                updateChatUsers();
+                loadChatMessages();
+            }
+        }
+
+        function loadChatMessages() {
+            const select = document.getElementById('chatUserSelect');
+            const userId = select.value;
+            const container = document.getElementById('chatMessagesContainer');
+            if (!userId) { container.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div>`; return; }
+            currentChatUserId = userId;
+            if (chatListener) chatListener();
+            chatListener = firebaseDb.ref(`chats/${userId}`).on('value', (snapshot) => {
+                const data = snapshot.val()||{};
+                const msgs = Object.entries(data).map(([id,msg])=> ({id,...msg}));
+                msgs.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+                if (!msgs.length) { container.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`; return; }
+                container.innerHTML = msgs.map(m => `
+                    <div class="msg ${m.sender==='admin'?'admin':'user'}">
+                        ${escapeHTML(m.text)}
+                        <span class="time">${new Date(m.timestamp).toLocaleTimeString()}</span>
                     </div>
-                    <div>
-                        <button class="action-btn edit" onclick="editBonusTask(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="deleteBonusTask(${index})"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+                container.scrollTop = container.scrollHeight;
+                // Mark as read when admin views
+                updateChatBadge();
+            });
         }
 
-        // ============================================================
-        // RENDER SETTINGS
-        // ============================================================
-        function renderWithdrawMethods() {
-            const container = document.getElementById('withdrawMethodsContainer');
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-
-            container.innerHTML = methods.map((method, index) => `
-                <div class="method-item">
-                    <span class="method-name">${escapeHTML(method)}</span>
-                    <div class="method-actions">
-                        <button class="action-btn edit btn-sm" onclick="editWithdrawMethod(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete btn-sm" onclick="deleteWithdrawMethod(${index})"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editWithdrawMethod(index) {
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            const current = methods[index];
-            showModal('Edit Withdrawal Method',
-                `<div class="form-group"><label>Method Name</label><input type="text" id="editWithdrawMethodInput" value="${escapeHTML(current)}"></div>`,
-                `<button class="btn-primary" onclick="saveWithdrawMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-            );
-        }
-
-        function saveWithdrawMethod(index) {
-            const newName = document.getElementById('editWithdrawMethodInput').value.trim();
-            if (!newName) { showToast('Please enter a method name', 'error'); return; }
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            methods[index] = newName;
-            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
-                closeModal();
-                showToast('✅ Updated!', 'success');
-                renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed', 'error'));
-        }
-
-        function deleteWithdrawMethod(index) {
-            if (!confirm('Delete this withdrawal method?')) return;
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            methods.splice(index, 1);
-            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
-                showToast('✅ Deleted!', 'success');
-                renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed', 'error'));
-        }
-
-        function addWithdrawMethod() {
-            const input = document.getElementById('newWithdrawMethod');
-            const name = input.value.trim();
-            if (!name) { showToast('Please enter a method name', 'error'); return; }
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            methods.push(name);
-            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => {
+        async function sendChatMessageFloat() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !currentChatUserId) return;
+            try {
+                await firebaseDb.ref(`chats/${currentChatUserId}`).push({ text, sender: 'admin', timestamp: Date.now() });
                 input.value = '';
-                showToast('✅ Added!', 'success');
-                renderWithdrawMethods();
-            }).catch(() => showToast('❌ Failed', 'error'));
+                updateChatBadge();
+            } catch(e) { showToast('❌ Failed to send', 'error'); }
         }
-
-        function renderDepositMethodsSettings() {
-            const container = document.getElementById('depositMethodsContainer');
-            const methods = allData.adminConfig.depositMethods || [
-                { name: 'Bikash', number: '01712345678', icon: '💳' },
-                { name: 'Nogad', number: '01712345678', icon: '📱' },
-                { name: 'Bank', number: '1234567890', icon: '🏦' }
-            ];
-
-            container.innerHTML = methods.map((method, index) => `
-                <div class="method-item">
-                    <div class="flex-center">
-                        <span class="method-icon">${method.icon || '💰'}</span>
-                        <span class="method-name">${escapeHTML(method.name)}</span>
-                        <span class="method-number">${escapeHTML(method.number)}</span>
-                    </div>
-                    <div class="method-actions">
-                        <button class="action-btn edit btn-sm" onclick="editDepositMethod(${index})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete btn-sm" onclick="deleteDepositMethod(${index})"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editDepositMethod(index) {
-            const methods = allData.adminConfig.depositMethods || [];
-            const current = methods[index] || { name: '', number: '', icon: '💰' };
-            showModal('Edit Deposit Method',
-                `
-                <div class="form-group"><label>Method Name</label><input type="text" id="editDepositName" value="${escapeHTML(current.name)}"></div>
-                <div class="form-group"><label>Number</label><input type="text" id="editDepositNumber" value="${escapeHTML(current.number)}"></div>
-                <div class="form-group"><label>Icon (emoji)</label><input type="text" id="editDepositIcon" value="${escapeHTML(current.icon || '💰')}"></div>
-                `,
-                `<button class="btn-primary" onclick="saveDepositMethod(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-            );
-        }
-
-        function saveDepositMethod(index) {
-            const name = document.getElementById('editDepositName').value.trim();
-            const number = document.getElementById('editDepositNumber').value.trim();
-            const icon = document.getElementById('editDepositIcon').value.trim() || '💰';
-            if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
-            const methods = allData.adminConfig.depositMethods || [];
-            methods[index] = { name, number, icon };
-            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
-                closeModal();
-                showToast('✅ Updated!', 'success');
-                renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed', 'error'));
-        }
-
-        function deleteDepositMethod(index) {
-            if (!confirm('Delete this deposit method?')) return;
-            const methods = allData.adminConfig.depositMethods || [];
-            methods.splice(index, 1);
-            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
-                showToast('✅ Deleted!', 'success');
-                renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed', 'error'));
-        }
-
-        function addDepositMethod() {
-            const name = document.getElementById('newDepositMethodName').value.trim();
-            const number = document.getElementById('newDepositMethodNumber').value.trim();
-            const icon = document.getElementById('newDepositMethodIcon').value.trim() || '💰';
-            if (!name || !number) { showToast('Please fill all fields', 'error'); return; }
-            const methods = allData.adminConfig.depositMethods || [];
-            methods.push({ name, number, icon });
-            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => {
-                document.getElementById('newDepositMethodName').value = '';
-                document.getElementById('newDepositMethodNumber').value = '';
-                document.getElementById('newDepositMethodIcon').value = '';
-                showToast('✅ Added!', 'success');
-                renderDepositMethodsSettings();
-            }).catch(() => showToast('❌ Failed', 'error'));
-        }
-
-        // ============================================================
-        // LOAD SETTINGS
-        // ============================================================
-        function loadSettings() {
-            const config = allData.adminConfig;
-            document.getElementById('settingAdReward').value = config.adReward || 0.001;
-            document.getElementById('settingDailyLimit').value = config.dailyLimit || 15;
-            document.getElementById('settingMinWithdraw').value = config.minWithdraw || 0.10;
-            document.getElementById('settingMinDeposit').value = config.minDeposit || 10;
-            document.getElementById('settingCooldown').value = config.cooldown || 30;
-            document.getElementById('settingReferralReward').value = config.referralReward || 0.01;
-            document.getElementById('settingWelcomeTitle').value = config.welcomeTitle || 'Welcome to NexEarn! 🎉';
-            document.getElementById('settingWelcomeMsg').value = config.welcomeMessage || 'Please follow the rules to ensure you receive your payment.';
-            document.getElementById('settingMinBudget').value = config.minBudget || 1.00;
-            document.getElementById('settingMinDuration').value = config.minDuration || 7;
-        }
-
-        // ============================================================
-        // SETTINGS FORM
-        // ============================================================
-        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const settings = {
-                adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
-                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
-                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
-                minDeposit: parseInt(document.getElementById('settingMinDeposit').value) || 10,
-                cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
-                referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
-                welcomeTitle: document.getElementById('settingWelcomeTitle').value || 'Welcome to NexEarn! 🎉',
-                welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
-                minBudget: parseFloat(document.getElementById('settingMinBudget').value) || 1.00,
-                minDuration: parseInt(document.getElementById('settingMinDuration').value) || 7
-            };
-            try {
-                await firebaseDb.ref('adminConfig').update(settings);
-                showToast('✅ Settings saved!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to save', 'error');
-            }
-        });
-
-        // ============================================================
-        // BONUS FORM
-        // ============================================================
-        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const task = {
-                id: Date.now().toString(),
-                title: document.getElementById('bonusTitle').value.trim(),
-                link: document.getElementById('bonusLink').value.trim(),
-                reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
-                duration: parseInt(document.getElementById('bonusDuration').value) || 10
-            };
-            if (!task.title || !task.link) { showToast('❌ Please fill all fields', 'error'); return; }
-            try {
-                allData.bonusTasks.push(task);
-                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                this.reset();
-                showToast('✅ Bonus task added!', 'success');
-            } catch (e) {
-                showToast('❌ Failed to add', 'error');
-            }
-        });
 
         // ============================================================
         // ACTIONS
         // ============================================================
+        async function approveWithdrawal(id) { if (!confirm('Approve?')) return; try { await firebaseDb.ref(`withdrawals/${id}/status`).set('Approved'); showToast('✅ Approved','success'); } catch(e){ showToast('❌ Failed','error'); } }
+        async function approveDeposit(id) { if (!confirm('Approve deposit?')) return; try { const snap=await firebaseDb.ref(`deposits/${id}`).once('value'); const d=snap.val(); if(!d)return; await firebaseDb.ref(`deposits/${id}/status`).set('approved'); await firebaseDb.ref(`users/${d.userId}/walletBalance`).transaction(c=>(c||0)+d.amount/100); showToast('✅ Deposit approved','success'); } catch(e){ showToast('❌ Failed','error'); } }
+        async function approveAd(id) { if (!confirm('Approve ad?')) return; try { await firebaseDb.ref(`ads/${id}/approved`).set(true); showToast('✅ Ad approved','success'); } catch(e){ showToast('❌ Failed','error'); } }
+        async function deleteAd(id) { if (!confirm('Delete ad?')) return; try { await firebaseDb.ref(`ads/${id}`).remove(); showToast('✅ Deleted','success'); } catch(e){ showToast('❌ Failed','error'); } }
+        async function toggleAdStatus(id) { try { const snap=await firebaseDb.ref(`ads/${id}`).once('value'); const ad=snap.val(); if(!ad)return; const ns=ad.status==='active'?'paused':'active'; await firebaseDb.ref(`ads/${id}/status`).set(ns); showToast(`✅ ${ns}`,'success'); } catch(e){ showToast('❌ Failed','error'); } }
+        async function banUser(id) { if (!confirm('Ban user?')) return; try { await firebaseDb.ref(`users/${id}/banned`).set(true); showToast('✅ Banned','success'); renderUsers(); } catch(e){ showToast('❌ Failed','error'); } }
+        async function unbanUser(id) { if (!confirm('Unban user?')) return; try { await firebaseDb.ref(`users/${id}/banned`).set(false); showToast('✅ Unbanned','success'); renderUsers(); } catch(e){ showToast('❌ Failed','error'); } }
+        async function approveVerification(id) { if (!confirm('Approve verification?')) return; try { const snap=await firebaseDb.ref(`verifications/${id}`).once('value'); const d=snap.val(); if(!d)return; await firebaseDb.ref(`verifications/${id}/status`).set('approved'); const adSnap=await firebaseDb.ref(`ads/${d.adId}`).once('value'); const ad=adSnap.val(); if(ad) await firebaseDb.ref(`users/${d.userId}/balance`).transaction(c=>(c||0)+ad.reward); await firebaseDb.ref(`ads/${d.adId}/verified`).set(true); showToast('✅ Verified','success'); } catch(e){ showToast('❌ Failed','error'); } }
 
-        // Withdrawals
-        async function approveWithdrawal(id) {
-            if (!confirm('Approve this withdrawal?')) return;
-            try {
-                await firebaseDb.ref(`withdrawals/${id}/status`).set('Approved');
-                showToast('✅ Withdrawal approved!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // Deposits
-        async function approveDeposit(id) {
-            if (!confirm('Approve this deposit?')) return;
-            try {
-                const snapshot = await firebaseDb.ref(`deposits/${id}`).once('value');
-                const data = snapshot.val();
-                if (!data) return;
-                await firebaseDb.ref(`deposits/${id}/status`).set('approved');
-                const amount = data.amount / 100;
-                await firebaseDb.ref(`users/${data.userId}/walletBalance`).transaction((current) => (current || 0) + amount);
-                showToast('✅ Deposit approved!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // Ads
-        async function approveAd(id) {
-            if (!confirm('Approve this ad?')) return;
-            try {
-                await firebaseDb.ref(`ads/${id}/approved`).set(true);
-                showToast('✅ Ad approved!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        async function deleteAd(id) {
-            if (!confirm('Delete this ad?')) return;
-            try {
-                await firebaseDb.ref(`ads/${id}`).remove();
-                showToast('✅ Ad deleted!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        async function toggleAdStatus(id) {
-            try {
-                const snapshot = await firebaseDb.ref(`ads/${id}`).once('value');
-                const ad = snapshot.val();
-                if (!ad) return;
-                const newStatus = ad.status === 'active' ? 'paused' : 'active';
-                await firebaseDb.ref(`ads/${id}/status`).set(newStatus);
-                showToast(`✅ Ad ${newStatus === 'active' ? 'activated' : 'paused'}!`, 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        async function editAd(id) {
-            const snapshot = await firebaseDb.ref(`ads/${id}`).once('value');
-            const ad = snapshot.val();
-            if (!ad) return;
-
-            showModal('✏️ Edit Ad',
-                `
-                <div class="form-group"><label>Title</label><input type="text" id="editAdTitle" value="${escapeHTML(ad.title || '')}"></div>
-                <div class="form-group"><label>Description</label><textarea id="editAdDesc">${escapeHTML(ad.desc || '')}</textarea></div>
-                <div class="form-group"><label>Link (in description)</label><input type="url" id="editAdLink" value="${escapeHTML(ad.link || '')}"></div>
-                <div class="form-group"><label>Requirements</label><textarea id="editAdRequirements">${escapeHTML(ad.requirements || '')}</textarea></div>
-                <div class="form-group"><label>Instructions</label><textarea id="editAdInstructions">${escapeHTML(ad.instructions || '')}</textarea></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Reward ($)</label><input type="number" id="editAdReward" step="0.001" value="${ad.reward || 0.001}"></div>
-                    <div class="form-group"><label>Total Views</label><input type="number" id="editAdViews" value="${ad.totalViews || 100}"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Duration (Days)</label><input type="number" id="editAdDuration" value="${ad.duration || 7}"></div>
-                    <div class="form-group"><label>Status</label>
-                        <select id="editAdStatus">
-                            <option value="active" ${ad.status === 'active' ? 'selected' : ''}>Active</option>
-                            <option value="paused" ${ad.status === 'paused' ? 'selected' : ''}>Paused</option>
-                            <option value="expired" ${ad.status === 'expired' ? 'selected' : ''}>Expired</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group"><label>Budget ($)</label><input type="number" id="editAdBudget" step="0.01" value="${ad.budget || 1.00}"></div>
-                `,
-                `<button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
+        // ============================================================
+        // REJECT WITH REASON
+        // ============================================================
+        let rejectContext = { type:'', id:'' };
+        function openRejectModal(type, id) {
+            rejectContext={type,id};
+            showModal('❌ Reject with Reason',
+                `<div class="form-group"><label>Reason *</label><textarea id="rejectReasonInput" placeholder="Explain why..." rows="4" required></textarea></div>`,
+                `<button class="btn-danger" onclick="confirmReject()"><i class="fa-solid fa-times"></i> Reject</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
             );
         }
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason || reason.length<3) { showToast('❌ Reason required (min 3 chars)','error'); return; }
+            const {type,id}=rejectContext; if(!id||!type) return;
+            try {
+                if (type==='withdrawal') await firebaseDb.ref(`withdrawals/${id}`).update({status:'Rejected', rejectReason:reason});
+                else if (type==='deposit') await firebaseDb.ref(`deposits/${id}`).update({status:'rejected', rejectReason:reason});
+                else if (type==='ad') await firebaseDb.ref(`ads/${id}`).update({status:'rejected', rejectReason:reason});
+                else if (type==='verification') await firebaseDb.ref(`verifications/${id}`).update({status:'rejected', rejectReason:reason});
+                closeModal(); showToast('❌ Rejected','error');
+            } catch(e) { showToast('❌ Failed','error'); }
+        }
 
+        // ============================================================
+        // EDIT AD
+        // ============================================================
+        async function editAd(id) {
+            const snap=await firebaseDb.ref(`ads/${id}`).once('value'); const ad=snap.val(); if(!ad)return;
+            showModal('✏️ Edit Ad',`
+                <div class="form-group"><label>Title</label><input type="text" id="editAdTitle" value="${escapeHTML(ad.title||'')}"></div>
+                <div class="form-group"><label>Description</label><textarea id="editAdDesc">${escapeHTML(ad.desc||'')}</textarea></div>
+                <div class="form-group"><label>Link</label><input type="url" id="editAdLink" value="${escapeHTML(ad.link||'')}"></div>
+                <div class="form-group"><label>Requirements</label><textarea id="editAdRequirements">${escapeHTML(ad.requirements||'')}</textarea></div>
+                <div class="form-group"><label>Instructions</label><textarea id="editAdInstructions">${escapeHTML(ad.instructions||'')}</textarea></div>
+                <div class="form-row"><div class="form-group"><label>Reward ($)</label><input type="number" id="editAdReward" step="0.001" value="${ad.reward||0.001}"></div>
+                <div class="form-group"><label>Total Views</label><input type="number" id="editAdViews" value="${ad.totalViews||100}"></div></div>
+                <div class="form-row"><div class="form-group"><label>Duration (Days)</label><input type="number" id="editAdDuration" value="${ad.duration||7}"></div>
+                <div class="form-group"><label>Status</label><select id="editAdStatus"><option value="active" ${ad.status==='active'?'selected':''}>Active</option><option value="paused" ${ad.status==='paused'?'selected':''}>Paused</option><option value="expired" ${ad.status==='expired'?'selected':''}>Expired</option></select></div></div>
+                <div class="form-group"><label>Budget ($)</label><input type="number" id="editAdBudget" step="0.01" value="${ad.budget||1.00}"></div>
+            `, `<button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`);
+        }
         async function saveAd(id) {
             const data = {
                 title: document.getElementById('editAdTitle').value,
@@ -2160,222 +1239,240 @@
                 link: document.getElementById('editAdLink').value,
                 requirements: document.getElementById('editAdRequirements').value,
                 instructions: document.getElementById('editAdInstructions').value,
-                reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
-                totalViews: parseInt(document.getElementById('editAdViews').value) || 100,
-                duration: parseInt(document.getElementById('editAdDuration').value) || 7,
+                reward: parseFloat(document.getElementById('editAdReward').value)||0.001,
+                totalViews: parseInt(document.getElementById('editAdViews').value)||100,
+                duration: parseInt(document.getElementById('editAdDuration').value)||7,
                 status: document.getElementById('editAdStatus').value,
-                budget: parseFloat(document.getElementById('editAdBudget').value) || 1.00
+                budget: parseFloat(document.getElementById('editAdBudget').value)||1.00
             };
-            if (data.duration) data.endDate = Date.now() + (data.duration * 24 * 60 * 60 * 1000);
-            try {
-                await firebaseDb.ref(`ads/${id}`).update(data);
-                closeModal();
-                showToast('✅ Ad updated!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
+            if (data.duration) data.endDate = Date.now() + data.duration*24*60*60*1000;
+            try { await firebaseDb.ref(`ads/${id}`).update(data); closeModal(); showToast('✅ Updated','success'); } catch(e){ showToast('❌ Failed','error'); }
         }
 
-        // Users
+        // ============================================================
+        // EDIT USER
+        // ============================================================
         async function editUser(id) {
-            const snapshot = await firebaseDb.ref(`users/${id}`).once('value');
-            const user = snapshot.val();
-            if (!user) return;
-
-            showModal('✏️ Edit User',
-                `
-                <div class="form-group"><label>Name</label><input type="text" id="editUserName" value="${escapeHTML(user.name || '')}"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Balance ($)</label><input type="number" id="editUserBalance" step="0.001" value="${user.balance || 0}"></div>
-                    <div class="form-group"><label>Wallet ($)</label><input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance || 0}"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Ads Watched</label><input type="number" id="editUserAds" value="${user.adCount || 0}"></div>
-                    <div class="form-group"><label>Role</label>
-                        <select id="editUserRole">
-                            <option value="publisher" ${user.userRole === 'publisher' ? 'selected' : ''}>Publisher</option>
-                            <option value="advertiser" ${user.userRole === 'advertiser' ? 'selected' : ''}>Advertiser</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="editUserStatus">
-                        <option value="active" ${!user.banned ? 'selected' : ''}>Active</option>
-                        <option value="banned" ${user.banned ? 'selected' : ''}>Banned</option>
-                    </select>
-                </div>
-                `,
-                `<button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-            );
+            const snap=await firebaseDb.ref(`users/${id}`).once('value'); const user=snap.val(); if(!user)return;
+            showModal('✏️ Edit User',`
+                <div class="form-group"><label>Name</label><input type="text" id="editUserName" value="${escapeHTML(user.name||'')}"></div>
+                <div class="form-row"><div class="form-group"><label>Balance ($)</label><input type="number" id="editUserBalance" step="0.001" value="${user.balance||0}"></div>
+                <div class="form-group"><label>Wallet ($)</label><input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance||0}"></div></div>
+                <div class="form-row"><div class="form-group"><label>Ads Watched</label><input type="number" id="editUserAds" value="${user.adCount||0}"></div>
+                <div class="form-group"><label>Role</label><select id="editUserRole"><option value="publisher" ${user.userRole==='publisher'?'selected':''}>Publisher</option><option value="advertiser" ${user.userRole==='advertiser'?'selected':''}>Advertiser</option></select></div></div>
+                <div class="form-group"><label>Status</label><select id="editUserStatus"><option value="active" ${!user.banned?'selected':''}>Active</option><option value="banned" ${user.banned?'selected':''}>Banned</option></select></div>
+            `, `<button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`);
         }
-
         async function saveUser(id) {
             const data = {
                 name: document.getElementById('editUserName').value,
-                balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
-                walletBalance: parseFloat(document.getElementById('editUserWallet').value) || 0,
-                adCount: parseInt(document.getElementById('editUserAds').value) || 0,
+                balance: parseFloat(document.getElementById('editUserBalance').value)||0,
+                walletBalance: parseFloat(document.getElementById('editUserWallet').value)||0,
+                adCount: parseInt(document.getElementById('editUserAds').value)||0,
                 userRole: document.getElementById('editUserRole').value,
-                banned: document.getElementById('editUserStatus').value === 'banned'
+                banned: document.getElementById('editUserStatus').value==='banned'
             };
-            try {
-                await firebaseDb.ref(`users/${id}`).update(data);
-                closeModal();
-                showToast('✅ User updated!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
+            try { await firebaseDb.ref(`users/${id}`).update(data); closeModal(); showToast('✅ Updated','success'); renderUsers(); } catch(e){ showToast('❌ Failed','error'); }
         }
 
         function viewUser(id) {
-            const user = allData.users.find(u => u.id === id);
-            if (!user) return;
-            showModal('👤 User Details',
-                `
-                <div style="display:grid; gap:8px; font-size:14px;">
-                    <div><strong>Name:</strong> ${escapeHTML(user.name || 'Unknown')}</div>
-                    <div><strong>Username:</strong> @${escapeHTML(user.username || 'N/A')}</div>
+            const user = allData.users.find(u=>u.id===id); if(!user)return;
+            showModal('👤 User Details',`
+                <div style="display:grid;gap:8px;font-size:14px;">
+                    <div><strong>Name:</strong> ${escapeHTML(user.name||'Unknown')}</div>
+                    <div><strong>Username:</strong> @${escapeHTML(user.username||'N/A')}</div>
                     <div><strong>ID:</strong> <span class="user-id">${escapeHTML(user.id)}</span></div>
-                    <div><strong>Balance:</strong> $${(user.balance || 0).toFixed(3)}</div>
-                    <div><strong>Wallet:</strong> $${(user.walletBalance || 0).toFixed(3)}</div>
-                    <div><strong>Ads Watched:</strong> ${user.adCount || 0}</div>
-                    <div><strong>Referrals:</strong> ${user.referrals || 0}</div>
-                    <div><strong>Role:</strong> ${user.userRole || 'Publisher'}</div>
-                    <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
+                    <div><strong>Balance:</strong> $${(user.balance||0).toFixed(3)}</div>
+                    <div><strong>Wallet:</strong> $${(user.walletBalance||0).toFixed(3)}</div>
+                    <div><strong>Ads:</strong> ${user.adCount||0}</div>
+                    <div><strong>Referrals:</strong> ${user.referrals||0}</div>
+                    <div><strong>Role:</strong> ${user.userRole||'Publisher'}</div>
+                    <div><strong>Status:</strong> ${user.banned?'🚫 Banned':'✅ Active'}</div>
                 </div>
-                `,
-                `<button class="btn-secondary" onclick="closeModal()">Close</button>`
-            );
+            `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
         }
 
-        // Verifications
-        async function approveVerification(id) {
-            if (!confirm('Approve this verification?')) return;
-            try {
-                const snapshot = await firebaseDb.ref(`verifications/${id}`).once('value');
-                const data = snapshot.val();
-                if (!data) return;
-                await firebaseDb.ref(`verifications/${id}/status`).set('approved');
-                const adSnapshot = await firebaseDb.ref(`ads/${data.adId}`).once('value');
-                const ad = adSnapshot.val();
-                if (ad) {
-                    await firebaseDb.ref(`users/${data.userId}/balance`).transaction((current) => (current || 0) + ad.reward);
-                }
-                await firebaseDb.ref(`ads/${data.adId}/verified`).set(true);
-                showToast('✅ Verification approved!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // ============================================================
-        // REJECT WITH REASON - FOR ALL TYPES
-        // ============================================================
-        let rejectContext = { type: '', id: '' };
-
-        function openRejectModal(type, id) {
-            rejectContext = { type, id };
-            showModal('❌ Reject with Reason',
-                `
-                <div class="form-group">
-                    <label>Rejection Reason *</label>
-                    <textarea id="rejectReasonInput" placeholder="Explain why this is being rejected..." rows="4" required></textarea>
+        function viewAdDetails(id) {
+            const ad = allData.ads.find(a=>a.id===id); if(!ad)return;
+            const desc = (ad.desc||'').replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" style="color:var(--primary);">$1</a>');
+            showModal('📢 Ad Details',`
+                <div style="display:grid;gap:10px;font-size:14px;">
+                    <div><strong>Title:</strong> ${escapeHTML(ad.title||'Untitled')}</div>
+                    <div><strong>Creator:</strong> ${escapeHTML(ad.creatorName||'Unknown')}</div>
+                    <div><strong>Category:</strong> ${escapeHTML(ad.category||'General')}</div>
+                    <div><strong>Description:</strong><div style="background:var(--bg);padding:10px;border-radius:8px;border:1px solid var(--border);">${desc||'No description'}</div></div>
+                    <div><strong>Reward:</strong> $${ad.reward?.toFixed(3)||'0.001'}</div>
+                    <div><strong>Views:</strong> ${ad.views||0}/${ad.totalViews||100}</div>
+                    <div><strong>Budget:</strong> $${ad.budget?.toFixed(2)||'0.00'}</div>
+                    <div><strong>Duration:</strong> ${ad.duration||7} days</div>
+                    <div><strong>Status:</strong> <span class="status-badge ${ad.status||'pending'}">${ad.status||'Pending'}</span></div>
+                    ${ad.imageUrl?`<div><img src="${ad.imageUrl}" style="max-width:100%;max-height:150px;border-radius:8px;border:1px solid var(--border);"></div>`:''}
                 </div>
-                `,
-                `<button class="btn-danger" onclick="confirmReject()"><i class="fa-solid fa-times"></i> Reject</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-            );
+            `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
         }
 
-        async function confirmReject() {
-            const reason = document.getElementById('rejectReasonInput').value.trim();
-            if (!reason || reason.length < 3) {
-                showToast('❌ Please provide a valid reason (min 3 characters)', 'error');
-                return;
-            }
-
-            const { type, id } = rejectContext;
-            if (!id || !type) { showToast('❌ Invalid context', 'error'); return; }
-
-            try {
-                if (type === 'withdrawal') {
-                    await firebaseDb.ref(`withdrawals/${id}/status`).set('Rejected');
-                    await firebaseDb.ref(`withdrawals/${id}/rejectReason`).set(reason);
-                } else if (type === 'deposit') {
-                    await firebaseDb.ref(`deposits/${id}/status`).set('rejected');
-                    await firebaseDb.ref(`deposits/${id}/rejectReason`).set(reason);
-                } else if (type === 'ad') {
-                    await firebaseDb.ref(`ads/${id}/status`).set('rejected');
-                    await firebaseDb.ref(`ads/${id}/rejectReason`).set(reason);
-                } else if (type === 'verification') {
-                    await firebaseDb.ref(`verifications/${id}/status`).set('rejected');
-                    await firebaseDb.ref(`verifications/${id}/rejectReason`).set(reason);
-                }
-                closeModal();
-                showToast('❌ Rejected with reason', 'error');
-            } catch (e) {
-                showToast('❌ Failed to reject', 'error');
-            }
+        function viewVerificationDetails(id) {
+            const v = allData.verifications.find(item=>item.id===id); if(!v)return;
+            const ad = allData.ads.find(a=>a.id===v.adId);
+            const adLink = ad?.link||ad?.desc||'No link';
+            const links = adLink.match(/https?:\/\/[^\s]+/g)||[];
+            showModal('📸 Verification Details',`
+                <div style="display:grid;gap:12px;font-size:14px;">
+                    <div><strong>User:</strong> ${escapeHTML(v.userName||'Unknown')}</div>
+                    <div><strong>Title:</strong> ${escapeHTML(v.adTitle||'N/A')}</div>
+                    <div><strong>Description:</strong> ${escapeHTML(v.adDescription||'N/A')}</div>
+                    <div><strong>Link Preview:</strong><div class="link-preview">${links.length?links.map(l=>`<a href="${l}" target="_blank">${l}</a>`).join('<br>'):escapeHTML(adLink)}</div></div>
+                    <div><strong>Screenshot:</strong> ${v.screenshot?`<a href="${v.screenshot}" target="_blank" style="color:var(--primary);">View</a>`:'No image'}</div>
+                    <div><strong>Created:</strong> ${new Date(v.createdAt).toLocaleString()}</div>
+                </div>
+            `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
         }
 
         // ============================================================
-        // BONUS TASK EDIT/DELETE
+        // BONUS TASKS EDIT/DELETE
         // ============================================================
         function editBonusTask(index) {
-            const task = allData.bonusTasks[index];
-            if (!task) return;
-
-            showModal('✏️ Edit Bonus Task',
-                `
-                <div class="form-group"><label>Title</label><input type="text" id="editBonusTitle" value="${escapeHTML(task.title || '')}"></div>
-                <div class="form-group"><label>Link</label><input type="url" id="editBonusLink" value="${escapeHTML(task.link || '')}"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Reward ($)</label><input type="number" id="editBonusReward" step="0.001" value="${task.reward || 0.01}"></div>
-                    <div class="form-group"><label>Duration (s)</label><input type="number" id="editBonusDuration" value="${task.duration || 10}"></div>
-                </div>
-                `,
-                `<button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button>
-                 <button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-            );
+            const task = allData.bonusTasks[index]; if(!task)return;
+            showModal('✏️ Edit Bonus',`
+                <div class="form-group"><label>Title</label><input type="text" id="editBonusTitle" value="${escapeHTML(task.title||'')}"></div>
+                <div class="form-group"><label>Link</label><input type="url" id="editBonusLink" value="${escapeHTML(task.link||'')}"></div>
+                <div class="form-row"><div class="form-group"><label>Reward ($)</label><input type="number" id="editBonusReward" step="0.001" value="${task.reward||0.01}"></div>
+                <div class="form-group"><label>Duration (s)</label><input type="number" id="editBonusDuration" value="${task.duration||10}"></div></div>
+            `, `<button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`);
         }
-
         async function saveBonusTask(index) {
             const data = {
-                id: allData.bonusTasks[index]?.id || Date.now().toString(),
+                id: allData.bonusTasks[index]?.id||Date.now().toString(),
                 title: document.getElementById('editBonusTitle').value,
                 link: document.getElementById('editBonusLink').value,
-                reward: parseFloat(document.getElementById('editBonusReward').value) || 0.01,
-                duration: parseInt(document.getElementById('editBonusDuration').value) || 10
+                reward: parseFloat(document.getElementById('editBonusReward').value)||0.01,
+                duration: parseInt(document.getElementById('editBonusDuration').value)||10
             };
-            try {
-                allData.bonusTasks[index] = data;
-                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                closeModal();
-                showToast('✅ Bonus task updated!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
+            try { allData.bonusTasks[index]=data; await firebaseDb.ref('bonusTasks').set(allData.bonusTasks); closeModal(); showToast('✅ Updated','success'); } catch(e){ showToast('❌ Failed','error'); }
+        }
+        async function deleteBonusTask(index) {
+            if (!confirm('Delete?')) return;
+            try { allData.bonusTasks.splice(index,1); await firebaseDb.ref('bonusTasks').set(allData.bonusTasks); showToast('✅ Deleted','success'); } catch(e){ showToast('❌ Failed','error'); }
         }
 
-        async function deleteBonusTask(index) {
-            if (!confirm('Delete this bonus task?')) return;
-            try {
-                allData.bonusTasks.splice(index, 1);
-                await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                showToast('✅ Deleted!', 'success');
-            } catch (e) { showToast('❌ Failed', 'error'); }
+        // ============================================================
+        // SETTINGS METHODS
+        // ============================================================
+        function renderWithdrawMethods() {
+            const container = document.getElementById('withdrawMethodsContainer');
+            const methods = allData.adminConfig.withdrawMethods||['Binance','Bikash','Nogad'];
+            container.innerHTML = methods.map((m,i)=>`
+                <div class="method-item"><span class="method-name">${escapeHTML(m)}</span>
+                <div class="method-actions">
+                    <button class="action-btn edit btn-sm" onclick="editWithdrawMethod(${i})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="action-btn delete btn-sm" onclick="deleteWithdrawMethod(${i})"><i class="fa-solid fa-trash"></i></button>
+                </div></div>
+            `).join('');
         }
+        function editWithdrawMethod(i) {
+            const methods = allData.adminConfig.withdrawMethods||['Binance','Bikash','Nogad'];
+            showModal('Edit Withdrawal Method',`<div class="form-group"><label>Name</label><input type="text" id="editWithdrawMethodInput" value="${escapeHTML(methods[i])}"></div>`,
+                `<button class="btn-primary" onclick="saveWithdrawMethod(${i})">Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
+            );
+        }
+        function saveWithdrawMethod(i) {
+            const val = document.getElementById('editWithdrawMethodInput').value.trim(); if(!val){ showToast('Please enter name','error'); return; }
+            const methods = allData.adminConfig.withdrawMethods||['Binance','Bikash','Nogad']; methods[i]=val;
+            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(()=>{ closeModal(); showToast('✅ Updated','success'); renderWithdrawMethods(); });
+        }
+        function deleteWithdrawMethod(i) { if(!confirm('Delete?'))return; const m=allData.adminConfig.withdrawMethods||['Binance','Bikash','Nogad']; m.splice(i,1); firebaseDb.ref('adminConfig/withdrawMethods').set(m).then(()=>{ showToast('✅ Deleted','success'); renderWithdrawMethods(); }); }
+        function addWithdrawMethod() {
+            const input=document.getElementById('newWithdrawMethod'); const val=input.value.trim(); if(!val)return;
+            const m=allData.adminConfig.withdrawMethods||['Binance','Bikash','Nogad']; m.push(val);
+            firebaseDb.ref('adminConfig/withdrawMethods').set(m).then(()=>{ input.value=''; showToast('✅ Added','success'); renderWithdrawMethods(); });
+        }
+
+        function renderDepositMethodsSettings() {
+            const container = document.getElementById('depositMethodsContainer');
+            const methods = allData.adminConfig.depositMethods||[{name:'Bikash',number:'01712345678',icon:'💳'}];
+            container.innerHTML = methods.map((m,i)=>`
+                <div class="method-item"><div class="flex-center"><span class="method-icon">${m.icon||'💰'}</span><span class="method-name">${escapeHTML(m.name)}</span><span class="method-number">${escapeHTML(m.number)}</span></div>
+                <div class="method-actions"><button class="action-btn edit btn-sm" onclick="editDepositMethod(${i})"><i class="fa-solid fa-pen"></i></button><button class="action-btn delete btn-sm" onclick="deleteDepositMethod(${i})"><i class="fa-solid fa-trash"></i></button></div></div>
+            `).join('');
+        }
+        function editDepositMethod(i) {
+            const methods = allData.adminConfig.depositMethods||[]; const cur=methods[i]||{name:'',number:'',icon:'💰'};
+            showModal('Edit Deposit Method',`
+                <div class="form-group"><label>Name</label><input type="text" id="editDepositName" value="${escapeHTML(cur.name)}"></div>
+                <div class="form-group"><label>Number</label><input type="text" id="editDepositNumber" value="${escapeHTML(cur.number)}"></div>
+                <div class="form-group"><label>Icon</label><input type="text" id="editDepositIcon" value="${escapeHTML(cur.icon||'💰')}"></div>
+            `, `<button class="btn-primary" onclick="saveDepositMethod(${i})">Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`);
+        }
+        function saveDepositMethod(i) {
+            const name=document.getElementById('editDepositName').value.trim(), number=document.getElementById('editDepositNumber').value.trim(), icon=document.getElementById('editDepositIcon').value.trim()||'💰';
+            if(!name||!number){ showToast('Fill all fields','error'); return; }
+            const methods=allData.adminConfig.depositMethods||[]; methods[i]={name,number,icon};
+            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(()=>{ closeModal(); showToast('✅ Updated','success'); renderDepositMethodsSettings(); });
+        }
+        function deleteDepositMethod(i) { if(!confirm('Delete?'))return; const m=allData.adminConfig.depositMethods||[]; m.splice(i,1); firebaseDb.ref('adminConfig/depositMethods').set(m).then(()=>{ showToast('✅ Deleted','success'); renderDepositMethodsSettings(); }); }
+        function addDepositMethod() {
+            const name=document.getElementById('newDepositMethodName').value.trim(), number=document.getElementById('newDepositMethodNumber').value.trim(), icon=document.getElementById('newDepositMethodIcon').value.trim()||'💰';
+            if(!name||!number){ showToast('Fill all fields','error'); return; }
+            const m=allData.adminConfig.depositMethods||[]; m.push({name,number,icon});
+            firebaseDb.ref('adminConfig/depositMethods').set(m).then(()=>{ document.getElementById('newDepositMethodName').value=''; document.getElementById('newDepositMethodNumber').value=''; document.getElementById('newDepositMethodIcon').value=''; showToast('✅ Added','success'); renderDepositMethodsSettings(); });
+        }
+
+        function loadSettings() {
+            const c=allData.adminConfig;
+            document.getElementById('settingAdReward').value = c.adReward||0.001;
+            document.getElementById('settingDailyLimit').value = c.dailyLimit||15;
+            document.getElementById('settingMinWithdraw').value = c.minWithdraw||0.10;
+            document.getElementById('settingMinDeposit').value = c.minDeposit||10;
+            document.getElementById('settingCooldown').value = c.cooldown||30;
+            document.getElementById('settingReferralReward').value = c.referralReward||0.01;
+            document.getElementById('settingWelcomeTitle').value = c.welcomeTitle||'Welcome to NexEarn! 🎉';
+            document.getElementById('settingWelcomeMsg').value = c.welcomeMessage||'Please follow the rules to ensure you receive your payment.';
+            document.getElementById('settingMinBudget').value = c.minBudget||1.00;
+            document.getElementById('settingMinDuration').value = c.minDuration||7;
+        }
+
+        // ============================================================
+        // FORMS
+        // ============================================================
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const settings = {
+                adReward: parseFloat(document.getElementById('settingAdReward').value)||0.001,
+                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value)||15,
+                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value)||0.10,
+                minDeposit: parseInt(document.getElementById('settingMinDeposit').value)||10,
+                cooldown: parseInt(document.getElementById('settingCooldown').value)||30,
+                referralReward: parseFloat(document.getElementById('settingReferralReward').value)||0.01,
+                welcomeTitle: document.getElementById('settingWelcomeTitle').value||'Welcome!',
+                welcomeMessage: document.getElementById('settingWelcomeMsg').value||'',
+                minBudget: parseFloat(document.getElementById('settingMinBudget').value)||1.00,
+                minDuration: parseInt(document.getElementById('settingMinDuration').value)||7
+            };
+            try { await firebaseDb.ref('adminConfig').update(settings); showToast('✅ Saved','success'); } catch(e){ showToast('❌ Failed','error'); }
+        });
+
+        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const task = { id: Date.now().toString(), title: document.getElementById('bonusTitle').value.trim(), link: document.getElementById('bonusLink').value.trim(), reward: parseFloat(document.getElementById('bonusReward').value)||0.01, duration: parseInt(document.getElementById('bonusDuration').value)||10 };
+            if(!task.title||!task.link){ showToast('Fill all fields','error'); return; }
+            try { allData.bonusTasks.push(task); await firebaseDb.ref('bonusTasks').set(allData.bonusTasks); this.reset(); showToast('✅ Added','success'); } catch(e){ showToast('❌ Failed','error'); }
+        });
 
         // ============================================================
         // TABS
         // ============================================================
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
             document.getElementById(`tab-${tab}`)?.classList.add('active');
-
-            if (tab === 'withdrawals') renderWithdrawals();
-            if (tab === 'deposits') renderDeposits();
-            if (tab === 'ads') renderAds();
-            if (tab === 'users') renderUsers();
-            if (tab === 'verifications') renderVerifications();
-            if (tab === 'bonus') renderBonusTasks();
-            if (tab === 'settings') { renderWithdrawMethods(); renderDepositMethodsSettings(); }
+            if (tab==='withdrawals') renderWithdrawals();
+            if (tab==='deposits') renderDeposits();
+            if (tab==='ads') renderAds();
+            if (tab==='users') renderUsers();
+            if (tab==='verifications') renderVerifications();
+            if (tab==='bonus') renderBonusTasks();
+            if (tab==='settings') { renderWithdrawMethods(); renderDepositMethodsSettings(); }
         }
 
         // ============================================================
@@ -2387,46 +1484,20 @@
             document.getElementById('modalActions').innerHTML = actions || '';
             document.getElementById('actionModal').classList.add('show');
         }
-
-        function closeModal() {
-            document.getElementById('actionModal').classList.remove('show');
-        }
-
-        document.getElementById('actionModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        function closeModal() { document.getElementById('actionModal').classList.remove('show'); }
+        document.getElementById('actionModal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 
         // ============================================================
         // TOAST
         // ============================================================
-        function showToast(message, type = 'info') {
-            const container = document.querySelector('.toast-container') || (() => {
-                const c = document.createElement('div');
-                c.className = 'toast-container';
-                document.body.appendChild(c);
-                return c;
-            })();
-
-            const icons = {
-                success: 'fa-check-circle',
-                error: 'fa-times-circle',
-                warning: 'fa-exclamation-triangle',
-                info: 'fa-info-circle'
-            };
-
+        function showToast(msg, type='info') {
+            const container = document.querySelector('.toast-container') || (() => { const c=document.createElement('div'); c.className='toast-container'; document.body.appendChild(c); return c; })();
+            const icons = { success:'fa-check-circle', error:'fa-times-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <span class="toast-icon"><i class="fa-solid ${icons[type] || icons.info}"></i></span>
-                <span>${message}</span>
-            `;
+            toast.innerHTML = `<span class="toast-icon"><i class="fa-solid ${icons[type]||icons.info}"></i></span><span>${msg}</span>`;
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => toast.remove(), 500);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; setTimeout(()=>toast.remove(),500); }, 3000);
         }
 
         // ============================================================
@@ -2436,38 +1507,25 @@
             const btn = document.getElementById('refreshBtn');
             btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Refreshing...';
             btn.disabled = true;
-            setTimeout(() => {
-                loadAllData();
-                btn.innerHTML = '<i class="fa-solid fa-sync"></i> Refresh';
-                btn.disabled = false;
-                showToast('🔄 Data refreshed!', 'success');
-            }, 1000);
+            setTimeout(() => { loadAllData(); btn.innerHTML='<i class="fa-solid fa-sync"></i> Refresh'; btn.disabled=false; showToast('🔄 Refreshed','success'); }, 1000);
         }
 
         // ============================================================
         // HELPERS
         // ============================================================
-        function escapeHTML(str) {
-            if (!str) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
+        function escapeHTML(str) { if(!str)return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
         // ============================================================
         // INIT
         // ============================================================
         function init() {
             if (!initFirebase()) {
-                document.querySelector('.stats-grid').innerHTML =
-                    `<div class="stat-card" style="grid-column:1/-1; text-align:center; padding:40px;">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; color:var(--danger);"></i>
-                        <p style="margin-top:10px;">Failed to connect to Firebase. Please check your internet connection.</p>
-                    </div>`;
+                document.querySelector('.stats-grid').innerHTML = `<div class="stat-card" style="grid-column:1/-1;text-align:center;padding:40px;"><i class="fa-solid fa-triangle-exclamation" style="font-size:30px;color:var(--danger);"></i><p style="margin-top:10px;">Failed to connect to Firebase.</p></div>`;
                 return;
             }
             loadAllData();
             showToast('✅ Admin panel loaded', 'success');
         }
-
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
