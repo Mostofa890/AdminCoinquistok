@@ -13,7 +13,7 @@
 
     <style>
         /* ================================================================
-               NEXEARN ADMIN - ULTRA MODERN SIDEBAR LAYOUT
+               NEXEARN ADMIN - ULTRA MODERN SIDEBAR LAYOUT WITH LIVE CHAT
             ================================================================ */
         * {
             margin: 0;
@@ -886,7 +886,7 @@
             opacity: 0.2;
         }
 
-        /* ===== CHAT FLOATING PANEL ===== */
+        /* ===== CHAT FLOATING PANEL - IMPROVED ===== */
         .chat-float {
             display: none;
             position: fixed;
@@ -895,7 +895,7 @@
             z-index: 3000;
             width: 420px;
             max-width: calc(100vw - 40px);
-            height: 520px;
+            height: 550px;
             max-height: calc(100vh - 120px);
             background: var(--bg-card);
             border-radius: var(--radius);
@@ -967,6 +967,10 @@
             outline: none;
             border-color: var(--accent-1);
         }
+        .chat-user-select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
 
         .chat-messages-container {
             flex: 1;
@@ -975,6 +979,7 @@
             flex-direction: column;
             gap: 4px;
             min-height: 100px;
+            padding-right: 4px;
         }
 
         .chat-message {
@@ -1048,6 +1053,9 @@
             outline: none;
             border-color: var(--accent-1);
         }
+        .chat-float-footer input::placeholder {
+            color: var(--text-muted);
+        }
         .chat-float-footer button {
             padding: 10px 20px;
             border-radius: var(--radius-sm);
@@ -1066,6 +1074,25 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+        }
+
+        /* ===== USER ONLINE INDICATOR ===== */
+        .user-online {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        .user-offline {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            margin-right: 6px;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -1157,44 +1184,33 @@
             }
         }
 
-        /* ===== CHAT BADGE ON NAV ===== */
-        .chat-badge-nav {
+        /* ===== CHAT NOTIFICATION SOUND INDICATOR ===== */
+        .chat-notification {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--danger);
-            color: #fff;
-            font-size: 9px;
-            font-weight: 700;
-            min-width: 18px;
-            height: 18px;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--danger);
             border: 2px solid var(--bg-sidebar);
+            animation: pulse 1s infinite;
         }
-        .chat-badge-nav.hidden {
+        .chat-notification.hidden {
             display: none;
         }
 
-        /* ===== USER ONLINE INDICATOR ===== */
-        .user-online {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-right: 6px;
-            animation: pulse 2s infinite;
+        /* ===== TYPING INDICATOR ===== */
+        .typing-indicator {
+            padding: 8px 16px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-style: italic;
+            animation: pulse 1.5s infinite;
+            display: none;
         }
-        .user-offline {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            margin-right: 6px;
+        .typing-indicator.active {
+            display: block;
         }
     </style>
 </head>
@@ -1467,6 +1483,7 @@
             <select class="chat-user-select" id="chatUserSelect" onchange="loadUserChat()">
                 <option value="">-- Select a user to chat --</option>
             </select>
+            <div class="typing-indicator" id="typingIndicator">✍️ User is typing...</div>
             <div class="chat-messages-container" id="chatMessagesContainer">
                 <div class="chat-empty">
                     <i class="fa-solid fa-comment"></i>
@@ -1514,6 +1531,7 @@
         let currentChatUserId = null;
         let isChatPanelOpen = false;
         let totalUnreadCount = 0;
+        let typingTimeout = null;
 
         // ============================================================
         // INIT
@@ -1855,7 +1873,7 @@
         }
 
         // ============================================================
-        // CHAT SYSTEM - FULL FEATURED
+        // CHAT SYSTEM - FULL FEATURED WITH TYPING INDICATOR
         // ============================================================
         function updateChatUsers() {
             const select = document.getElementById('chatUserSelect');
@@ -1916,8 +1934,8 @@
             if (isChatPanelOpen) {
                 updateChatUsers();
                 if (currentChatUserId) loadUserChat();
-                // Mark messages as read when panel opens
                 markAllAsRead();
+                document.getElementById('chatInput').focus();
             }
         }
 
@@ -1928,6 +1946,7 @@
             currentChatUserId = userId;
             loadUserChat();
             markAllAsRead();
+            document.getElementById('chatInput').focus();
         }
 
         function markAllAsRead() {
@@ -1949,10 +1968,12 @@
             const select = document.getElementById('chatUserSelect');
             const userId = select.value;
             const container = document.getElementById('chatMessagesContainer');
+            const typingEl = document.getElementById('typingIndicator');
             
             if (!userId) {
                 container.innerHTML = `<div class="chat-empty"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div>`;
                 currentChatUserId = null;
+                typingEl.classList.remove('active');
                 return;
             }
             
@@ -1967,15 +1988,23 @@
                 const msgs = Object.entries(data).map(([id, msg]) => ({ id, ...msg }));
                 msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                 
-                if (!msgs.length) {
+                // Check for typing indicator
+                const lastMsg = msgs[msgs.length - 1];
+                if (lastMsg && lastMsg.sender === 'user' && lastMsg.isTyping) {
+                    typingEl.classList.add('active');
+                } else {
+                    typingEl.classList.remove('active');
+                }
+                
+                if (!msgs.length || msgs.every(m => m.isTyping)) {
                     container.innerHTML = `<div class="chat-empty"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`;
                     return;
                 }
                 
-                container.innerHTML = msgs.map(m => `
+                container.innerHTML = msgs.filter(m => !m.isTyping).map(m => `
                     <div class="chat-message ${m.sender === 'admin' ? 'admin' : 'user'}">
                         ${escapeHTML(m.text)}
-                        <span class="msg-time">${new Date(m.timestamp).toLocaleTimeString()} ${m.read ? '✓' : ''}</span>
+                        <span class="msg-time">${new Date(m.timestamp).toLocaleTimeString()} ${m.read ? '✓✓' : '✓'}</span>
                     </div>
                 `).join('');
                 container.scrollTop = container.scrollHeight;
@@ -1996,7 +2025,8 @@
                     text: text,
                     sender: 'admin',
                     timestamp: Date.now(),
-                    read: false
+                    read: false,
+                    isTyping: false
                 });
                 input.value = '';
                 updateChatBadges();
@@ -2004,6 +2034,7 @@
                 showToast('❌ Failed to send message', 'error');
             } finally {
                 btn.disabled = false;
+                document.getElementById('chatInput').focus();
             }
         }
 
@@ -2465,14 +2496,14 @@
                 return;
             }
             loadAllData();
-            // Open chat panel by default if there are unread messages
+            // Check for unread messages and show badge
             setTimeout(() => {
                 updateChatBadges();
                 if (totalUnreadCount > 0) {
-                    // Don't auto-open, just show badge
+                    // Just show badge, don't auto-open
                 }
             }, 1000);
-            showToast('✅ Admin panel loaded', 'success');
+            showToast('✅ Admin panel loaded with Live Chat', 'success');
         }
         document.addEventListener('DOMContentLoaded', init);
     </script>
