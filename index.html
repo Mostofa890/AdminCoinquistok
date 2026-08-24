@@ -1212,6 +1212,48 @@
         .typing-indicator.active {
             display: block;
         }
+
+        /* ===== MAINTENANCE TOGGLE ===== */
+        .maintenance-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+        .maintenance-toggle .toggle-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .maintenance-toggle .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .maintenance-toggle .toggle-switch.active {
+            background: var(--warning);
+        }
+        .maintenance-toggle .toggle-switch .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .maintenance-toggle .toggle-switch.active .toggle-knob {
+            left: 25px;
+        }
     </style>
 </head>
 <body>
@@ -1443,6 +1485,18 @@
                         <div class="form-group"><label>Title</label><input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉"></div>
                         <div class="form-group"><label>Message</label><textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea></div>
                     </div>
+                    <div class="settings-group">
+                        <div class="group-title">🔧 Maintenance Mode</div>
+                        <div class="maintenance-toggle">
+                            <span class="toggle-label">Enable Maintenance</span>
+                            <div class="toggle-switch" id="maintenanceToggle" onclick="toggleMaintenance()">
+                                <div class="toggle-knob"></div>
+                            </div>
+                            <span id="maintenanceStatus" style="font-size:12px;color:var(--text-muted);">Off</span>
+                        </div>
+                        <div class="form-group"><label>Maintenance Message</label><input type="text" id="maintenanceMessage" placeholder="Message for users" value="We're currently updating our system. Please check back later."></div>
+                        <div class="form-group"><label>Estimated Time</label><input type="text" id="maintenanceTime" placeholder="E.g. 30 minutes" value="30 minutes"></div>
+                    </div>
                     <button type="submit" class="btn-primary w-full"><i class="fa-solid fa-save"></i> Save All</button>
                 </form>
             </div>
@@ -1574,7 +1628,8 @@
             firebaseDb.ref('adminConfig').on('value', s => { allData.adminConfig = s.val() || {};
                 loadSettings();
                 renderWithdrawMethods();
-                renderDepositMethodsSettings(); });
+                renderDepositMethodsSettings();
+                updateMaintenanceToggle(); });
             firebaseDb.ref('chats').on('value', s => { 
                 allData.chats = s.val() || {};
                 updateChatBadges();
@@ -2030,12 +2085,54 @@
                 });
                 input.value = '';
                 updateChatBadges();
+                // Mark as read immediately
+                const ref = firebaseDb.ref(`chats/${currentChatUserId}`);
+                ref.orderByChild('timestamp').limitToLast(1).once('value', snap => {
+                    snap.forEach(child => {
+                        ref.child(child.key + '/read').set(true);
+                    });
+                });
             } catch (e) {
                 showToast('❌ Failed to send message', 'error');
             } finally {
                 btn.disabled = false;
                 document.getElementById('chatInput').focus();
             }
+        }
+
+        // ============================================================
+        // MAINTENANCE MODE
+        // ============================================================
+        function updateMaintenanceToggle() {
+            const maintenance = allData.adminConfig.maintenance || { active: false };
+            const toggle = document.getElementById('maintenanceToggle');
+            const status = document.getElementById('maintenanceStatus');
+            if (maintenance.active) {
+                toggle.classList.add('active');
+                status.textContent = 'On';
+                document.getElementById('maintenanceMessage').value = maintenance.message || 'We\'re currently updating our system. Please check back later.';
+                document.getElementById('maintenanceTime').value = maintenance.estimatedTime || '30 minutes';
+            } else {
+                toggle.classList.remove('active');
+                status.textContent = 'Off';
+            }
+        }
+
+        function toggleMaintenance() {
+            const toggle = document.getElementById('maintenanceToggle');
+            const newState = !toggle.classList.contains('active');
+            const message = document.getElementById('maintenanceMessage').value.trim() || 'We\'re currently updating our system. Please check back later.';
+            const estimatedTime = document.getElementById('maintenanceTime').value.trim() || '30 minutes';
+            firebaseDb.ref('adminConfig/maintenance').set({
+                active: newState,
+                message: message,
+                estimatedTime: estimatedTime
+            }).then(() => {
+                showToast(newState ? '🔧 Maintenance enabled' : '✅ Maintenance disabled', newState ? 'warning' : 'success');
+                updateMaintenanceToggle();
+            }).catch(err => {
+                showToast('❌ Failed to update maintenance mode', 'error');
+            });
         }
 
         // ============================================================
@@ -2396,6 +2493,7 @@
                 'Please follow the rules to ensure you receive your payment.';
             document.getElementById('settingMinBudget').value = c.minBudget || 1.00;
             document.getElementById('settingMinDuration').value = c.minDuration || 7;
+            updateMaintenanceToggle();
         }
 
         // ============================================================
