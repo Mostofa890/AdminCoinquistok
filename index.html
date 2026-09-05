@@ -1,850 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NexEarn Admin</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>NexEarn - Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js">
+    </script>
     <style>
-        /* ================================================================
-               NEXEARN ADMIN - ULTRA MODERN SIDEBAR LAYOUT WITH LIVE CHAT
-            ================================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         :root {
-            --bg-primary: #08070D;
-            --bg-secondary: #0F0E17;
-            --bg-card: #1A1730;
-            --bg-card-hover: #242145;
-            --bg-sidebar: #0D0C1A;
-            --bg-input: #12102A;
-            --border-color: #2A2648;
-            --border-light: #3D3970;
-            --text-primary: #F0EEFF;
-            --text-secondary: #A8A2D0;
-            --text-muted: #6F6A9A;
-            --accent-1: #8B5CF6;
-            --accent-2: #EC4899;
-            --accent-3: #F59E0B;
-            --accent-gradient: linear-gradient(135deg, #8B5CF6, #EC4899);
-            --success: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --info: #3B82F6;
+            --primary-color: #6C63FF;
+            --primary-color-rgb: 108, 99, 255;
+            --secondary-color: #4A42D4;
+            --background-color: #F8F9FE;
+            --card-background: #FFFFFF;
+            --text-color: #1A1A2E;
+            --text-light: #6E6E84;
+            --border-color: #E8E8F0;
+            --glass-bg: rgba(248, 249, 254, 0.8);
+            --shadow: 0 4px 20px rgba(108, 99, 255, 0.10);
+            --shadow-hover: 0 8px 30px rgba(108, 99, 255, 0.18);
             --radius: 16px;
-            --radius-sm: 10px;
-            --shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --sidebar-width: 260px;
-            --header-height: 70px;
+            --transition: all 0.3s ease;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --gradient: linear-gradient(135deg, #6C63FF, #4A42D4);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8B83FF;
+            --primary-color-rgb: 139, 131, 255;
+            --secondary-color: #6C63FF;
+            --background-color: #0F0F1A;
+            --card-background: #1A1A2E;
+            --text-color: #F0F0F5;
+            --text-light: #8E8EA3;
+            --border-color: #2A2A42;
+            --glass-bg: rgba(26, 26, 46, 0.8);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 30px rgba(108, 99, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            overscroll-behavior-y: contain;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+            transition: var(--transition);
+            height: 100%;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            padding: 16px 12px 20px 12px;
             min-height: 100vh;
-            display: flex;
-            background-image: radial-gradient(ellipse at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 90% 80%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
         }
 
         ::-webkit-scrollbar {
             width: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
+            background: var(--background-color);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--accent-1);
-            border-radius: 10px;
+            background: var(--primary-color);
+            border-radius: 4px;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
+        /* ===== ADMIN LOGIN ===== */
+        #adminLogin {
             position: fixed;
             top: 0;
             left: 0;
-            height: 100vh;
-            width: var(--sidebar-width);
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            padding: 20px 0;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: var(--transition);
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            background: var(--background-color);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-
-        .sidebar .logo {
-            padding: 0 24px 28px;
-            font-size: 26px;
+        #adminLogin .login-box {
+            background: var(--card-background);
+            max-width: 380px;
+            width: 100%;
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-hover);
+            text-align: center;
+        }
+        #adminLogin .login-box .logo {
+            font-size: 32px;
             font-weight: 900;
-            letter-spacing: -0.5px;
-            background: var(--accent-gradient);
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+        #adminLogin .login-box .logo span {
+            -webkit-text-fill-color: var(--text-color);
+        }
+        #adminLogin .login-box .subtitle {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+        #adminLogin .login-box .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        #adminLogin .login-box .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+        #adminLogin .login-box .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            background: var(--background-color);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+        #adminLogin .login-box .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+        }
+        #adminLogin .login-box .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.2);
+        }
+        #adminLogin .login-box .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(var(--primary-color-rgb), 0.3);
+        }
+        #adminLogin .login-box .login-error {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+        #adminLogin .login-box .login-error.show {
+            display: block;
+        }
+        #adminLogin.hidden {
+            display: none;
+        }
+
+        /* ===== ADMIN PANEL ===== */
+        #adminPanel {
+            display: none;
+            max-width: 480px;
+            margin: 0 auto;
             padding-bottom: 20px;
+        }
+        #adminPanel.active {
+            display: block;
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .admin-header .admin-title {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .admin-header .admin-title span {
+            color: var(--primary-color);
+        }
+        .admin-header .logout-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--danger);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .admin-header .logout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 4px 0;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .admin-tabs .tab-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--background-color);
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .admin-tabs .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        .admin-tabs .tab-btn:hover:not(.active) {
+            background: var(--border-color);
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+        .admin-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .admin-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-bottom: 16px;
         }
-        .sidebar .logo span {
-            -webkit-text-fill-color: var(--text-primary);
-        }
-        .sidebar .logo small {
-            font-size: 12px;
-            font-weight: 500;
-            -webkit-text-fill-color: var(--text-secondary);
-            display: block;
-            margin-top: 2px;
-        }
-
-        .sidebar .nav-section {
-            padding: 0 12px;
-            flex: 1;
-        }
-
-        .sidebar .nav-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--text-muted);
-            padding: 8px 16px 12px;
-            font-weight: 700;
-        }
-
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 18px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: var(--transition);
-            font-weight: 500;
-            font-size: 14px;
-            text-decoration: none;
-            border: none;
-            background: none;
-            width: 100%;
-            font-family: inherit;
-            position: relative;
-        }
-        .sidebar .nav-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-primary);
-        }
-        .sidebar .nav-item.active {
-            background: var(--accent-gradient);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
-        }
-        .sidebar .nav-item i {
-            width: 22px;
-            font-size: 18px;
+        .admin-stat-box {
+            background: var(--card-background);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
             text-align: center;
+            box-shadow: var(--shadow);
         }
-        .sidebar .nav-item .badge {
-            margin-left: auto;
-            background: rgba(255, 255, 255, 0.12);
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-        .sidebar .nav-item.active .badge {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar .chat-btn {
-            margin: 16px 12px;
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            background: var(--accent-gradient);
-            color: #fff;
-            border: none;
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            justify-content: center;
-            position: relative;
-        }
-        .sidebar .chat-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
-        }
-        .sidebar .chat-btn .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            display: inline-block;
-            animation: pulse 1.5s infinite;
-        }
-        .sidebar .chat-btn .dot.hidden {
-            display: none;
-        }
-        .sidebar .chat-btn .unread-count {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: var(--danger);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            min-width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--bg-sidebar);
-        }
-        .sidebar .chat-btn .unread-count.hidden {
-            display: none;
-        }
-
-        .sidebar .footer-info {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border-color);
-            font-size: 12px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            padding: 24px 32px 40px;
-            min-height: 100vh;
-        }
-
-        /* ===== TOP BAR ===== */
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0 24px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .topbar .page-title {
+        .admin-stat-box .admin-stat-value {
             font-size: 24px;
             font-weight: 800;
+            color: var(--primary-color);
         }
-        .topbar .page-title i {
-            color: var(--accent-1);
-            margin-right: 10px;
-        }
-
-        .topbar .actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .btn-ghost {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 8px 18px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 500;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-ghost:hover {
-            border-color: var(--accent-1);
-            color: var(--text-primary);
-            background: rgba(139, 92, 246, 0.08);
-        }
-        .btn-ghost .fa-spin {
-            animation: spin 1s linear infinite;
-        }
-
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 28px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 20px 22px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-gradient);
-            opacity: 0.4;
-            transition: var(--transition);
-        }
-        .stat-card:hover {
-            border-color: var(--accent-1);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.1);
-        }
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-        .stat-card .icon {
-            font-size: 18px;
-            color: var(--accent-1);
-            margin-bottom: 6px;
-            opacity: 0.8;
-        }
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.2;
-        }
-        .stat-card .label {
-            font-size: 13px;
-            color: var(--text-secondary);
+        .admin-stat-box .admin-stat-label {
+            font-size: 11px;
+            color: var(--text-light);
             margin-top: 2px;
-            font-weight: 500;
         }
 
-        /* ===== PAGE CONTAINER ===== */
-        .page {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        .page.active {
-            display: block;
-        }
-
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-        .card:hover {
-            border-color: rgba(139, 92, 246, 0.15);
-        }
-
-        .card-header {
+        .admin-list-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .card-header h3 {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .card-header .count {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: var(--bg-primary);
-            padding: 2px 16px;
-            border-radius: 30px;
-        }
-
-        /* ===== TABLES ===== */
-        .table-wrap {
-            overflow-x: auto;
-            border-radius: var(--radius-sm);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 14px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-        }
-
-        td {
-            padding: 12px 14px;
+            padding: 10px 0;
             border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
+            gap: 10px;
         }
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+        .admin-list-item:last-child {
+            border-bottom: none;
+        }
+        .admin-list-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .admin-list-item .info .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .admin-list-item .info .detail {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .admin-list-item .actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .admin-list-item .actions button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        .admin-list-item .actions .approve-btn {
+            background: var(--success);
+            color: white;
+        }
+        .admin-list-item .actions .approve-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-list-item .actions .reject-btn {
+            background: var(--danger);
+            color: white;
+        }
+        .admin-list-item .actions .reject-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-list-item .actions .ban-btn {
+            background: var(--danger);
+            color: white;
+        }
+        .admin-list-item .actions .ban-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-list-item .actions .unban-btn {
+            background: var(--success);
+            color: white;
+        }
+        .admin-list-item .actions .unban-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-list-item .actions .edit-btn {
+            background: var(--warning);
+            color: white;
+        }
+        .admin-list-item .actions .edit-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-list-item .actions .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+        .admin-list-item .actions .delete-btn:hover {
+            transform: scale(1.05);
         }
 
         .status-badge {
-            padding: 3px 16px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
             display: inline-block;
         }
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+        .status-badge.inactive {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
         .status-badge.pending {
-            background: rgba(245, 158, 11, 0.18);
+            background: rgba(245, 158, 11, 0.15);
             color: var(--warning);
         }
         .status-badge.approved {
-            background: rgba(16, 185, 129, 0.18);
+            background: rgba(16, 185, 129, 0.15);
             color: var(--success);
         }
         .status-badge.rejected {
-            background: rgba(239, 68, 68, 0.18);
+            background: rgba(239, 68, 68, 0.15);
             color: var(--danger);
-        }
-        .status-badge.active {
-            background: rgba(16, 185, 129, 0.18);
-            color: var(--success);
-        }
-        .status-badge.paused {
-            background: rgba(245, 158, 11, 0.18);
-            color: var(--warning);
         }
         .status-badge.banned {
-            background: rgba(239, 68, 68, 0.22);
+            background: rgba(239, 68, 68, 0.15);
             color: var(--danger);
         }
-        .status-badge.active-user {
-            background: rgba(16, 185, 129, 0.18);
-            color: var(--success);
-        }
 
-        .action-btn {
-            padding: 5px 12px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            margin: 2px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-        .action-btn.approve {
-            background: var(--success);
-            color: #fff;
-        }
-        .action-btn.reject {
-            background: var(--danger);
-            color: #fff;
-        }
-        .action-btn.edit {
-            background: var(--info);
-            color: #fff;
-        }
-        .action-btn.delete {
-            background: var(--danger);
-            color: #fff;
-        }
-        .action-btn.view {
-            background: var(--accent-1);
-            color: #fff;
-        }
-        .action-btn.detail {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-        .action-btn.detail:hover {
-            border-color: var(--accent-1);
-            color: var(--text-primary);
-        }
-        .action-btn.ban {
-            background: var(--danger);
-            color: #fff;
-        }
-        .action-btn.unban {
-            background: var(--success);
-            color: #fff;
-        }
-        .action-btn.chat {
-            background: var(--accent-1);
-            color: #fff;
-        }
-
-        /* ===== SEARCH ===== */
-        .search-box {
-            display: flex;
-            gap: 12px;
+        .card {
+            background: var(--card-background);
+            padding: 18px 16px;
+            border-radius: var(--radius);
             margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .search-box input {
-            flex: 1;
-            padding: 11px 16px;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 14px;
-            min-width: 150px;
+            animation: fadeIn 0.9s ease-out;
             transition: var(--transition);
+            box-shadow: var(--shadow);
         }
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent-1);
+        .card:hover {
+            box-shadow: var(--shadow-hover);
         }
-        .search-box select {
-            padding: 11px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 14px;
-            min-width: 140px;
-            transition: var(--transition);
-        }
-        .search-box select:focus {
-            outline: none;
-            border-color: var(--accent-1);
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* ===== FORMS ===== */
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 14px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: var(--transition);
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--accent-1);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
-        }
-        .form-group textarea {
-            min-height: 60px;
-            resize: vertical;
-        }
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: 10px;
+        }
+        .form-row .full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group-sm {
+            margin-bottom: 10px;
+        }
+        .form-group-sm label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: block;
+            margin-bottom: 2px;
+        }
+        .form-group-sm input,
+        .form-group-sm select,
+        .form-group-sm textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background: var(--card-background);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+        .form-group-sm input:focus,
+        .form-group-sm select:focus,
+        .form-group-sm textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+        }
+        .form-group-sm textarea {
+            resize: vertical;
+            min-height: 60px;
         }
 
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 28px;
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .form-actions button {
+            padding: 8px 20px;
             border: none;
-            border-radius: var(--radius-sm);
-            background: var(--accent-gradient);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
             transition: var(--transition);
             font-family: inherit;
-            justify-content: center;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        .form-actions .save-btn {
+            background: var(--gradient);
+            color: white;
         }
-        .btn-success {
-            background: var(--success);
+        .form-actions .save-btn:hover {
+            transform: scale(1.03);
         }
-        .btn-danger {
-            background: var(--danger);
+        .form-actions .cancel-btn {
+            background: var(--border-color);
+            color: var(--text-color);
         }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
+        .form-actions .cancel-btn:hover {
+            background: var(--text-light);
+            color: white;
         }
-        .btn-secondary:hover {
-            border-color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .btn-sm {
-            padding: 6px 16px;
-            font-size: 12px;
-        }
-        .w-full {
+
+        .add-btn {
             width: 100%;
-            justify-content: center;
-        }
-
-        /* ===== SETTINGS ===== */
-        .settings-group {
-            margin-bottom: 22px;
-            padding-bottom: 22px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .settings-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .settings-group .group-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .method-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-        .method-item:hover {
-            border-color: var(--accent-1);
-        }
-        .method-item .method-name {
+            padding: 12px;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-light);
             font-weight: 600;
-        }
-        .method-item .method-number {
-            color: var(--text-secondary);
-            font-family: monospace;
-        }
-        .method-item .method-icon {
-            font-size: 22px;
-        }
-        .method-item .method-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .link-preview {
-            background: var(--bg-primary);
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            margin: 6px 0;
-            word-break: break-all;
-        }
-        .link-preview a {
-            color: var(--accent-1);
-            text-decoration: none;
-        }
-        .link-preview a:hover {
-            text-decoration: underline;
-        }
-
-        .user-id {
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-family: monospace;
-        }
-        .text-muted {
-            color: var(--text-secondary);
-            font-size: 12px;
-        }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-overlay.show {
-            display: flex;
-        }
-        .modal-box {
-            background: var(--bg-card);
-            padding: 28px;
-            border-radius: var(--radius);
-            width: 100%;
-            max-width: 560px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.3s ease;
-            position: relative;
-        }
-        .modal-box .modal-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .modal-box .modal-title i {
-            color: var(--accent-1);
-        }
-        .modal-box .close-modal {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 26px;
+            font-size: 14px;
             cursor: pointer;
             transition: var(--transition);
-        }
-        .modal-box .close-modal:hover {
-            color: var(--text-primary);
-            transform: rotate(90deg);
-        }
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .modal-actions .btn-primary {
-            flex: 1;
-            justify-content: center;
-        }
-        .modal-actions .btn-secondary {
-            flex: 1;
-            justify-content: center;
-        }
-
-        /* ===== TOAST ===== */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 380px;
-            width: 100%;
-        }
-        .toast {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 14px 20px;
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.3s ease;
-            box-shadow: var(--shadow);
+            font-family: inherit;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .add-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(var(--primary-color-rgb), 0.04);
+        }
+
+        .hidden-form {
+            display: none;
+        }
+        .hidden-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-light);
+        }
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            max-width: 90%;
+            width: 100%;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .toast.success {
             border-color: var(--success);
@@ -855,709 +568,382 @@
         .toast.warning {
             border-color: var(--warning);
         }
-        .toast.info {
-            border-color: var(--info);
-        }
-        .toast .toast-icon {
-            font-size: 20px;
-        }
-        .toast.success .toast-icon {
-            color: var(--success);
-        }
-        .toast.error .toast-icon {
-            color: var(--danger);
-        }
-        .toast.warning .toast-icon {
-            color: var(--warning);
-        }
-        .toast.info .toast-icon {
-            color: var(--info);
-        }
 
-        /* ===== EMPTY ===== */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.2;
-        }
-
-        /* ===== CHAT FLOATING PANEL - IMPROVED ===== */
-        .chat-float {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 3000;
-            width: 420px;
-            max-width: calc(100vw - 40px);
-            height: 550px;
-            max-height: calc(100vh - 120px);
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
-            flex-direction: column;
-            overflow: hidden;
-            animation: fadeIn 0.3s ease;
-        }
-        .chat-float.active {
-            display: flex;
-        }
-
-        .chat-float-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-        .chat-float-header .chat-status {
-            font-size: 11px;
-            font-weight: 500;
-            opacity: 0.8;
-        }
-        .close-chat {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 22px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: var(--transition);
-            padding: 0 4px;
-        }
-        .close-chat:hover {
-            opacity: 1;
-            transform: rotate(90deg);
-        }
-
-        .chat-float-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 14px 18px;
-            background: var(--bg-primary);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-user-select {
+        .chart-container {
+            position: relative;
+            height: 180px;
             width: 100%;
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 13px;
-            cursor: pointer;
-            margin-bottom: 12px;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
-        .chat-user-select:focus {
-            outline: none;
-            border-color: var(--accent-1);
-        }
-        .chat-user-select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
         }
 
-        .chat-messages-container {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            min-height: 100px;
-            padding-right: 4px;
-        }
-
-        .chat-message {
-            padding: 10px 16px;
-            border-radius: 12px;
-            max-width: 85%;
-            word-wrap: break-word;
-            font-size: 13px;
-            line-height: 1.5;
-            animation: fadeIn 0.2s ease;
-        }
-        .chat-message.admin {
-            background: var(--accent-gradient);
-            color: #fff;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-        .chat-message.user {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-            color: var(--text-primary);
-        }
-        .chat-message .msg-time {
-            font-size: 10px;
-            opacity: 0.5;
-            display: block;
-            margin-top: 4px;
-        }
-        .chat-message.admin .msg-time {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .chat-empty {
-            text-align: center;
-            padding: 30px 10px;
-            color: var(--text-secondary);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .chat-empty i {
-            font-size: 40px;
-            opacity: 0.2;
-            margin-bottom: 10px;
-        }
-
-        .chat-float-footer {
-            display: flex;
-            gap: 10px;
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-        .chat-float-footer input {
-            flex: 1;
-            padding: 10px 16px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 13px;
-            transition: var(--transition);
-        }
-        .chat-float-footer input:focus {
-            outline: none;
-            border-color: var(--accent-1);
-        }
-        .chat-float-footer input::placeholder {
-            color: var(--text-muted);
-        }
-        .chat-float-footer button {
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: var(--accent-gradient);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .chat-float-footer button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
-        }
-        .chat-float-footer button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ===== USER ONLINE INDICATOR ===== */
-        .user-online {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-        }
-        .user-offline {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            margin-right: 6px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
+        @media (max-width: 400px) {
+            body {
+                padding: 12px 8px 16px 8px;
             }
-            .sidebar.open {
-                transform: translateX(0);
+            .admin-stat-grid {
+                gap: 8px;
             }
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
+            .admin-stat-box {
+                padding: 10px;
             }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .chat-float {
-                width: 100%;
-                max-width: calc(100vw - 20px);
-                height: 480px;
-                bottom: 10px;
-                right: 10px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .stat-card {
-                padding: 14px 16px;
-            }
-            .stat-card .value {
-                font-size: 20px;
-            }
-            .topbar .page-title {
+            .admin-stat-box .admin-stat-value {
                 font-size: 18px;
             }
-            .modal-box {
-                padding: 20px;
-            }
-            .search-box {
-                flex-direction: column;
-            }
-            .chat-float {
-                height: 400px;
-                bottom: 10px;
-                right: 10px;
-                max-width: calc(100vw - 20px);
+            .admin-tabs .tab-btn {
+                font-size: 10px;
+                padding: 6px 10px;
             }
         }
-
-        /* ===== HAMBURGER ===== */
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-        }
-        @media (max-width: 992px) {
-            .hamburger {
-                display: block;
+        @media (min-width: 481px) {
+            body {
+                padding: 20px 16px 30px 16px;
             }
-        }
-
-        /* ===== OVERLAY ===== */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-        .sidebar-overlay.active {
-            display: block;
-        }
-        @media (min-width: 993px) {
-            .sidebar-overlay {
-                display: none !important;
-            }
-        }
-
-        /* ===== CHAT NOTIFICATION SOUND INDICATOR ===== */
-        .chat-notification {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--danger);
-            border: 2px solid var(--bg-sidebar);
-            animation: pulse 1s infinite;
-        }
-        .chat-notification.hidden {
-            display: none;
-        }
-
-        /* ===== TYPING INDICATOR ===== */
-        .typing-indicator {
-            padding: 8px 16px;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-style: italic;
-            animation: pulse 1.5s infinite;
-            display: none;
-        }
-        .typing-indicator.active {
-            display: block;
-        }
-
-        /* ===== MAINTENANCE TOGGLE ===== */
-        .maintenance-toggle {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            margin-bottom: 12px;
-        }
-        .maintenance-toggle .toggle-label {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .maintenance-toggle .toggle-switch {
-            position: relative;
-            width: 48px;
-            height: 26px;
-            background: var(--border-color);
-            border-radius: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-            flex-shrink: 0;
-        }
-        .maintenance-toggle .toggle-switch.active {
-            background: var(--warning);
-        }
-        .maintenance-toggle .toggle-switch .toggle-knob {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        .maintenance-toggle .toggle-switch.active .toggle-knob {
-            left: 25px;
         }
     </style>
 </head>
 <body>
-
-    <!-- ===== SIDEBAR OVERLAY ===== -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar" id="sidebar">
-        <div class="logo">
-            Nex<span>Earn</span>
-            <small>Admin Panel</small>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-label">Main</div>
-            <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
-                <i class="fa-solid fa-gauge-high"></i> Dashboard
+    <!-- ===== ADMIN LOGIN ===== -->
+    <div id="adminLogin">
+        <div class="login-box">
+            <div class="logo">Nex<span>Earn</span></div>
+            <div class="subtitle">🔐 Admin Panel Login</div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="adminUsername" placeholder="Enter username" value="admin">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password" value="nexearn2024">
+            </div>
+            <button class="login-btn" onclick="adminLogin()">
+                <i class="fa-solid fa-sign-in-alt"></i> Login
             </button>
-            <button class="nav-item" data-page="withdrawals" onclick="navigateTo('withdrawals')">
-                <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
-                <span class="badge" id="navWithdrawCount">0</span>
-            </button>
-            <button class="nav-item" data-page="deposits" onclick="navigateTo('deposits')">
-                <i class="fa-solid fa-credit-card"></i> Deposits
-                <span class="badge" id="navDepositCount">0</span>
-            </button>
-            <button class="nav-item" data-page="ads" onclick="navigateTo('ads')">
-                <i class="fa-solid fa-rectangle-ad"></i> Ads
-                <span class="badge" id="navAdsCount">0</span>
-            </button>
-            <button class="nav-item" data-page="users" onclick="navigateTo('users')">
-                <i class="fa-solid fa-users"></i> Users
-                <span class="badge" id="navUsersCount">0</span>
-            </button>
-            <button class="nav-item" data-page="verifications" onclick="navigateTo('verifications')">
-                <i class="fa-solid fa-check-double"></i> Verifications
-                <span class="badge" id="navVerifCount">0</span>
-            </button>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-label">Management</div>
-            <button class="nav-item" data-page="settings" onclick="navigateTo('settings')">
-                <i class="fa-solid fa-gear"></i> Settings
-            </button>
-            <button class="nav-item" data-page="bonus" onclick="navigateTo('bonus')">
-                <i class="fa-solid fa-star"></i> Bonus Tasks
-                <span class="badge" id="navBonusCount">0</span>
-            </button>
-        </div>
-
-        <button class="chat-btn" onclick="toggleChatPanel()" id="chatToggleBtn">
-            <i class="fa-solid fa-comment-dots"></i> Live Chat
-            <span class="dot" id="chatDot"></span>
-            <span class="unread-count hidden" id="chatUnreadCount">0</span>
-        </button>
-
-        <div class="footer-info">
-            NexEarn v3.0 &bull; Admin
-        </div>
-    </aside>
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="main-content">
-
-        <!-- ===== TOP BAR ===== -->
-        <div class="topbar">
-            <div style="display:flex;align-items:center;gap:14px;">
-                <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                <h1 class="page-title" id="pageTitle"><i class="fa-solid fa-gauge-high"></i> Dashboard</h1>
-            </div>
-            <div class="actions">
-                <button class="btn-ghost" onclick="refreshData()" id="refreshBtn"><i class="fa-solid fa-sync"></i> Refresh</button>
-                <span class="btn-ghost" style="border-color:var(--accent-1);color:var(--accent-1);">👑 Admin</span>
-            </div>
-        </div>
-
-        <!-- ===== STATS ===== -->
-        <section class="stats-grid" id="statsGrid">
-            <div class="stat-card" onclick="navigateTo('users')">
-                <div class="icon"><i class="fa-solid fa-users"></i></div>
-                <div class="value" id="statUsers">0</div>
-                <div class="label">Total Users</div>
-            </div>
-            <div class="stat-card" onclick="navigateTo('withdrawals')">
-                <div class="icon"><i class="fa-solid fa-dollar-sign"></i></div>
-                <div class="value" id="statEarnings">$0</div>
-                <div class="label">Total Earnings</div>
-            </div>
-            <div class="stat-card" onclick="navigateTo('ads')">
-                <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
-                <div class="value" id="statAds">0</div>
-                <div class="label">Total Ads</div>
-            </div>
-            <div class="stat-card" onclick="navigateTo('withdrawals')">
-                <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="value" id="statPending">0</div>
-                <div class="label">Pending Requests</div>
-            </div>
-        </section>
-
-        <!-- ===== PAGE: DASHBOARD ===== -->
-        <div class="page active" id="page-dashboard">
-            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingWithdrawals">0</div><div class="label">Pending Withdrawals</div></div>
-                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingDeposits">0</div><div class="label">Pending Deposits</div></div>
-                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingVerifications">0</div><div class="label">Pending Verifications</div></div>
-                <div class="stat-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><div class="value" id="dashPendingAds">0</div><div class="label">Pending Ads</div></div>
-            </div>
-            <div class="card">
-                <div class="card-header"><h3>📊 Recent Activity</h3></div>
-                <div id="recentActivity"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: WITHDRAWALS ===== -->
-        <div class="page" id="page-withdrawals">
-            <div class="card">
-                <div class="card-header">
-                    <h3>💸 Withdrawals</h3>
-                    <span class="count" id="withdrawCountTitle">0</span>
-                </div>
-                <div class="search-box">
-                    <input type="text" id="withdrawSearch" placeholder="Search..." oninput="filterWithdrawals()">
-                    <select id="withdrawFilter" onchange="filterWithdrawals()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
-                </div>
-                <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: DEPOSITS ===== -->
-        <div class="page" id="page-deposits">
-            <div class="card">
-                <div class="card-header">
-                    <h3>💳 Deposits</h3>
-                    <span class="count" id="depositCountTitle">0</span>
-                </div>
-                <div class="search-box">
-                    <input type="text" id="depositSearch" placeholder="Search..." oninput="filterDeposits()">
-                    <select id="depositFilter" onchange="filterDeposits()"><option value="all">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select>
-                </div>
-                <div class="table-wrap"><table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: ADS ===== -->
-        <div class="page" id="page-ads">
-            <div class="card">
-                <div class="card-header">
-                    <h3>📢 Ads</h3>
-                    <span class="count" id="adsCountTitle">0</span>
-                </div>
-                <div class="search-box">
-                    <input type="text" id="adsSearch" placeholder="Search..." oninput="filterAdsTable()">
-                    <select id="adsFilter" onchange="filterAdsTable()"><option value="all">All</option><option value="pending">Pending</option><option value="active">Active</option><option value="paused">Paused</option><option value="expired">Expired</option></select>
-                </div>
-                <div class="table-wrap"><table><thead><tr><th>Title</th><th>Creator</th><th>Views</th><th>Reward</th><th>Status</th><th>Action</th></tr></thead><tbody id="adsBody"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: USERS ===== -->
-        <div class="page" id="page-users">
-            <div class="card">
-                <div class="card-header">
-                    <h3>👥 Users</h3>
-                    <span class="count" id="usersCountTitle">0</span>
-                </div>
-                <div class="search-box"><input type="text" id="usersSearch" placeholder="Search..." oninput="filterUsers()"></div>
-                <div class="table-wrap"><table><thead><tr><th>User</th><th>ID</th><th>Balance</th><th>Wallet</th><th>Ads</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersBody"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: VERIFICATIONS ===== -->
-        <div class="page" id="page-verifications">
-            <div class="card">
-                <div class="card-header">
-                    <h3>📸 Verifications</h3>
-                    <span class="count" id="verificationCountTitle">0</span>
-                </div>
-                <div class="table-wrap"><table><thead><tr><th>User</th><th>Ad ID</th><th>Title</th><th>Screenshot</th><th>Link Preview</th><th>Status</th><th>Action</th></tr></thead><tbody id="verificationsBody"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: SETTINGS ===== -->
-        <div class="page" id="page-settings">
-            <div class="card">
-                <div class="card-header"><h3>⚙️ Settings</h3></div>
-                <form id="settingsForm">
-                    <div class="settings-group">
-                        <div class="group-title">💰 General</div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Ad Reward ($)</label><input type="number" id="settingAdReward" step="0.001" value="0.001"></div>
-                            <div class="form-group"><label>Daily Ad Limit</label><input type="number" id="settingDailyLimit" value="15"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Min Withdrawal ($)</label><input type="number" id="settingMinWithdraw" step="0.01" value="0.10"></div>
-                            <div class="form-group"><label>Min Deposit (BDT)</label><input type="number" id="settingMinDeposit" value="10"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Cooldown (min)</label><input type="number" id="settingCooldown" value="30"></div>
-                            <div class="form-group"><label>Referral Reward ($)</label><input type="number" id="settingReferralReward" step="0.001" value="0.01"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>Min Budget ($)</label><input type="number" id="settingMinBudget" step="0.01" value="1.00"></div>
-                            <div class="form-group"><label>Min Duration (Days)</label><input type="number" id="settingMinDuration" value="7"></div>
-                        </div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="group-title">💸 Withdrawal Methods</div>
-                        <div id="withdrawMethodsContainer"></div>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <input type="text" id="newWithdrawMethod" placeholder="New method" style="flex:1; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                            <button type="button" class="btn-primary btn-sm" onclick="addWithdrawMethod()"><i class="fa-solid fa-plus"></i> Add</button>
-                        </div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="group-title">💳 Deposit Methods</div>
-                        <div id="depositMethodsContainer"></div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; margin-top:10px;">
-                            <input type="text" id="newDepositMethodName" placeholder="Name" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                            <input type="text" id="newDepositMethodNumber" placeholder="Number" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                            <input type="text" id="newDepositMethodIcon" placeholder="Icon" style="padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-input); color:var(--text-primary);">
-                            <button type="button" class="btn-primary btn-sm" onclick="addDepositMethod()"><i class="fa-solid fa-plus"></i></button>
-                        </div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="group-title">📝 Welcome Message</div>
-                        <div class="form-group"><label>Title</label><input type="text" id="settingWelcomeTitle" value="Welcome to NexEarn! 🎉"></div>
-                        <div class="form-group"><label>Message</label><textarea id="settingWelcomeMsg" rows="4">Please follow the rules to ensure you receive your payment.</textarea></div>
-                    </div>
-                    <div class="settings-group">
-                        <div class="group-title">🔧 Maintenance Mode</div>
-                        <div class="maintenance-toggle">
-                            <span class="toggle-label">Enable Maintenance</span>
-                            <div class="toggle-switch" id="maintenanceToggle" onclick="toggleMaintenance()">
-                                <div class="toggle-knob"></div>
-                            </div>
-                            <span id="maintenanceStatus" style="font-size:12px;color:var(--text-muted);">Off</span>
-                        </div>
-                        <div class="form-group"><label>Maintenance Message</label><input type="text" id="maintenanceMessage" placeholder="Message for users" value="We're currently updating our system. Please check back later."></div>
-                        <div class="form-group"><label>Estimated Time</label><input type="text" id="maintenanceTime" placeholder="E.g. 30 minutes" value="30 minutes"></div>
-                    </div>
-                    <button type="submit" class="btn-primary w-full"><i class="fa-solid fa-save"></i> Save All</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- ===== PAGE: BONUS ===== -->
-        <div class="page" id="page-bonus">
-            <div class="card">
-                <div class="card-header">
-                    <h3>⭐ Bonus Tasks</h3>
-                    <span class="count" id="bonusCountTitle">0</span>
-                </div>
-                <div id="bonusTasksList"></div>
-                <form id="bonusForm" style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:18px;">
-                    <div class="form-row">
-                        <div class="form-group"><label>Title</label><input type="text" id="bonusTitle" placeholder="Task title" required></div>
-                        <div class="form-group"><label>Reward ($)</label><input type="number" id="bonusReward" step="0.001" value="0.01" required></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Link</label><input type="url" id="bonusLink" placeholder="https://t.me/..." required></div>
-                        <div class="form-group"><label>Duration (s)</label><input type="number" id="bonusDuration" value="10" required></div>
-                    </div>
-                    <button type="submit" class="btn-primary btn-success w-full"><i class="fa-solid fa-plus"></i> Add Bonus</button>
-                </form>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- ===== CHAT FLOATING PANEL ===== -->
-    <div class="chat-float" id="chatFloat">
-        <div class="chat-float-header">
-            <span><i class="fa-solid fa-comment-dots"></i> Live Chat</span>
-            <span class="chat-status" id="chatStatus">● Online</span>
-            <button class="close-chat" onclick="toggleChatPanel()">&times;</button>
-        </div>
-        <div class="chat-float-body">
-            <select class="chat-user-select" id="chatUserSelect" onchange="loadUserChat()">
-                <option value="">-- Select a user to chat --</option>
-            </select>
-            <div class="typing-indicator" id="typingIndicator">✍️ User is typing...</div>
-            <div class="chat-messages-container" id="chatMessagesContainer">
-                <div class="chat-empty">
-                    <i class="fa-solid fa-comment"></i>
-                    <p>Select a user to start chatting</p>
-                </div>
-            </div>
-        </div>
-        <div class="chat-float-footer">
-            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-            <button onclick="sendChatMessage()" id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="login-error" id="loginError">Invalid username or password!</div>
         </div>
     </div>
 
-    <!-- ===== MODAL ===== -->
-    <div class="modal-overlay" id="actionModal">
-        <div class="modal-box">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-            <div class="modal-title" id="modalTitle"><i class="fa-solid fa-pen"></i> Action</div>
-            <div id="modalBody"></div>
-            <div class="modal-actions" id="modalActions"></div>
+    <!-- ===== ADMIN PANEL ===== -->
+    <div id="adminPanel">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="admin-title">⚡ <span>Admin</span> Panel</div>
+            <button class="logout-btn" onclick="adminLogout()">
+                <i class="fa-solid fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
+            </button>
+            <button class="tab-btn" data-tab="users" onclick="switchTab('users')">
+                <i class="fa-solid fa-users"></i> Users
+            </button>
+            <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')">
+                <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
+            </button>
+            <button class="tab-btn" data-tab="jobs" onclick="switchTab('jobs')">
+                <i class="fa-solid fa-briefcase"></i> Jobs
+            </button>
+            <button class="tab-btn" data-tab="tiers" onclick="switchTab('tiers')">
+                <i class="fa-solid fa-layer-group"></i> Tiers
+            </button>
+            <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')">
+                <i class="fa-solid fa-gift"></i> Bonus
+            </button>
+            <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="admin-tab-content active" id="tab-dashboard">
+            <div class="admin-stat-grid">
+                <div class="admin-stat-box">
+                    <div class="admin-stat-value" id="stat-users">0</div>
+                    <div class="admin-stat-label">👥 Total Users</div>
+                </div>
+                <div class="admin-stat-box">
+                    <div class="admin-stat-value" id="stat-balance">$0</div>
+                    <div class="admin-stat-label">💰 Total Balance</div>
+                </div>
+                <div class="admin-stat-box">
+                    <div class="admin-stat-value" id="stat-ads">0</div>
+                    <div class="admin-stat-label">📺 Ads Watched</div>
+                </div>
+                <div class="admin-stat-box">
+                    <div class="admin-stat-value" id="stat-withdrawals">0</div>
+                    <div class="admin-stat-label">💸 Withdrawals</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📈 Weekly Activity</div>
+                <div class="chart-container">
+                    <canvas id="adminChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div class="admin-tab-content" id="tab-users">
+            <div class="card">
+                <div class="card-title">
+                    👥 Users
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="user-count">0</span>
+                </div>
+                <div id="users-list"></div>
+            </div>
+        </div>
+
+        <!-- Withdrawals -->
+        <div class="admin-tab-content" id="tab-withdrawals">
+            <div class="card">
+                <div class="card-title">
+                    💸 Withdrawals
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="withdrawal-count">0</span>
+                </div>
+                <div id="withdrawals-list"></div>
+            </div>
+        </div>
+
+        <!-- Jobs -->
+        <div class="admin-tab-content" id="tab-jobs">
+            <div class="card">
+                <div class="card-title">
+                    📋 Jobs
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="job-count">0</span>
+                </div>
+                <button class="add-btn" onclick="toggleJobForm()">
+                    <i class="fa-solid fa-plus"></i> Add New Job
+                </button>
+                <div class="hidden-form" id="jobForm">
+                    <div class="form-row">
+                        <div class="form-group-sm full-width">
+                            <label>Job Title *</label>
+                            <input type="text" id="jobTitle" placeholder="Enter job title">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Category *</label>
+                            <select id="jobCategory">
+                                <option value="General">General</option>
+                                <option value="YouTube Video View">YouTube Video View</option>
+                                <option value="YouTube Like">YouTube Like</option>
+                                <option value="YouTube Comment">YouTube Comment</option>
+                                <option value="App Download">App Download</option>
+                                <option value="Website Visit">Website Visit</option>
+                                <option value="Telegram Join">Telegram Join</option>
+                                <option value="Facebook Like">Facebook Like</option>
+                                <option value="Instagram Follow">Instagram Follow</option>
+                                <option value="Twitter Follow">Twitter Follow</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Sub Category</label>
+                            <input type="text" id="jobSubCategory" placeholder="Sub category">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Reward ($) *</label>
+                            <input type="number" id="jobReward" step="0.0001" placeholder="0.0010" value="0.001">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Total Views *</label>
+                            <input type="number" id="jobTotalViews" placeholder="100" value="100">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Duration (days) *</label>
+                            <input type="number" id="jobDuration" placeholder="7" value="7">
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Description *</label>
+                            <textarea id="jobDesc" placeholder="Describe the job" rows="2"></textarea>
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Instructions</label>
+                            <textarea id="jobInstructions" placeholder="Instructions for workers" rows="2"></textarea>
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Requirements</label>
+                            <textarea id="jobRequirements" placeholder="Requirements" rows="2"></textarea>
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Status</label>
+                            <select id="jobStatus">
+                                <option value="active">Active</option>
+                                <option value="paused">Paused</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="save-btn" onclick="saveJob()"><i class="fa-solid fa-save"></i> Save Job</button>
+                        <button class="cancel-btn" onclick="toggleJobForm()">Cancel</button>
+                    </div>
+                    <input type="hidden" id="editJobId" value="">
+                </div>
+                <div id="jobs-list"></div>
+            </div>
+        </div>
+
+        <!-- Tiers -->
+        <div class="admin-tab-content" id="tab-tiers">
+            <div class="card">
+                <div class="card-title">
+                    🎯 Ad Tiers
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="tier-count">0</span>
+                </div>
+                <button class="add-btn" onclick="toggleTierForm()">
+                    <i class="fa-solid fa-plus"></i> Add New Tier
+                </button>
+                <div class="hidden-form" id="tierForm">
+                    <div class="form-row">
+                        <div class="form-group-sm">
+                            <label>Section Name *</label>
+                            <input type="text" id="tierName" placeholder="Section 1" value="Section 1">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Prize ($) *</label>
+                            <input type="number" id="tierPrize" step="0.01" placeholder="1.20" value="1.20">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Required Ads *</label>
+                            <input type="number" id="tierRequired" placeholder="6" value="6">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Status</label>
+                            <select id="tierStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Description</label>
+                            <input type="text" id="tierDesc" placeholder="Short description">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="save-btn" onclick="saveTier()"><i class="fa-solid fa-save"></i> Save Tier</button>
+                        <button class="cancel-btn" onclick="toggleTierForm()">Cancel</button>
+                    </div>
+                    <input type="hidden" id="editTierId" value="">
+                </div>
+                <div id="tiers-list"></div>
+            </div>
+        </div>
+
+        <!-- Bonus -->
+        <div class="admin-tab-content" id="tab-bonus">
+            <div class="card">
+                <div class="card-title">
+                    ⭐ Bonus Tasks
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="bonus-count">0</span>
+                </div>
+                <button class="add-btn" onclick="toggleBonusForm()">
+                    <i class="fa-solid fa-plus"></i> Add New Bonus Task
+                </button>
+                <div class="hidden-form" id="bonusForm">
+                    <div class="form-row">
+                        <div class="form-group-sm full-width">
+                            <label>Task Title *</label>
+                            <input type="text" id="bonusTitle" placeholder="Enter task title">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Reward ($) *</label>
+                            <input type="number" id="bonusReward" step="0.0001" placeholder="0.01" value="0.01">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Duration (seconds) *</label>
+                            <input type="number" id="bonusDuration" placeholder="10" value="10">
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Task Link *</label>
+                            <input type="url" id="bonusLink" placeholder="https://t.me/...">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="save-btn" onclick="saveBonus()"><i class="fa-solid fa-save"></i> Save Bonus</button>
+                        <button class="cancel-btn" onclick="toggleBonusForm()">Cancel</button>
+                    </div>
+                    <input type="hidden" id="editBonusId" value="">
+                </div>
+                <div id="bonus-list"></div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="admin-tab-content" id="tab-settings">
+            <div class="card">
+                <div class="card-title">⚙️ Settings</div>
+                <div class="form-row">
+                    <div class="form-group-sm">
+                        <label>Ad Reward ($)</label>
+                        <input type="number" id="setAdReward" step="0.0001" value="0.001">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Daily Ad Limit</label>
+                        <input type="number" id="setDailyLimit" value="15">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Min Withdrawal ($)</label>
+                        <input type="number" id="setMinWithdraw" step="0.01" value="0.10">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Cooldown (minutes)</label>
+                        <input type="number" id="setCooldown" value="30">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Referral Reward ($)</label>
+                        <input type="number" id="setReferralReward" step="0.01" value="0.01">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Ad Cooldown (minutes)</label>
+                        <input type="number" id="setAdCooldown" value="1">
+                    </div>
+                    <div class="form-group-sm full-width">
+                        <label>Support Link</label>
+                        <input type="url" id="setSupportLink" placeholder="https://t.me/...">
+                    </div>
+                    <div class="form-group-sm full-width">
+                        <label>Welcome Message</label>
+                        <textarea id="setWelcomeMessage" rows="4"></textarea>
+                    </div>
+                </div>
+                <button class="action-button" onclick="saveSettings()">
+                    <i class="fa-solid fa-save"></i> Save Settings
+                </button>
+            </div>
+
+            <!-- Maintenance Mode -->
+            <div class="card">
+                <div class="card-title">🔧 Maintenance Mode</div>
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-weight:600; font-size:14px;">Enable Maintenance</label>
+                    <input type="checkbox" id="setMaintenance" style="width:20px; height:20px; cursor:pointer;">
+                    <span style="font-size:13px; color:var(--text-light);" id="maintenanceStatus">Off</span>
+                    <button class="action-button small" onclick="toggleMaintenance()" style="width:auto; padding:8px 20px;">
+                        <i class="fa-solid fa-power-off"></i> Apply
+                    </button>
+                </div>
+                <div class="form-group-sm" style="margin-top:10px;">
+                    <label>Maintenance Message</label>
+                    <input type="text" id="setMaintenanceMessage" placeholder="We're currently updating our system...">
+                </div>
+                <div class="form-group-sm">
+                    <label>Estimated Time</label>
+                    <input type="text" id="setMaintenanceTime" placeholder="30 minutes">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1566,7 +952,7 @@
     <!-- ============================================================ -->
     <script>
         // ============================================================
-        // FIREBASE
+        // FIREBASE CONFIG
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyC_WvNxSQQ58TcJhDcBw5NUrAZjOQe1T2g",
@@ -1579,1031 +965,869 @@
         };
 
         let firebaseDb = null;
-        let allData = { withdrawals: [], deposits: [], ads: [], users: [], verifications: [], bonusTasks: [], adminConfig: {},
-            chats: {} };
-        let chatListener = null;
-        let currentChatUserId = null;
-        let isChatPanelOpen = false;
-        let totalUnreadCount = 0;
-        let typingTimeout = null;
+        let chartInstance = null;
+        let isAdminLoggedIn = false;
 
         // ============================================================
-        // INIT
+        // DOM REFS
+        // ============================================================
+        const DOM = {
+            adminLogin: document.getElementById('adminLogin'),
+            adminPanel: document.getElementById('adminPanel'),
+            adminUsername: document.getElementById('adminUsername'),
+            adminPassword: document.getElementById('adminPassword'),
+            loginError: document.getElementById('loginError'),
+            // Stats
+            statUsers: document.getElementById('stat-users'),
+            statBalance: document.getElementById('stat-balance'),
+            statAds: document.getElementById('stat-ads'),
+            statWithdrawals: document.getElementById('stat-withdrawals'),
+            // Counts
+            userCount: document.getElementById('user-count'),
+            withdrawalCount: document.getElementById('withdrawal-count'),
+            jobCount: document.getElementById('job-count'),
+            tierCount: document.getElementById('tier-count'),
+            bonusCount: document.getElementById('bonus-count'),
+            // Lists
+            usersList: document.getElementById('users-list'),
+            withdrawalsList: document.getElementById('withdrawals-list'),
+            jobsList: document.getElementById('jobs-list'),
+            tiersList: document.getElementById('tiers-list'),
+            bonusList: document.getElementById('bonus-list'),
+            // Forms
+            jobForm: document.getElementById('jobForm'),
+            tierForm: document.getElementById('tierForm'),
+            bonusForm: document.getElementById('bonusForm'),
+            // Settings
+            setAdReward: document.getElementById('setAdReward'),
+            setDailyLimit: document.getElementById('setDailyLimit'),
+            setMinWithdraw: document.getElementById('setMinWithdraw'),
+            setCooldown: document.getElementById('setCooldown'),
+            setReferralReward: document.getElementById('setReferralReward'),
+            setAdCooldown: document.getElementById('setAdCooldown'),
+            setSupportLink: document.getElementById('setSupportLink'),
+            setWelcomeMessage: document.getElementById('setWelcomeMessage'),
+            setMaintenance: document.getElementById('setMaintenance'),
+            setMaintenanceMessage: document.getElementById('setMaintenanceMessage'),
+            setMaintenanceTime: document.getElementById('setMaintenanceTime'),
+            maintenanceStatus: document.getElementById('maintenanceStatus'),
+        };
+
+        // ============================================================
+        // ADMIN LOGIN
+        // ============================================================
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'nexearn2024'
+        };
+
+        function adminLogin() {
+            const username = DOM.adminUsername.value.trim();
+            const password = DOM.adminPassword.value.trim();
+
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                isAdminLoggedIn = true;
+                DOM.adminLogin.classList.add('hidden');
+                DOM.adminPanel.classList.add('active');
+                initAdminPanel();
+                showToast('✅ Admin login successful!', 'success');
+            } else {
+                DOM.loginError.classList.add('show');
+                setTimeout(() => DOM.loginError.classList.remove('show'), 3000);
+            }
+        }
+
+        function adminLogout() {
+            isAdminLoggedIn = false;
+            DOM.adminPanel.classList.remove('active');
+            DOM.adminLogin.classList.remove('hidden');
+            DOM.adminUsername.value = 'admin';
+            DOM.adminPassword.value = 'nexearn2024';
+            showToast('👋 Logged out successfully', '');
+        }
+
+        // ============================================================
+        // SWITCH TABS
+        // ============================================================
+        function switchTab(tabId) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            const tabContent = document.getElementById('tab-' + tabId);
+            if (tabContent) tabContent.classList.add('active');
+
+            const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+
+            // Refresh data when switching tabs
+            if (tabId === 'users') loadUsers();
+            if (tabId === 'withdrawals') loadWithdrawals();
+            if (tabId === 'jobs') loadJobs();
+            if (tabId === 'tiers') loadTiers();
+            if (tabId === 'bonus') loadBonus();
+        }
+
+        // ============================================================
+        // FIREBASE FUNCTIONS
         // ============================================================
         function initFirebase() {
-            try { firebase.initializeApp(firebaseConfig);
-                firebaseDb = firebase.database(); return true; } catch (e) { console.error("Firebase error:", e); return false; }
+            try {
+                firebase.initializeApp(firebaseConfig);
+                firebaseDb = firebase.database();
+                console.log("✅ Firebase connected");
+                return true;
+            } catch (e) {
+                console.error("Firebase init error:", e);
+                return false;
+            }
         }
 
-        function loadAllData() {
-            firebaseDb.ref('withdrawals').on('value', s => { allData.withdrawals = Object.entries(s.val() || {}).map(([id,
-                    item]) => ({ id, ...item }));
-                renderWithdrawals();
-                updateStats();
-                updateDashboard(); });
-            firebaseDb.ref('deposits').on('value', s => { allData.deposits = Object.entries(s.val() || {}).map(([id,
-                    item]) => ({ id, ...item }));
-                renderDeposits();
-                updateStats();
-                updateDashboard(); });
-            firebaseDb.ref('ads').on('value', s => { allData.ads = Object.entries(s.val() || {}).map(([id, item]) => ({ id,
-                    ...item }));
-                renderAds();
-                updateStats();
-                updateDashboard(); });
-            firebaseDb.ref('users').on('value', s => { allData.users = Object.entries(s.val() || {}).map(([id, item]) => ({ id,
-                    ...item }));
-                renderUsers();
-                updateStats();
-                updateDashboard();
-                updateChatUsers(); });
-            firebaseDb.ref('verifications').on('value', s => { allData.verifications = Object.entries(s.val() || {}).map(([id,
-                    item]) => ({ id, ...item }));
-                renderVerifications();
-                updateStats();
-                updateDashboard(); });
-            firebaseDb.ref('bonusTasks').on('value', s => { allData.bonusTasks = s.val() || [];
-                renderBonusTasks();
-                updateStats(); });
-            firebaseDb.ref('adminConfig').on('value', s => { allData.adminConfig = s.val() || {};
-                loadSettings();
-                renderWithdrawMethods();
-                renderDepositMethodsSettings();
-                updateMaintenanceToggle(); });
-            firebaseDb.ref('chats').on('value', s => { 
-                allData.chats = s.val() || {};
-                updateChatBadges();
-                if (currentChatUserId) loadUserChat();
+        function showToast(msg, type = '') {
+            const container = document.querySelector('.toast-container') || (() => {
+                const c = document.createElement('div');
+                c.className = 'toast-container';
+                document.body.appendChild(c);
+                return c;
+            })();
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ============================================================
+        // LOAD DASHBOARD STATS
+        // ============================================================
+        function loadDashboardStats() {
+            if (!firebaseDb) return;
+
+            // Total Users
+            firebaseDb.ref('users').once('value').then(snapshot => {
+                const users = snapshot.val() || {};
+                const totalUsers = Object.keys(users).length;
+                DOM.statUsers.textContent = totalUsers;
+                DOM.userCount.textContent = totalUsers;
+
+                // Calculate total balance
+                let totalBalance = 0;
+                let totalAds = 0;
+                Object.values(users).forEach(user => {
+                    totalBalance += user.balance || 0;
+                    totalAds += user.adCount || 0;
+                });
+                DOM.statBalance.textContent = '$' + totalBalance.toFixed(4);
+                DOM.statAds.textContent = totalAds;
+            });
+
+            // Total Withdrawals
+            firebaseDb.ref('withdrawals').once('value').then(snapshot => {
+                const withdrawals = snapshot.val() || {};
+                const totalWithdrawals = Object.keys(withdrawals).length;
+                DOM.statWithdrawals.textContent = totalWithdrawals;
+                DOM.withdrawalCount.textContent = totalWithdrawals;
+            });
+
+            // Load Chart
+            loadAdminChart();
+        }
+
+        // ============================================================
+        // ADMIN CHART
+        // ============================================================
+        function loadAdminChart() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('users').once('value').then(snapshot => {
+                const users = snapshot.val() || {};
+                const weeklyData = [0, 0, 0, 0, 0, 0, 0];
+                Object.values(users).forEach(user => {
+                    if (user.weeklyActivity) {
+                        user.weeklyActivity.forEach((val, i) => {
+                            weeklyData[i] += val || 0;
+                        });
+                    }
+                });
+
+                const ctx = document.getElementById('adminChart').getContext('2d');
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+                const fontColor = isDark ? '#F5F5F7' : '#1D1D1F';
+
+                if (chartInstance) chartInstance.destroy();
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                        datasets: [{
+                            label: 'Ads Watched',
+                            data: weeklyData,
+                            backgroundColor: 'rgba(var(--primary-color-rgb), 0.25)',
+                            borderColor: 'rgb(var(--primary-color-rgb))',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            hoverBackgroundColor: 'rgba(var(--primary-color-rgb), 0.4)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, color: fontColor }, grid: { color: gridColor } },
+                            x: { ticks: { color: fontColor }, grid: { color: gridColor } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
             });
         }
 
-        function updateStats() {
-            document.getElementById('statUsers').textContent = allData.users.length;
-            let total = 0;
-            allData.users.forEach(u => total += (u.balance || 0));
-            document.getElementById('statEarnings').textContent = `$${total.toFixed(3)}`;
-            document.getElementById('statAds').textContent = allData.ads.length;
-            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
-            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
-            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            const pendingAds = allData.ads.filter(a => a.approved === false || a.approved === undefined);
-            const totalPending = pending.length + pendingDeposits.length + pendingVerifications.length + pendingAds.length;
-            document.getElementById('statPending').textContent = totalPending;
-            document.getElementById('navWithdrawCount').textContent = pending.length;
-            document.getElementById('navDepositCount').textContent = pendingDeposits.length;
-            document.getElementById('navVerifCount').textContent = pendingVerifications.length;
-            document.getElementById('navAdsCount').textContent = pendingAds.length;
-            document.getElementById('navUsersCount').textContent = allData.users.length;
-            document.getElementById('navBonusCount').textContent = allData.bonusTasks.length;
-        }
-
-        function updateDashboard() {
-            const pending = allData.withdrawals.filter(w => w.status === 'Pending' || w.status === 'pending');
-            const pendingDeposits = allData.deposits.filter(d => d.status === 'pending');
-            const pendingVerifications = allData.verifications.filter(v => v.status === 'pending');
-            const pendingAds = allData.ads.filter(a => a.approved === false || a.approved === undefined);
-            document.getElementById('dashPendingWithdrawals').textContent = pending.length;
-            document.getElementById('dashPendingDeposits').textContent = pendingDeposits.length;
-            document.getElementById('dashPendingVerifications').textContent = pendingVerifications.length;
-            document.getElementById('dashPendingAds').textContent = pendingAds.length;
-
-            const all = [];
-            allData.withdrawals.forEach(w => all.push({ ...w, type: 'withdrawal' }));
-            allData.deposits.forEach(d => all.push({ ...d, type: 'deposit' }));
-            allData.verifications.forEach(v => all.push({ ...v, type: 'verification' }));
-            allData.ads.forEach(a => all.push({ ...a, type: 'ad' }));
-            all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            const recent = all.slice(0, 12);
-            const container = document.getElementById('recentActivity');
-            if (!recent.length) { container.innerHTML =
-                    `<div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No recent activity</p></div>`; return; }
-            container.innerHTML = recent.map(item => {
-                let icon = 'fa-solid fa-circle',
-                    label = 'Unknown',
-                    status = '';
-                if (item.type === 'withdrawal') { icon = 'fa-solid fa-money-bill-transfer';
-                    label = `Withdrawal $${item.amount?.toFixed(3)}`;
-                    status = item.status || 'Pending'; } else if (item.type === 'deposit') { icon =
-                        'fa-solid fa-credit-card';
-                    label = `Deposit ${item.amount} BDT`;
-                    status = item.status || 'Pending'; } else if (item.type === 'verification') { icon =
-                        'fa-solid fa-check-double';
-                    label = `Verification "${item.adTitle || 'Ad'}"`;
-                    status = item.status || 'Pending'; } else if (item.type === 'ad') { icon = 'fa-solid fa-rectangle-ad';
-                    label = `Ad "${item.title || 'Untitled'}"`;
-                    status = item.approved ? 'Approved' : 'Pending'; }
-                const cls = status.toLowerCase() === 'pending' ? 'warning' : status.toLowerCase() === 'approved' ?
-                    'success' : 'info';
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-color);">
-                        <div style="display:flex;align-items:center;gap:12px;"><i class="${icon}" style="color:var(--accent-1);width:20px;"></i>
-                        <div><div style="font-weight:600;font-size:14px;">${label}</div><div style="font-size:12px;color:var(--text-secondary);">${new Date(item.createdAt||item.date).toLocaleDateString()}</div></div></div>
-                        <span class="status-badge ${cls}">${status}</span></div>`;
-            }).join('');
-        }
-
         // ============================================================
-        // NAVIGATION
+        // USERS MANAGEMENT
         // ============================================================
-        const pageTitles = {
-            dashboard: 'Dashboard',
-            withdrawals: 'Withdrawals',
-            deposits: 'Deposits',
-            ads: 'Ads',
-            users: 'Users',
-            verifications: 'Verifications',
-            settings: 'Settings',
-            bonus: 'Bonus Tasks'
-        };
-        const pageIcons = {
-            dashboard: 'fa-gauge-high',
-            withdrawals: 'fa-money-bill-transfer',
-            deposits: 'fa-credit-card',
-            ads: 'fa-rectangle-ad',
-            users: 'fa-users',
-            verifications: 'fa-check-double',
-            settings: 'fa-gear',
-            bonus: 'fa-star'
-        };
+        function loadUsers() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('users').once('value').then(snapshot => {
+                const users = snapshot.val() || {};
+                const userIds = Object.keys(users);
+                DOM.userCount.textContent = userIds.length;
 
-        function navigateTo(page) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.getElementById(`page-${page}`)?.classList.add('active');
-            document.getElementById('pageTitle').innerHTML =
-                `<i class="fa-solid ${pageIcons[page] || 'fa-circle'}"></i> ${pageTitles[page] || page}`;
-            closeSidebar();
-            if (page === 'withdrawals') renderWithdrawals();
-            if (page === 'deposits') renderDeposits();
-            if (page === 'ads') renderAds();
-            if (page === 'users') renderUsers();
-            if (page === 'verifications') renderVerifications();
-            if (page === 'bonus') renderBonusTasks();
-            if (page === 'settings') { renderWithdrawMethods();
-                renderDepositMethodsSettings(); }
-        }
-
-        // ============================================================
-        // SIDEBAR TOGGLE
-        // ============================================================
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
-
-        // ============================================================
-        // RENDER FUNCTIONS
-        // ============================================================
-        function renderWithdrawals() {
-            const search = document.getElementById('withdrawSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('withdrawFilter')?.value || 'all';
-            let filtered = allData.withdrawals;
-            if (filter !== 'all') filtered = filtered.filter(w => w.status?.toLowerCase() === filter);
-            if (search) filtered = filtered.filter(w => (w.userName || '').toLowerCase().includes(search) || (w.id || '')
-                .toLowerCase().includes(search));
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-            document.getElementById('withdrawCountTitle').textContent = filtered.length;
-            const tbody = document.getElementById('withdrawalsBody');
-            if (!filtered.length) { tbody.innerHTML =
-                    `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No withdrawals</p></div></td></tr>`; return; }
-            tbody.innerHTML = filtered.map(w => `<tr>
-                    <td><strong>${escapeHTML(w.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(w.userId||'')}</span></td>
-                    <td>${escapeHTML(w.method)}<br><span class="text-muted">${escapeHTML(w.accountNumber||'')}</span></td>
-                    <td><strong>$${w.amount?.toFixed(3)||'0.000'}</strong></td>
-                    <td><span class="status-badge ${(w.status||'pending').toLowerCase()}">${w.status||'Pending'}</span></td>
-                    <td class="text-muted">${new Date(w.date).toLocaleDateString()}</td>
-                    <td>${w.status === 'Pending' || w.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveWithdrawal('${w.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('withdrawal','${w.id}')"><i class="fa-solid fa-times"></i></button>
-                        ` : `<span class="text-muted">${w.status||'Done'}</span>`}</td>
-                </tr>`).join('');
-        }
-
-        function filterWithdrawals() { renderWithdrawals(); }
-
-        function renderDeposits() {
-            const search = document.getElementById('depositSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('depositFilter')?.value || 'all';
-            let filtered = allData.deposits;
-            if (filter !== 'all') filtered = filtered.filter(d => d.status === filter);
-            if (search) filtered = filtered.filter(d => (d.userName || '').toLowerCase().includes(search) || (d.method || '')
-                .toLowerCase().includes(search));
-            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            document.getElementById('depositCountTitle').textContent = filtered.length;
-            const tbody = document.getElementById('depositsBody');
-            if (!filtered.length) { tbody.innerHTML =
-                    `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No deposits</p></div></td></tr>`; return; }
-            tbody.innerHTML = filtered.map(d => `<tr>
-                    <td><strong>${escapeHTML(d.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(d.userId||'')}</span></td>
-                    <td>${escapeHTML(d.method)}<br><span class="text-muted">${escapeHTML(d.number||'')}</span></td>
-                    <td><strong>${d.amount} BDT</strong></td>
-                    <td><span class="status-badge ${d.status||'pending'}">${d.status||'Pending'}</span></td>
-                    <td class="text-muted">${new Date(d.createdAt).toLocaleDateString()}</td>
-                    <td>${d.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approveDeposit('${d.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('deposit','${d.id}')"><i class="fa-solid fa-times"></i></button>
-                        ` : `<span class="text-muted">${d.status||'Done'}</span>`}</td>
-                </tr>`).join('');
-        }
-
-        function filterDeposits() { renderDeposits(); }
-
-        function renderAds() {
-            const search = document.getElementById('adsSearch')?.value?.toLowerCase() || '';
-            const filter = document.getElementById('adsFilter')?.value || 'all';
-            let filtered = allData.ads;
-            if (filter === 'pending') filtered = filtered.filter(a => a.approved === false || a.approved === undefined);
-            else if (filter !== 'all') filtered = filtered.filter(a => a.status === filter);
-            if (search) filtered = filtered.filter(a => (a.title || '').toLowerCase().includes(search));
-            filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            document.getElementById('adsCountTitle').textContent = filtered.length;
-            const tbody = document.getElementById('adsBody');
-            if (!filtered.length) { tbody.innerHTML =
-                    `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No ads</p></div></td></tr>`; return; }
-            tbody.innerHTML = filtered.map(ad => {
-                const views = ad.views || 0,
-                    total = ad.totalViews || 100,
-                    progress = Math.min((views / total) * 100, 100),
-                    isApproved = ad.approved || false;
-                let statusText = ad.status || 'pending',
-                    statusClass = statusText;
-                if (!isApproved) { statusText = 'Pending Approval';
-                    statusClass = 'pending'; }
-                return `<tr>
-                        <td><strong>${escapeHTML(ad.title||'Untitled')}</strong></td>
-                        <td><span class="user-id">${escapeHTML(ad.createdBy||'Unknown')}</span></td>
-                        <td>${views}/${total} (${Math.round(progress)}%)</td>
-                        <td>$${ad.reward?.toFixed(3)||'0.001'}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>${!isApproved ? `
-                                <button class="action-btn approve" onclick="approveAd('${ad.id}')"><i class="fa-solid fa-check"></i></button>
-                                <button class="action-btn reject" onclick="openRejectModal('ad','${ad.id}')"><i class="fa-solid fa-times"></i></button>
-                            ` : `
-                                <button class="action-btn edit" onclick="editAd('${ad.id}')"><i class="fa-solid fa-pen"></i></button>
-                                <button class="action-btn delete" onclick="deleteAd('${ad.id}')"><i class="fa-solid fa-trash"></i></button>
-                                <button class="action-btn view" onclick="toggleAdStatus('${ad.id}')">${ad.status === 'active' ? '⏸' : '▶️'}</button>
-                                <button class="action-btn detail" onclick="viewAdDetails('${ad.id}')"><i class="fa-solid fa-eye"></i></button>
-                            `}</td>
-                    </tr>`;
-            }).join('');
-        }
-
-        function filterAdsTable() { renderAds(); }
-
-        function renderUsers() {
-            const search = document.getElementById('usersSearch')?.value?.toLowerCase() || '';
-            let filtered = allData.users;
-            if (search) filtered = filtered.filter(u => (u.name || '').toLowerCase().includes(search) || (u.id || '')
-                .toLowerCase().includes(search));
-            filtered.sort((a, b) => (b.balance || 0) - (a.balance || 0));
-            document.getElementById('usersCountTitle').textContent = filtered.length;
-            const tbody = document.getElementById('usersBody');
-            if (!filtered.length) { tbody.innerHTML =
-                    `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No users</p></div></td></tr>`; return; }
-            tbody.innerHTML = filtered.map(u => {
-                const isBanned = u.banned === true;
-                return `<tr>
-                        <td><strong>${escapeHTML(u.name||'Unknown')}</strong><br><span class="text-muted">@${escapeHTML(u.username||'N/A')}</span></td>
-                        <td><span class="user-id">${escapeHTML(u.id||'')}</span></td>
-                        <td><strong>$${(u.balance||0).toFixed(3)}</strong></td>
-                        <td>$${(u.walletBalance||0).toFixed(3)}</td>
-                        <td>${u.adCount||0}</td>
-                        <td><span class="status-badge ${isBanned ? 'banned' : 'active-user'}">${isBanned ? '🚫 Banned' : '✅ Active'}</span></td>
-                        <td>
-                            <button class="action-btn edit" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="action-btn detail" onclick="viewUser('${u.id}')"><i class="fa-solid fa-eye"></i></button>
-                            <button class="action-btn chat" onclick="openChatWithUser('${u.id}')"><i class="fa-solid fa-comment"></i></button>
-                            ${isBanned ? `<button class="action-btn unban" onclick="unbanUser('${u.id}')"><i class="fa-solid fa-check"></i></button>` : `<button class="action-btn ban" onclick="banUser('${u.id}')"><i class="fa-solid fa-ban"></i></button>`}
-                        </td>
-                    </tr>`;
-            }).join('');
-        }
-
-        function filterUsers() { renderUsers(); }
-
-        function renderVerifications() {
-            const items = allData.verifications.filter(v => v.status === 'pending');
-            document.getElementById('verificationCountTitle').textContent = items.length;
-            const tbody = document.getElementById('verificationsBody');
-            if (!items.length) { tbody.innerHTML =
-                    `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No pending verifications</p></div></td></tr>`; return; }
-            tbody.innerHTML = items.map(v => {
-                const ad = allData.ads.find(a => a.id === v.adId);
-                const adLink = ad?.link || ad?.desc || 'No link';
-                const links = adLink.match(/https?:\/\/[^\s]+/g) || [];
-                return `<tr>
-                        <td><strong>${escapeHTML(v.userName||'Unknown')}</strong><br><span class="user-id">${escapeHTML(v.userId||'')}</span></td>
-                        <td><span class="user-id">${escapeHTML(v.adId||'')}</span></td>
-                        <td>${escapeHTML(v.adTitle||'N/A')}</td>
-                        <td>${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--accent-1);"><i class="fa-solid fa-image"></i> View</a>` : 'No image'}</td>
-                        <td><div class="link-preview">${links.length ? links.map(l => `<a href="${l}" target="_blank">${l}</a>`).join('<br>') : escapeHTML(adLink.substring(0,60))}</div></td>
-                        <td><span class="status-badge pending">Pending</span></td>
-                        <td>
-                            <button class="action-btn approve" onclick="approveVerification('${v.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="action-btn reject" onclick="openRejectModal('verification','${v.id}')"><i class="fa-solid fa-times"></i></button>
-                            <button class="action-btn detail" onclick="viewVerificationDetails('${v.id}')"><i class="fa-solid fa-eye"></i></button>
-                        </td>
-                    </tr>`;
-            }).join('');
-        }
-
-        function renderBonusTasks() {
-            const container = document.getElementById('bonusTasksList');
-            document.getElementById('bonusCountTitle').textContent = allData.bonusTasks.length;
-            if (!allData.bonusTasks.length) { container.innerHTML =
-                    `<div class="empty-state"><i class="fa-solid fa-star"></i><p>No bonus tasks</p></div>`; return; }
-            container.innerHTML = allData.bonusTasks.map((t, i) =>
-                    `
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--border-color);">
-                            <div><div style="font-weight:600;">${escapeHTML(t.title)}</div><div style="font-size:12px;color:var(--text-secondary);">+$${t.reward?.toFixed(3)||'0.00'} | ${t.duration||10}s</div></div>
-                            <div><button class="action-btn edit" onclick="editBonusTask(${i})"><i class="fa-solid fa-pen"></i></button><button class="action-btn delete" onclick="deleteBonusTask(${i})"><i class="fa-solid fa-trash"></i></button></div>
-                        </div>
-                    `
-            ).join('');
-        }
-
-        // ============================================================
-        // CHAT SYSTEM - FULL FEATURED WITH TYPING INDICATOR
-        // ============================================================
-        function updateChatUsers() {
-            const select = document.getElementById('chatUserSelect');
-            if (!select) return;
-            const current = select.value;
-            select.innerHTML = `<option value="">-- Select a user to chat --</option>`;
-            allData.users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                const unread = getUnreadCount(u.id);
-                opt.textContent = `${u.name||'Unknown'} (@${u.username||'N/A'})${unread > 0 ? ` 📩 ${unread}` : ''}`;
-                select.appendChild(opt);
-            });
-            if (current && allData.users.some(u => u.id === current)) select.value = current;
-        }
-
-        function getUnreadCount(userId) {
-            const chats = allData.chats[userId] || {};
-            const msgs = Object.values(chats);
-            let count = 0;
-            msgs.forEach(m => {
-                if (m.sender === 'user' && !m.read) count++;
-            });
-            return count;
-        }
-
-        function updateChatBadges() {
-            let totalUnread = 0;
-            const dot = document.getElementById('chatDot');
-            const unreadEl = document.getElementById('chatUnreadCount');
-            let hasUnread = false;
-            
-            if (allData.chats) {
-                for (const userId in allData.chats) {
-                    const msgs = Object.values(allData.chats[userId]);
-                    const unread = msgs.filter(m => m.sender === 'user' && !m.read).length;
-                    if (unread > 0) { hasUnread = true; totalUnread += unread; }
-                }
-            }
-            
-            dot.classList.toggle('hidden', !hasUnread);
-            if (totalUnread > 0) {
-                unreadEl.textContent = totalUnread;
-                unreadEl.classList.remove('hidden');
-            } else {
-                unreadEl.classList.add('hidden');
-            }
-            totalUnreadCount = totalUnread;
-            
-            // Update chat user list
-            updateChatUsers();
-        }
-
-        function toggleChatPanel() {
-            const el = document.getElementById('chatFloat');
-            isChatPanelOpen = !isChatPanelOpen;
-            el.classList.toggle('active', isChatPanelOpen);
-            if (isChatPanelOpen) {
-                updateChatUsers();
-                if (currentChatUserId) loadUserChat();
-                markAllAsRead();
-                document.getElementById('chatInput').focus();
-            }
-        }
-
-        function openChatWithUser(userId) {
-            if (!isChatPanelOpen) toggleChatPanel();
-            const select = document.getElementById('chatUserSelect');
-            select.value = userId;
-            currentChatUserId = userId;
-            loadUserChat();
-            markAllAsRead();
-            document.getElementById('chatInput').focus();
-        }
-
-        function markAllAsRead() {
-            if (!currentChatUserId) return;
-            const chats = allData.chats[currentChatUserId] || {};
-            const updates = {};
-            Object.entries(chats).forEach(([key, msg]) => {
-                if (msg.sender === 'user' && !msg.read) {
-                    updates[`${key}/read`] = true;
-                }
-            });
-            if (Object.keys(updates).length > 0) {
-                firebaseDb.ref(`chats/${currentChatUserId}`).update(updates);
-            }
-            updateChatBadges();
-        }
-
-        function loadUserChat() {
-            const select = document.getElementById('chatUserSelect');
-            const userId = select.value;
-            const container = document.getElementById('chatMessagesContainer');
-            const typingEl = document.getElementById('typingIndicator');
-            
-            if (!userId) {
-                container.innerHTML = `<div class="chat-empty"><i class="fa-solid fa-comment"></i><p>Select a user to start chatting</p></div>`;
-                currentChatUserId = null;
-                typingEl.classList.remove('active');
-                return;
-            }
-            
-            currentChatUserId = userId;
-            
-            // Mark messages as read for this user
-            markAllAsRead();
-            
-            if (chatListener) chatListener();
-            chatListener = firebaseDb.ref(`chats/${userId}`).on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                const msgs = Object.entries(data).map(([id, msg]) => ({ id, ...msg }));
-                msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                
-                // Check for typing indicator
-                const lastMsg = msgs[msgs.length - 1];
-                if (lastMsg && lastMsg.sender === 'user' && lastMsg.isTyping) {
-                    typingEl.classList.add('active');
-                } else {
-                    typingEl.classList.remove('active');
-                }
-                
-                if (!msgs.length || msgs.every(m => m.isTyping)) {
-                    container.innerHTML = `<div class="chat-empty"><i class="fa-solid fa-comment"></i><p>No messages yet</p></div>`;
+                if (userIds.length === 0) {
+                    DOM.usersList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-users"></i><p>No users found</p></div>`;
                     return;
                 }
-                
-                container.innerHTML = msgs.filter(m => !m.isTyping).map(m => `
-                    <div class="chat-message ${m.sender === 'admin' ? 'admin' : 'user'}">
-                        ${escapeHTML(m.text)}
-                        <span class="msg-time">${new Date(m.timestamp).toLocaleTimeString()} ${m.read ? '✓✓' : '✓'}</span>
-                    </div>
-                `).join('');
-                container.scrollTop = container.scrollHeight;
-                updateChatBadges();
+
+                DOM.usersList.innerHTML = userIds.map(id => {
+                    const user = users[id];
+                    const name = user.name || 'Unknown';
+                    const balance = user.balance || 0;
+                    const isBanned = user.isBanned || false;
+                    const ads = user.adCount || 0;
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">${escapeHTML(name)}</div>
+                                <div class="detail">💵 $${balance.toFixed(4)} • 👁 ${ads} ads</div>
+                            </div>
+                            <span class="status-badge ${isBanned ? 'banned' : 'active'}">${isBanned ? '🚫 Banned' : '✅ Active'}</span>
+                            <div class="actions">
+                                ${isBanned ? 
+                                    `<button class="unban-btn" onclick="unbanUser('${id}')"><i class="fa-solid fa-user-check"></i> Unban</button>` :
+                                    `<button class="ban-btn" onclick="banUser('${id}')"><i class="fa-solid fa-ban"></i> Ban</button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             });
         }
 
-        async function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !currentChatUserId) return;
-            
-            const btn = document.getElementById('chatSendBtn');
-            btn.disabled = true;
-            
-            try {
-                await firebaseDb.ref(`chats/${currentChatUserId}`).push({
-                    text: text,
-                    sender: 'admin',
-                    timestamp: Date.now(),
-                    read: false,
-                    isTyping: false
-                });
-                input.value = '';
-                updateChatBadges();
-                // Mark as read immediately
-                const ref = firebaseDb.ref(`chats/${currentChatUserId}`);
-                ref.orderByChild('timestamp').limitToLast(1).once('value', snap => {
-                    snap.forEach(child => {
-                        ref.child(child.key + '/read').set(true);
-                    });
-                });
-            } catch (e) {
-                showToast('❌ Failed to send message', 'error');
-            } finally {
-                btn.disabled = false;
-                document.getElementById('chatInput').focus();
-            }
+        function banUser(userId) {
+            if (!firebaseDb || !confirm('Are you sure you want to ban this user?')) return;
+            firebaseDb.ref(`users/${userId}/isBanned`).set(true);
+            firebaseDb.ref(`users/${userId}/banReason`).set('Banned by admin');
+            showToast('✅ User banned successfully', 'success');
+            loadUsers();
+            loadDashboardStats();
+        }
+
+        function unbanUser(userId) {
+            if (!firebaseDb || !confirm('Are you sure you want to unban this user?')) return;
+            firebaseDb.ref(`users/${userId}/isBanned`).set(false);
+            firebaseDb.ref(`users/${userId}/banReason`).remove();
+            showToast('✅ User unbanned successfully', 'success');
+            loadUsers();
+            loadDashboardStats();
         }
 
         // ============================================================
-        // MAINTENANCE MODE
+        // WITHDRAWALS MANAGEMENT
         // ============================================================
-        function updateMaintenanceToggle() {
-            const maintenance = allData.adminConfig.maintenance || { active: false };
-            const toggle = document.getElementById('maintenanceToggle');
-            const status = document.getElementById('maintenanceStatus');
-            if (maintenance.active) {
-                toggle.classList.add('active');
-                status.textContent = 'On';
-                document.getElementById('maintenanceMessage').value = maintenance.message || 'We\'re currently updating our system. Please check back later.';
-                document.getElementById('maintenanceTime').value = maintenance.estimatedTime || '30 minutes';
-            } else {
-                toggle.classList.remove('active');
-                status.textContent = 'Off';
+        function loadWithdrawals() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('withdrawals').once('value').then(snapshot => {
+                const withdrawals = snapshot.val() || {};
+                const wIds = Object.keys(withdrawals);
+                DOM.withdrawalCount.textContent = wIds.length;
+
+                if (wIds.length === 0) {
+                    DOM.withdrawalsList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-money-bill-transfer"></i><p>No withdrawals</p></div>`;
+                    return;
+                }
+
+                // Sort by date (newest first)
+                wIds.sort((a, b) => (withdrawals[b]?.date || 0) - (withdrawals[a]?.date || 0));
+
+                DOM.withdrawalsList.innerHTML = wIds.map(id => {
+                    const w = withdrawals[id];
+                    if (!w) return '';
+                    const amount = w.amount || 0;
+                    const method = w.method || 'Unknown';
+                    const status = w.status || 'Pending';
+                    const userName = w.userName || 'Unknown';
+                    const account = w.accountNumber || '';
+                    const date = w.date ? new Date(w.date).toLocaleString() : 'Unknown';
+
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">${escapeHTML(userName)}</div>
+                                <div class="detail">${escapeHTML(method)} - ${escapeHTML(account)}</div>
+                                <div class="detail" style="font-size:10px;">${date}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:700; font-size:16px; color:var(--success);">$${amount.toFixed(4)}</div>
+                                <span class="status-badge ${status.toLowerCase()}">${status}</span>
+                            </div>
+                            ${status === 'Pending' ? `
+                                <div class="actions">
+                                    <button class="approve-btn" onclick="approveWithdrawal('${id}')"><i class="fa-solid fa-check"></i></button>
+                                    <button class="reject-btn" onclick="rejectWithdrawal('${id}')"><i class="fa-solid fa-times"></i></button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function approveWithdrawal(withdrawalId) {
+            if (!firebaseDb || !confirm('Approve this withdrawal request?')) return;
+            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('Approved');
+            showToast('✅ Withdrawal approved', 'success');
+            loadWithdrawals();
+            loadDashboardStats();
+        }
+
+        function rejectWithdrawal(withdrawalId) {
+            if (!firebaseDb || !confirm('Reject this withdrawal request?')) return;
+            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('Rejected');
+            showToast('❌ Withdrawal rejected', '');
+            loadWithdrawals();
+            loadDashboardStats();
+        }
+
+        // ============================================================
+        // JOBS MANAGEMENT
+        // ============================================================
+        let editingJobId = null;
+
+        function toggleJobForm() {
+            const form = DOM.jobForm;
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) {
+                document.getElementById('editJobId').value = '';
+                editingJobId = null;
+                // Clear form
+                document.getElementById('jobTitle').value = '';
+                document.getElementById('jobCategory').value = 'General';
+                document.getElementById('jobSubCategory').value = '';
+                document.getElementById('jobReward').value = '0.001';
+                document.getElementById('jobTotalViews').value = '100';
+                document.getElementById('jobDuration').value = '7';
+                document.getElementById('jobDesc').value = '';
+                document.getElementById('jobInstructions').value = '';
+                document.getElementById('jobRequirements').value = '';
+                document.getElementById('jobStatus').value = 'active';
+                document.querySelector('#jobForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Job';
             }
+        }
+
+        function editJob(jobId) {
+            if (!firebaseDb) return;
+            firebaseDb.ref(`ads/${jobId}`).once('value').then(snapshot => {
+                const job = snapshot.val();
+                if (!job) { showToast('❌ Job not found', 'error'); return; }
+
+                document.getElementById('editJobId').value = jobId;
+                editingJobId = jobId;
+                document.getElementById('jobTitle').value = job.title || '';
+                document.getElementById('jobCategory').value = job.category || 'General';
+                document.getElementById('jobSubCategory').value = job.subCategory || '';
+                document.getElementById('jobReward').value = job.reward || 0.001;
+                document.getElementById('jobTotalViews').value = job.totalViews || 100;
+                document.getElementById('jobDuration').value = job.duration || 7;
+                document.getElementById('jobDesc').value = job.desc || '';
+                document.getElementById('jobInstructions').value = job.instructions || '';
+                document.getElementById('jobRequirements').value = job.requirements || '';
+                document.getElementById('jobStatus').value = job.status || 'active';
+                document.querySelector('#jobForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Job';
+                DOM.jobForm.classList.add('active');
+            });
+        }
+
+        function saveJob() {
+            const title = document.getElementById('jobTitle').value.trim();
+            const category = document.getElementById('jobCategory').value;
+            const subCategory = document.getElementById('jobSubCategory').value.trim();
+            const reward = parseFloat(document.getElementById('jobReward').value);
+            const totalViews = parseInt(document.getElementById('jobTotalViews').value);
+            const duration = parseInt(document.getElementById('jobDuration').value);
+            const desc = document.getElementById('jobDesc').value.trim();
+            const instructions = document.getElementById('jobInstructions').value.trim();
+            const requirements = document.getElementById('jobRequirements').value.trim();
+            const status = document.getElementById('jobStatus').value;
+            const editId = document.getElementById('editJobId').value;
+
+            if (!title || !desc || !reward || reward <= 0 || !totalViews || totalViews < 1) {
+                showToast('❌ Please fill all required fields correctly', 'error');
+                return;
+            }
+
+            const jobData = {
+                title: title,
+                category: category,
+                subCategory: subCategory,
+                reward: reward,
+                totalViews: totalViews,
+                duration: duration,
+                desc: desc,
+                instructions: instructions || 'No specific instructions',
+                requirements: requirements || 'No specific requirements',
+                status: status,
+                approved: true,
+                updatedAt: Date.now()
+            };
+
+            if (editId) {
+                // Update existing job
+                firebaseDb.ref(`ads/${editId}`).update(jobData).then(() => {
+                    showToast('✅ Job updated successfully!', 'success');
+                    toggleJobForm();
+                    loadJobs();
+                    loadDashboardStats();
+                }).catch(() => showToast('❌ Failed to update job', 'error'));
+            } else {
+                // Create new job
+                jobData.createdAt = Date.now();
+                jobData.views = 0;
+                jobData.createdBy = 'admin';
+                jobData.creatorName = 'Admin';
+                firebaseDb.ref('ads').push(jobData).then(() => {
+                    showToast('✅ Job created successfully!', 'success');
+                    toggleJobForm();
+                    loadJobs();
+                    loadDashboardStats();
+                }).catch(() => showToast('❌ Failed to create job', 'error'));
+            }
+        }
+
+        function deleteJob(jobId) {
+            if (!firebaseDb || !confirm('Are you sure you want to delete this job?')) return;
+            firebaseDb.ref(`ads/${jobId}`).remove().then(() => {
+                showToast('✅ Job deleted', 'success');
+                loadJobs();
+                loadDashboardStats();
+            }).catch(() => showToast('❌ Failed to delete job', 'error'));
+        }
+
+        function loadJobs() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('ads').once('value').then(snapshot => {
+                const jobs = snapshot.val() || {};
+                const jobIds = Object.keys(jobs);
+                DOM.jobCount.textContent = jobIds.length;
+
+                if (jobIds.length === 0) {
+                    DOM.jobsList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-briefcase"></i><p>No jobs created</p></div>`;
+                    return;
+                }
+
+                jobIds.sort((a, b) => (jobs[b]?.createdAt || 0) - (jobs[a]?.createdAt || 0));
+
+                DOM.jobsList.innerHTML = jobIds.map(id => {
+                    const job = jobs[id];
+                    if (!job) return '';
+                    const status = job.status || 'active';
+                    const isActive = status === 'active';
+                    const views = job.views || 0;
+                    const totalViews = job.totalViews || 100;
+                    const progress = Math.min((views / totalViews) * 100, 100);
+
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">${escapeHTML(job.title || 'Untitled')}</div>
+                                <div class="detail">💰 $${(job.reward || 0).toFixed(4)} • 👁 ${views}/${totalViews} (${progress.toFixed(0)}%)</div>
+                                <div class="detail" style="font-size:10px;">${escapeHTML(job.category || 'General')}</div>
+                            </div>
+                            <span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? '✅ Active' : '⏸ Paused'}</span>
+                            <div class="actions">
+                                <button class="edit-btn" onclick="editJob('${id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="delete-btn" onclick="deleteJob('${id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // ============================================================
+        // TIERS MANAGEMENT
+        // ============================================================
+        let editingTierId = null;
+
+        function toggleTierForm() {
+            const form = DOM.tierForm;
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) {
+                document.getElementById('editTierId').value = '';
+                editingTierId = null;
+                document.getElementById('tierName').value = `Section ${(state.tiers?.length || 0) + 1}`;
+                document.getElementById('tierPrize').value = '1.20';
+                document.getElementById('tierRequired').value = '6';
+                document.getElementById('tierStatus').value = 'active';
+                document.getElementById('tierDesc').value = '';
+                document.querySelector('#tierForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Tier';
+            }
+        }
+
+        function editTier(tierId) {
+            if (!firebaseDb) return;
+            firebaseDb.ref(`adTiers/${tierId}`).once('value').then(snapshot => {
+                const tier = snapshot.val();
+                if (!tier) { showToast('❌ Tier not found', 'error'); return; }
+
+                document.getElementById('editTierId').value = tierId;
+                editingTierId = tierId;
+                document.getElementById('tierName').value = tier.name || '';
+                document.getElementById('tierPrize').value = tier.prize || 1.20;
+                document.getElementById('tierRequired').value = tier.requiredAds || 6;
+                document.getElementById('tierStatus').value = tier.status || 'active';
+                document.getElementById('tierDesc').value = tier.desc || '';
+                document.querySelector('#tierForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Tier';
+                DOM.tierForm.classList.add('active');
+            });
+        }
+
+        function saveTier() {
+            const name = document.getElementById('tierName').value.trim();
+            const prize = parseFloat(document.getElementById('tierPrize').value);
+            const requiredAds = parseInt(document.getElementById('tierRequired').value);
+            const status = document.getElementById('tierStatus').value;
+            const desc = document.getElementById('tierDesc').value.trim();
+            const editId = document.getElementById('editTierId').value;
+
+            if (!name || !prize || prize <= 0 || !requiredAds || requiredAds < 1) {
+                showToast('❌ Please fill all fields correctly', 'error');
+                return;
+            }
+
+            const tierData = {
+                name: name,
+                prize: prize,
+                requiredAds: requiredAds,
+                status: status,
+                desc: desc || '',
+                updatedAt: Date.now()
+            };
+
+            if (editId) {
+                firebaseDb.ref(`adTiers/${editId}`).update(tierData).then(() => {
+                    showToast('✅ Tier updated successfully!', 'success');
+                    toggleTierForm();
+                    loadTiers();
+                }).catch(() => showToast('❌ Failed to update tier', 'error'));
+            } else {
+                tierData.createdAt = Date.now();
+                tierData.order = (state.tiers?.length || 0);
+                firebaseDb.ref('adTiers').push(tierData).then(() => {
+                    showToast('✅ Tier created successfully!', 'success');
+                    toggleTierForm();
+                    loadTiers();
+                }).catch(() => showToast('❌ Failed to create tier', 'error'));
+            }
+        }
+
+        function deleteTier(tierId) {
+            if (!firebaseDb || !confirm('Are you sure you want to delete this tier?')) return;
+            firebaseDb.ref(`adTiers/${tierId}`).remove().then(() => {
+                showToast('✅ Tier deleted', 'success');
+                loadTiers();
+            }).catch(() => showToast('❌ Failed to delete tier', 'error'));
+        }
+
+        function loadTiers() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('adTiers').orderByChild('order').once('value').then(snapshot => {
+                const tiers = snapshot.val() || {};
+                const tierIds = Object.keys(tiers);
+                DOM.tierCount.textContent = tierIds.length;
+                state.tiers = tierIds.map(id => ({ id, ...tiers[id] }));
+
+                if (tierIds.length === 0) {
+                    DOM.tiersList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-layer-group"></i><p>No tiers created</p></div>`;
+                    return;
+                }
+
+                DOM.tiersList.innerHTML = tierIds.map(id => {
+                    const tier = tiers[id];
+                    if (!tier) return '';
+                    const isActive = tier.status === 'active';
+
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">${escapeHTML(tier.name || 'Unnamed')}</div>
+                                <div class="detail">💰 $${(tier.prize || 0).toFixed(2)} • 👁 ${tier.requiredAds || 0} ads</div>
+                            </div>
+                            <span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? '✅ Active' : '⏸ Inactive'}</span>
+                            <div class="actions">
+                                <button class="edit-btn" onclick="editTier('${id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="delete-btn" onclick="deleteTier('${id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // ============================================================
+        // BONUS MANAGEMENT
+        // ============================================================
+        let editingBonusId = null;
+
+        function toggleBonusForm() {
+            const form = DOM.bonusForm;
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) {
+                document.getElementById('editBonusId').value = '';
+                editingBonusId = null;
+                document.getElementById('bonusTitle').value = '';
+                document.getElementById('bonusReward').value = '0.01';
+                document.getElementById('bonusDuration').value = '10';
+                document.getElementById('bonusLink').value = '';
+                document.querySelector('#bonusForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Bonus';
+            }
+        }
+
+        function editBonus(bonusId) {
+            if (!firebaseDb) return;
+            firebaseDb.ref(`bonusTasks/${bonusId}`).once('value').then(snapshot => {
+                const bonus = snapshot.val();
+                if (!bonus) { showToast('❌ Bonus task not found', 'error'); return; }
+
+                document.getElementById('editBonusId').value = bonusId;
+                editingBonusId = bonusId;
+                document.getElementById('bonusTitle').value = bonus.title || '';
+                document.getElementById('bonusReward').value = bonus.reward || 0.01;
+                document.getElementById('bonusDuration').value = bonus.duration || 10;
+                document.getElementById('bonusLink').value = bonus.link || '';
+                document.querySelector('#bonusForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Bonus';
+                DOM.bonusForm.classList.add('active');
+            });
+        }
+
+        function saveBonus() {
+            const title = document.getElementById('bonusTitle').value.trim();
+            const reward = parseFloat(document.getElementById('bonusReward').value);
+            const duration = parseInt(document.getElementById('bonusDuration').value);
+            const link = document.getElementById('bonusLink').value.trim();
+            const editId = document.getElementById('editBonusId').value;
+
+            if (!title || !reward || reward <= 0 || !duration || duration < 1 || !link) {
+                showToast('❌ Please fill all fields correctly', 'error');
+                return;
+            }
+
+            const bonusData = {
+                title: title,
+                reward: reward,
+                duration: duration,
+                link: link,
+                updatedAt: Date.now()
+            };
+
+            if (editId) {
+                firebaseDb.ref(`bonusTasks/${editId}`).update(bonusData).then(() => {
+                    showToast('✅ Bonus task updated!', 'success');
+                    toggleBonusForm();
+                    loadBonus();
+                }).catch(() => showToast('❌ Failed to update bonus', 'error'));
+            } else {
+                bonusData.id = 'bonus_' + Date.now();
+                bonusData.createdAt = Date.now();
+                firebaseDb.ref('bonusTasks').push(bonusData).then(() => {
+                    showToast('✅ Bonus task created!', 'success');
+                    toggleBonusForm();
+                    loadBonus();
+                }).catch(() => showToast('❌ Failed to create bonus', 'error'));
+            }
+        }
+
+        function deleteBonus(bonusId) {
+            if (!firebaseDb || !confirm('Are you sure you want to delete this bonus task?')) return;
+            firebaseDb.ref(`bonusTasks/${bonusId}`).remove().then(() => {
+                showToast('✅ Bonus task deleted', 'success');
+                loadBonus();
+            }).catch(() => showToast('❌ Failed to delete bonus', 'error'));
+        }
+
+        function loadBonus() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('bonusTasks').once('value').then(snapshot => {
+                const bonuses = snapshot.val() || {};
+                const bonusIds = Object.keys(bonuses);
+                DOM.bonusCount.textContent = bonusIds.length;
+
+                if (bonusIds.length === 0) {
+                    DOM.bonusList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-gift"></i><p>No bonus tasks</p></div>`;
+                    return;
+                }
+
+                DOM.bonusList.innerHTML = bonusIds.map(id => {
+                    const bonus = bonuses[id];
+                    if (!bonus) return '';
+
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">${escapeHTML(bonus.title || 'Untitled')}</div>
+                                <div class="detail">💰 $${(bonus.reward || 0).toFixed(4)} • ⏱ ${bonus.duration || 10}s</div>
+                            </div>
+                            <div class="actions">
+                                <button class="edit-btn" onclick="editBonus('${id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="delete-btn" onclick="deleteBonus('${id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // ============================================================
+        // SETTINGS
+        // ============================================================
+        function loadSettings() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('adminConfig').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                DOM.setAdReward.value = data.adReward || 0.001;
+                DOM.setDailyLimit.value = data.dailyLimit || 15;
+                DOM.setMinWithdraw.value = data.minWithdraw || 0.10;
+                DOM.setCooldown.value = data.cooldown || 30;
+                DOM.setReferralReward.value = data.referralReward || 0.01;
+                DOM.setAdCooldown.value = data.adCooldownMinutes || 1;
+                DOM.setSupportLink.value = data.supportLink || 'https://t.me/NexEarn2Support';
+                DOM.setWelcomeMessage.value = data.welcomeMessage || '';
+                DOM.setMaintenance.checked = data.maintenance?.active || false;
+                DOM.setMaintenanceMessage.value = data.maintenance?.message || "We're currently updating our system. Please check back later.";
+                DOM.setMaintenanceTime.value = data.maintenance?.estimatedTime || "30 minutes";
+                updateMaintenanceStatus();
+            });
+        }
+
+        function saveSettings() {
+            if (!firebaseDb) return;
+            const settings = {
+                adReward: parseFloat(DOM.setAdReward.value) || 0.001,
+                dailyLimit: parseInt(DOM.setDailyLimit.value) || 15,
+                minWithdraw: parseFloat(DOM.setMinWithdraw.value) || 0.10,
+                cooldown: parseInt(DOM.setCooldown.value) || 30,
+                referralReward: parseFloat(DOM.setReferralReward.value) || 0.01,
+                adCooldownMinutes: parseInt(DOM.setAdCooldown.value) || 1,
+                supportLink: DOM.setSupportLink.value.trim() || 'https://t.me/NexEarn2Support',
+                welcomeMessage: DOM.setWelcomeMessage.value.trim() || '',
+                updatedAt: Date.now()
+            };
+
+            firebaseDb.ref('adminConfig').update(settings).then(() => {
+                showToast('✅ Settings saved successfully!', 'success');
+            }).catch(() => showToast('❌ Failed to save settings', 'error'));
         }
 
         function toggleMaintenance() {
-            const toggle = document.getElementById('maintenanceToggle');
-            const newState = !toggle.classList.contains('active');
-            const message = document.getElementById('maintenanceMessage').value.trim() || 'We\'re currently updating our system. Please check back later.';
-            const estimatedTime = document.getElementById('maintenanceTime').value.trim() || '30 minutes';
+            if (!firebaseDb) return;
+            const active = DOM.setMaintenance.checked;
+            const message = DOM.setMaintenanceMessage.value.trim() || "We're currently updating our system. Please check back later.";
+            const estimatedTime = DOM.setMaintenanceTime.value.trim() || "30 minutes";
+
             firebaseDb.ref('adminConfig/maintenance').set({
-                active: newState,
+                active: active,
                 message: message,
-                estimatedTime: estimatedTime
+                estimatedTime: estimatedTime,
+                updatedAt: Date.now()
             }).then(() => {
-                showToast(newState ? '🔧 Maintenance enabled' : '✅ Maintenance disabled', newState ? 'warning' : 'success');
-                updateMaintenanceToggle();
-            }).catch(err => {
-                showToast('❌ Failed to update maintenance mode', 'error');
-            });
+                showToast(active ? '🔧 Maintenance mode enabled' : '✅ Maintenance mode disabled', active ? 'warning' :
+                    'success');
+                updateMaintenanceStatus();
+            }).catch(() => showToast('❌ Failed to update maintenance mode', 'error'));
+        }
+
+        function updateMaintenanceStatus() {
+            if (DOM.setMaintenance.checked) {
+                DOM.maintenanceStatus.textContent = '🔴 Active';
+                DOM.maintenanceStatus.style.color = 'var(--danger)';
+            } else {
+                DOM.maintenanceStatus.textContent = '🟢 Off';
+                DOM.maintenanceStatus.style.color = 'var(--success)';
+            }
         }
 
         // ============================================================
-        // ACTIONS
+        // STATE
         // ============================================================
-        async function approveWithdrawal(id) { if (!confirm('Approve?')) return; try { await firebaseDb.ref(
-                    `withdrawals/${id}/status`).set('Approved');
-                showToast('✅ Approved', 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function approveDeposit(id) { if (!confirm('Approve deposit?')) return; try { const snap = await firebaseDb
-                    .ref(`deposits/${id}`).once('value');
-                const d = snap.val(); if (!d) return; await firebaseDb.ref(`deposits/${id}/status`).set('approved');
-                await firebaseDb.ref(`users/${d.userId}/walletBalance`).transaction(c => (c || 0) + d.amount / 100);
-                showToast('✅ Deposit approved', 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function approveAd(id) { if (!confirm('Approve ad?')) return; try { await firebaseDb.ref(`ads/${id}/approved`)
-                    .set(true);
-                showToast('✅ Ad approved', 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function deleteAd(id) { if (!confirm('Delete ad?')) return; try { await firebaseDb.ref(`ads/${id}`).remove();
-                showToast('✅ Deleted', 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function toggleAdStatus(id) { try { const snap = await firebaseDb.ref(`ads/${id}`).once('value');
-                const ad = snap.val(); if (!ad) return; const ns = ad.status === 'active' ? 'paused' : 'active'; await firebaseDb
-                    .ref(`ads/${id}/status`).set(ns);
-                showToast(`✅ ${ns}`, 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function banUser(id) { if (!confirm('Ban user?')) return; try { await firebaseDb.ref(`users/${id}/banned`)
-                    .set(true);
-                showToast('✅ Banned', 'success');
-                renderUsers(); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function unbanUser(id) { if (!confirm('Unban user?')) return; try { await firebaseDb.ref(`users/${id}/banned`)
-                    .set(false);
-                showToast('✅ Unbanned', 'success');
-                renderUsers(); } catch (e) { showToast('❌ Failed', 'error'); } }
-                
-        async function approveVerification(id) { if (!confirm('Approve verification?')) return; try { const snap =
-                    await firebaseDb.ref(`verifications/${id}`).once('value');
-                const d = snap.val(); if (!d) return; await firebaseDb.ref(`verifications/${id}/status`).set('approved');
-                const adSnap = await firebaseDb.ref(`ads/${d.adId}`).once('value');
-                const ad = adSnap.val(); if (ad) await firebaseDb.ref(`users/${d.userId}/balance`).transaction(c => (c ||
-                    0) + ad.reward); await firebaseDb.ref(`ads/${d.adId}/verified`).set(true);
-                showToast('✅ Verified', 'success'); } catch (e) { showToast('❌ Failed', 'error'); } }
+        const state = {
+            tiers: []
+        };
 
         // ============================================================
-        // REJECT WITH REASON
+        // INITIALIZE ADMIN PANEL
         // ============================================================
-        let rejectContext = { type: '', id: '' };
-
-        function openRejectModal(type, id) {
-            rejectContext = { type, id };
-            showModal('❌ Reject with Reason',
-                `<div class="form-group"><label>Reason *</label><textarea id="rejectReasonInput" placeholder="Explain why..." rows="4" required></textarea></div>`,
-                `<button class="btn-danger" onclick="confirmReject()"><i class="fa-solid fa-times"></i> Reject</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        async function confirmReject() {
-            const reason = document.getElementById('rejectReasonInput').value.trim();
-            if (!reason || reason.length < 3) { showToast('❌ Reason required (min 3 chars)', 'error'); return; }
-            const { type, id } = rejectContext; if (!id || !type) return;
-            try {
-                if (type === 'withdrawal') await firebaseDb.ref(`withdrawals/${id}`).update({ status: 'Rejected',
-                    rejectReason: reason });
-                else if (type === 'deposit') await firebaseDb.ref(`deposits/${id}`).update({ status: 'rejected',
-                    rejectReason: reason });
-                else if (type === 'ad') await firebaseDb.ref(`ads/${id}`).update({ status: 'rejected',
-                    rejectReason: reason });
-                else if (type === 'verification') await firebaseDb.ref(`verifications/${id}`).update({ status: 'rejected',
-                    rejectReason: reason });
-                closeModal();
-                showToast('❌ Rejected', 'error');
-            } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // ============================================================
-        // EDIT AD
-        // ============================================================
-        async function editAd(id) {
-            const snap = await firebaseDb.ref(`ads/${id}`).once('value');
-            const ad = snap.val(); if (!ad) return;
-            showModal('✏️ Edit Ad', `
-                    <div class="form-group"><label>Title</label><input type="text" id="editAdTitle" value="${escapeHTML(ad.title||'')}"></div>
-                    <div class="form-group"><label>Description</label><textarea id="editAdDesc">${escapeHTML(ad.desc||'')}</textarea></div>
-                    <div class="form-group"><label>Link</label><input type="url" id="editAdLink" value="${escapeHTML(ad.link||'')}"></div>
-                    <div class="form-group"><label>Requirements</label><textarea id="editAdRequirements">${escapeHTML(ad.requirements||'')}</textarea></div>
-                    <div class="form-group"><label>Instructions</label><textarea id="editAdInstructions">${escapeHTML(ad.instructions||'')}</textarea></div>
-                    <div class="form-row"><div class="form-group"><label>Reward ($)</label><input type="number" id="editAdReward" step="0.001" value="${ad.reward||0.001}"></div>
-                    <div class="form-group"><label>Total Views</label><input type="number" id="editAdViews" value="${ad.totalViews||100}"></div></div>
-                    <div class="form-row"><div class="form-group"><label>Duration (Days)</label><input type="number" id="editAdDuration" value="${ad.duration||7}"></div>
-                    <div class="form-group"><label>Status</label><select id="editAdStatus"><option value="active" ${ad.status === 'active' ? 'selected' : ''}>Active</option><option value="paused" ${ad.status === 'paused' ? 'selected' : ''}>Paused</option><option value="expired" ${ad.status === 'expired' ? 'selected' : ''}>Expired</option></select></div></div>
-                    <div class="form-group"><label>Budget ($)</label><input type="number" id="editAdBudget" step="0.01" value="${ad.budget||1.00}"></div>
-                `,
-                `<button class="btn-primary" onclick="saveAd('${id}')"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        async function saveAd(id) {
-            const data = {
-                title: document.getElementById('editAdTitle').value,
-                desc: document.getElementById('editAdDesc').value,
-                link: document.getElementById('editAdLink').value,
-                requirements: document.getElementById('editAdRequirements').value,
-                instructions: document.getElementById('editAdInstructions').value,
-                reward: parseFloat(document.getElementById('editAdReward').value) || 0.001,
-                totalViews: parseInt(document.getElementById('editAdViews').value) || 100,
-                duration: parseInt(document.getElementById('editAdDuration').value) || 7,
-                status: document.getElementById('editAdStatus').value,
-                budget: parseFloat(document.getElementById('editAdBudget').value) || 1.00
-            };
-            if (data.duration) data.endDate = Date.now() + data.duration * 24 * 60 * 60 * 1000;
-            try { await firebaseDb.ref(`ads/${id}`).update(data);
-                closeModal();
-                showToast('✅ Updated', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // ============================================================
-        // EDIT USER
-        // ============================================================
-        async function editUser(id) {
-            const snap = await firebaseDb.ref(`users/${id}`).once('value');
-            const user = snap.val(); if (!user) return;
-            showModal('✏️ Edit User', `
-                    <div class="form-group"><label>Name</label><input type="text" id="editUserName" value="${escapeHTML(user.name||'')}"></div>
-                    <div class="form-row"><div class="form-group"><label>Balance ($)</label><input type="number" id="editUserBalance" step="0.001" value="${user.balance||0}"></div>
-                    <div class="form-group"><label>Wallet ($)</label><input type="number" id="editUserWallet" step="0.001" value="${user.walletBalance||0}"></div></div>
-                    <div class="form-row"><div class="form-group"><label>Ads Watched</label><input type="number" id="editUserAds" value="${user.adCount||0}"></div>
-                    <div class="form-group"><label>Role</label><select id="editUserRole"><option value="publisher" ${user.userRole === 'publisher' ? 'selected' : ''}>Publisher</option><option value="advertiser" ${user.userRole === 'advertiser' ? 'selected' : ''}>Advertiser</option></select></div></div>
-                    <div class="form-group"><label>Status</label><select id="editUserStatus"><option value="active" ${!user.banned ? 'selected' : ''}>Active</option><option value="banned" ${user.banned ? 'selected' : ''}>Banned</option></select></div>
-                `,
-                `<button class="btn-primary" onclick="saveUser('${id}')"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        async function saveUser(id) {
-            const data = {
-                name: document.getElementById('editUserName').value,
-                balance: parseFloat(document.getElementById('editUserBalance').value) || 0,
-                walletBalance: parseFloat(document.getElementById('editUserWallet').value) || 0,
-                adCount: parseInt(document.getElementById('editUserAds').value) || 0,
-                userRole: document.getElementById('editUserRole').value,
-                banned: document.getElementById('editUserStatus').value === 'banned'
-            };
-            try { await firebaseDb.ref(`users/${id}`).update(data);
-                closeModal();
-                showToast('✅ Updated', 'success');
-                renderUsers(); } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        function viewUser(id) {
-            const user = allData.users.find(u => u.id === id); if (!user) return;
-            showModal('👤 User Details', `
-                    <div style="display:grid;gap:8px;font-size:14px;">
-                        <div><strong>Name:</strong> ${escapeHTML(user.name||'Unknown')}</div>
-                        <div><strong>Username:</strong> @${escapeHTML(user.username||'N/A')}</div>
-                        <div><strong>ID:</strong> <span class="user-id">${escapeHTML(user.id)}</span></div>
-                        <div><strong>Balance:</strong> $${(user.balance||0).toFixed(3)}</div>
-                        <div><strong>Wallet:</strong> $${(user.walletBalance||0).toFixed(3)}</div>
-                        <div><strong>Ads:</strong> ${user.adCount||0}</div>
-                        <div><strong>Referrals:</strong> ${user.referrals||0}</div>
-                        <div><strong>Role:</strong> ${user.userRole||'Publisher'}</div>
-                        <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
-                    </div>
-                    <div style="margin-top:16px;"><button class="btn-primary btn-sm" onclick="openChatWithUser('${user.id}')"><i class="fa-solid fa-comment"></i> Chat with User</button></div>
-                `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
-        }
-
-        function viewAdDetails(id) {
-            const ad = allData.ads.find(a => a.id === id); if (!ad) return;
-            const desc = (ad.desc || '').replace(/(https?:\/\/[^\s]+)/g,
-                '<a href="$1" target="_blank" style="color:var(--accent-1);">$1</a>');
-            showModal('📢 Ad Details', `
-                    <div style="display:grid;gap:10px;font-size:14px;">
-                        <div><strong>Title:</strong> ${escapeHTML(ad.title||'Untitled')}</div>
-                        <div><strong>Creator:</strong> ${escapeHTML(ad.creatorName||'Unknown')}</div>
-                        <div><strong>Category:</strong> ${escapeHTML(ad.category||'General')}</div>
-                        <div><strong>Description:</strong><div style="background:var(--bg-primary);padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border-color);">${desc||'No description'}</div></div>
-                        <div><strong>Reward:</strong> $${ad.reward?.toFixed(3)||'0.001'}</div>
-                        <div><strong>Views:</strong> ${ad.views||0}/${ad.totalViews||100}</div>
-                        <div><strong>Budget:</strong> $${ad.budget?.toFixed(2)||'0.00'}</div>
-                        <div><strong>Duration:</strong> ${ad.duration||7} days</div>
-                        <div><strong>Status:</strong> <span class="status-badge ${ad.status||'pending'}">${ad.status||'Pending'}</span></div>
-                        ${ad.imageUrl ? `<div><img src="${ad.imageUrl}" style="max-width:100%;max-height:150px;border-radius:var(--radius-sm);border:1px solid var(--border-color);"></div>` : ''}
-                    </div>
-                `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
-        }
-
-        function viewVerificationDetails(id) {
-            const v = allData.verifications.find(item => item.id === id); if (!v) return;
-            const ad = allData.ads.find(a => a.id === v.adId);
-            const adLink = ad?.link || ad?.desc || 'No link';
-            const links = adLink.match(/https?:\/\/[^\s]+/g) || [];
-            showModal('📸 Verification Details', `
-                    <div style="display:grid;gap:12px;font-size:14px;">
-                        <div><strong>User:</strong> ${escapeHTML(v.userName||'Unknown')}</div>
-                        <div><strong>Title:</strong> ${escapeHTML(v.adTitle||'N/A')}</div>
-                        <div><strong>Description:</strong> ${escapeHTML(v.adDescription||'N/A')}</div>
-                        <div><strong>Link Preview:</strong><div class="link-preview">${links.length ? links.map(l => `<a href="${l}" target="_blank">${l}</a>`).join('<br>') : escapeHTML(adLink)}</div></div>
-                        <div><strong>Screenshot:</strong> ${v.screenshot ? `<a href="${v.screenshot}" target="_blank" style="color:var(--accent-1);">View</a>` : 'No image'}</div>
-                        <div><strong>Created:</strong> ${new Date(v.createdAt).toLocaleString()}</div>
-                    </div>
-                `, `<button class="btn-secondary" onclick="closeModal()">Close</button>`);
-        }
-
-        // ============================================================
-        // BONUS TASKS EDIT/DELETE
-        // ============================================================
-        function editBonusTask(index) {
-            const task = allData.bonusTasks[index]; if (!task) return;
-            showModal('✏️ Edit Bonus', `
-                    <div class="form-group"><label>Title</label><input type="text" id="editBonusTitle" value="${escapeHTML(task.title||'')}"></div>
-                    <div class="form-group"><label>Link</label><input type="url" id="editBonusLink" value="${escapeHTML(task.link||'')}"></div>
-                    <div class="form-row"><div class="form-group"><label>Reward ($)</label><input type="number" id="editBonusReward" step="0.001" value="${task.reward||0.01}"></div>
-                    <div class="form-group"><label>Duration (s)</label><input type="number" id="editBonusDuration" value="${task.duration||10}"></div></div>
-                `,
-                `<button class="btn-primary" onclick="saveBonusTask(${index})"><i class="fa-solid fa-save"></i> Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        async function saveBonusTask(index) {
-            const data = {
-                id: allData.bonusTasks[index]?.id || Date.now().toString(),
-                title: document.getElementById('editBonusTitle').value,
-                link: document.getElementById('editBonusLink').value,
-                reward: parseFloat(document.getElementById('editBonusReward').value) || 0.01,
-                duration: parseInt(document.getElementById('editBonusDuration').value) || 10
-            };
-            try { allData.bonusTasks[index] = data; await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                closeModal();
-                showToast('✅ Updated', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        async function deleteBonusTask(index) {
-            if (!confirm('Delete?')) return;
-            try { allData.bonusTasks.splice(index, 1); await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                showToast('✅ Deleted', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
-        }
-
-        // ============================================================
-        // SETTINGS METHODS
-        // ============================================================
-        function renderWithdrawMethods() {
-            const container = document.getElementById('withdrawMethodsContainer');
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            container.innerHTML = methods.map((m, i) =>
-                    `
-                        <div class="method-item"><span class="method-name">${escapeHTML(m)}</span>
-                        <div class="method-actions">
-                            <button class="action-btn edit btn-sm" onclick="editWithdrawMethod(${i})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="action-btn delete btn-sm" onclick="deleteWithdrawMethod(${i})"><i class="fa-solid fa-trash"></i></button>
-                        </div></div>
-                    `
-            ).join('');
-        }
-
-        function editWithdrawMethod(i) {
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            showModal('Edit Withdrawal Method',
-                `<div class="form-group"><label>Name</label><input type="text" id="editWithdrawMethodInput" value="${escapeHTML(methods[i])}"></div>`,
-                `<button class="btn-primary" onclick="saveWithdrawMethod(${i})">Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        function saveWithdrawMethod(i) {
-            const val = document.getElementById('editWithdrawMethodInput').value.trim(); if (!val) { showToast(
-                    'Please enter name', 'error'); return; }
-            const methods = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            methods[i] = val;
-            firebaseDb.ref('adminConfig/withdrawMethods').set(methods).then(() => { closeModal();
-                showToast('✅ Updated', 'success');
-                renderWithdrawMethods(); });
-        }
-
-        function deleteWithdrawMethod(i) { if (!confirm('Delete?')) return; const m = allData.adminConfig.withdrawMethods || [
-                'Binance', 'Bikash', 'Nogad'
-            ];
-            m.splice(i, 1);
-            firebaseDb.ref('adminConfig/withdrawMethods').set(m).then(() => { showToast('✅ Deleted', 'success');
-                renderWithdrawMethods(); }); }
-
-        function addWithdrawMethod() {
-            const input = document.getElementById('newWithdrawMethod');
-            const val = input.value.trim(); if (!val) return;
-            const m = allData.adminConfig.withdrawMethods || ['Binance', 'Bikash', 'Nogad'];
-            m.push(val);
-            firebaseDb.ref('adminConfig/withdrawMethods').set(m).then(() => { input.value = '';
-                showToast('✅ Added', 'success');
-                renderWithdrawMethods(); });
-        }
-
-        function renderDepositMethodsSettings() {
-            const container = document.getElementById('depositMethodsContainer');
-            const methods = allData.adminConfig.depositMethods || [{ name: 'Bikash', number: '01712345678', icon: '💳' }];
-            container.innerHTML = methods.map((m, i) =>
-                    `
-                        <div class="method-item"><div style="display:flex;align-items:center;gap:10px;"><span class="method-icon">${m.icon||'💰'}</span><span class="method-name">${escapeHTML(m.name)}</span><span class="method-number">${escapeHTML(m.number)}</span></div>
-                        <div class="method-actions"><button class="action-btn edit btn-sm" onclick="editDepositMethod(${i})"><i class="fa-solid fa-pen"></i></button><button class="action-btn delete btn-sm" onclick="deleteDepositMethod(${i})"><i class="fa-solid fa-trash"></i></button></div></div>
-                    `
-            ).join('');
-        }
-
-        function editDepositMethod(i) {
-            const methods = allData.adminConfig.depositMethods || [];
-            const cur = methods[i] || { name: '', number: '', icon: '💰' };
-            showModal('Edit Deposit Method', `
-                        <div class="form-group"><label>Name</label><input type="text" id="editDepositName" value="${escapeHTML(cur.name)}"></div>
-                        <div class="form-group"><label>Number</label><input type="text" id="editDepositNumber" value="${escapeHTML(cur.number)}"></div>
-                        <div class="form-group"><label>Icon</label><input type="text" id="editDepositIcon" value="${escapeHTML(cur.icon||'💰')}"></div>
-                    `,
-                `<button class="btn-primary" onclick="saveDepositMethod(${i})">Save</button><button class="btn-secondary" onclick="closeModal()">Cancel</button>`
-                );
-        }
-
-        function saveDepositMethod(i) {
-            const name = document.getElementById('editDepositName').value.trim(),
-                number = document.getElementById('editDepositNumber').value.trim(),
-                icon = document.getElementById('editDepositIcon').value.trim() || '💰';
-            if (!name || !number) { showToast('Fill all fields', 'error'); return; }
-            const methods = allData.adminConfig.depositMethods || [];
-            methods[i] = { name, number, icon };
-            firebaseDb.ref('adminConfig/depositMethods').set(methods).then(() => { closeModal();
-                showToast('✅ Updated', 'success');
-                renderDepositMethodsSettings(); });
-        }
-
-        function deleteDepositMethod(i) { if (!confirm('Delete?')) return; const m = allData.adminConfig.depositMethods || [];
-            m.splice(i, 1);
-            firebaseDb.ref('adminConfig/depositMethods').set(m).then(() => { showToast('✅ Deleted', 'success');
-                renderDepositMethodsSettings(); }); }
-
-        function addDepositMethod() {
-            const name = document.getElementById('newDepositMethodName').value.trim(),
-                number = document.getElementById('newDepositMethodNumber').value.trim(),
-                icon = document.getElementById('newDepositMethodIcon').value.trim() || '💰';
-            if (!name || !number) { showToast('Fill all fields', 'error'); return; }
-            const m = allData.adminConfig.depositMethods || [];
-            m.push({ name, number, icon });
-            firebaseDb.ref('adminConfig/depositMethods').set(m).then(() => {
-                document.getElementById('newDepositMethodName').value = '';
-                document.getElementById('newDepositMethodNumber').value = '';
-                document.getElementById('newDepositMethodIcon').value = '';
-                showToast('✅ Added', 'success');
-                renderDepositMethodsSettings();
-            });
-        }
-
-        function loadSettings() {
-            const c = allData.adminConfig;
-            document.getElementById('settingAdReward').value = c.adReward || 0.001;
-            document.getElementById('settingDailyLimit').value = c.dailyLimit || 15;
-            document.getElementById('settingMinWithdraw').value = c.minWithdraw || 0.10;
-            document.getElementById('settingMinDeposit').value = c.minDeposit || 10;
-            document.getElementById('settingCooldown').value = c.cooldown || 30;
-            document.getElementById('settingReferralReward').value = c.referralReward || 0.01;
-            document.getElementById('settingWelcomeTitle').value = c.welcomeTitle || 'Welcome to NexEarn! 🎉';
-            document.getElementById('settingWelcomeMsg').value = c.welcomeMessage ||
-                'Please follow the rules to ensure you receive your payment.';
-            document.getElementById('settingMinBudget').value = c.minBudget || 1.00;
-            document.getElementById('settingMinDuration').value = c.minDuration || 7;
-            updateMaintenanceToggle();
-        }
-
-        // ============================================================
-        // FORMS
-        // ============================================================
-        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const settings = {
-                adReward: parseFloat(document.getElementById('settingAdReward').value) || 0.001,
-                dailyLimit: parseInt(document.getElementById('settingDailyLimit').value) || 15,
-                minWithdraw: parseFloat(document.getElementById('settingMinWithdraw').value) || 0.10,
-                minDeposit: parseInt(document.getElementById('settingMinDeposit').value) || 10,
-                cooldown: parseInt(document.getElementById('settingCooldown').value) || 30,
-                referralReward: parseFloat(document.getElementById('settingReferralReward').value) || 0.01,
-                welcomeTitle: document.getElementById('settingWelcomeTitle').value || 'Welcome!',
-                welcomeMessage: document.getElementById('settingWelcomeMsg').value || '',
-                minBudget: parseFloat(document.getElementById('settingMinBudget').value) || 1.00,
-                minDuration: parseInt(document.getElementById('settingMinDuration').value) || 7
-            };
-            try { await firebaseDb.ref('adminConfig').update(settings);
-                showToast('✅ Saved', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
-        });
-
-        document.getElementById('bonusForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const task = {
-                id: Date.now().toString(),
-                title: document.getElementById('bonusTitle').value.trim(),
-                link: document.getElementById('bonusLink').value.trim(),
-                reward: parseFloat(document.getElementById('bonusReward').value) || 0.01,
-                duration: parseInt(document.getElementById('bonusDuration').value) || 10
-            };
-            if (!task.title || !task.link) { showToast('Fill all fields', 'error'); return; }
-            try { allData.bonusTasks.push(task); await firebaseDb.ref('bonusTasks').set(allData.bonusTasks);
-                this.reset();
-                showToast('✅ Added', 'success'); } catch (e) { showToast('❌ Failed', 'error'); }
-        });
-
-        // ============================================================
-        // MODAL
-        // ============================================================
-        function showModal(title, body, actions) {
-            document.getElementById('modalTitle').innerHTML = title;
-            document.getElementById('modalBody').innerHTML = body;
-            document.getElementById('modalActions').innerHTML = actions || '';
-            document.getElementById('actionModal').classList.add('show');
-        }
-
-        function closeModal() { document.getElementById('actionModal').classList.remove('show'); }
-        document.getElementById('actionModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-        // ============================================================
-        // TOAST
-        // ============================================================
-        function showToast(msg, type = 'info') {
-            const container = document.querySelector('.toast-container') || (() => { const c = document.createElement(
-                    'div');
-                c.className = 'toast-container';
-                document.body.appendChild(c); return c; })();
-            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle',
-                info: 'fa-info-circle' };
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML =
-                `<span class="toast-icon"><i class="fa-solid ${icons[type]||icons.info}"></i></span><span>${msg}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s';
-                setTimeout(() => toast.remove(), 500); }, 3000);
-        }
-
-        // ============================================================
-        // REFRESH
-        // ============================================================
-        function refreshData() {
-            const btn = document.getElementById('refreshBtn');
-            btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> Refreshing...';
-            btn.disabled = true;
-            setTimeout(() => { loadAllData();
-                btn.innerHTML = '<i class="fa-solid fa-sync"></i> Refresh';
-                btn.disabled = false;
-                showToast('🔄 Refreshed', 'success'); }, 1000);
-        }
-
-        // ============================================================
-        // HELPERS
-        // ============================================================
-        function escapeHTML(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;'); }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        function init() {
+        function initAdminPanel() {
             if (!initFirebase()) {
-                document.querySelector('.stats-grid').innerHTML =
-                    `<div class="stat-card" style="grid-column:1/-1;text-align:center;padding:40px;"><i class="fa-solid fa-triangle-exclamation" style="font-size:30px;color:var(--danger);"></i><p style="margin-top:10px;">Failed to connect to Firebase.</p></div>`;
+                showToast('❌ Failed to connect to Firebase', 'error');
                 return;
             }
-            loadAllData();
-            // Check for unread messages and show badge
-            setTimeout(() => {
-                updateChatBadges();
-                if (totalUnreadCount > 0) {
-                    // Just show badge, don't auto-open
-                }
-            }, 1000);
-            showToast('✅ Admin panel loaded with Live Chat', 'success');
+
+            loadDashboardStats();
+            loadSettings();
+
+            // Set maintenance checkbox listener
+            DOM.setMaintenance.addEventListener('change', updateMaintenanceStatus);
+
+            // Set theme from system
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+                loadAdminChart();
+            });
+
+            console.log("✅ Admin Panel initialized");
         }
-        document.addEventListener('DOMContentLoaded', init);
+
+        // ============================================================
+        // AUTO LOGIN CHECK
+        // ============================================================
+        // Check if already logged in from session
+        // (For security, session is not persistent in this simple version)
+
+        // ============================================================
+        // ENTER KEY SUPPORT FOR LOGIN
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !DOM.adminLogin.classList.contains('hidden')) {
+                adminLogin();
+            }
+        });
+
+        console.log("🔐 NexEarn Admin Panel loaded");
+        console.log("👤 Default Login: admin / nexearn2024");
     </script>
 </body>
 </html>
