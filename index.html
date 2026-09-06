@@ -663,6 +663,9 @@
             <button class="tab-btn" data-tab="bonus" onclick="switchTab('bonus')">
                 <i class="fa-solid fa-gift"></i> Bonus
             </button>
+            <button class="tab-btn" data-tab="channels" onclick="switchTab('channels')">
+                <i class="fa-solid fa-telegram"></i> Channels
+            </button>
             <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
                 <i class="fa-solid fa-gear"></i> Settings
             </button>
@@ -881,6 +884,43 @@
             </div>
         </div>
 
+        <!-- Channels -->
+        <div class="admin-tab-content" id="tab-channels">
+            <div class="card">
+                <div class="card-title">
+                    📢 Channel Links
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="channel-count">0</span>
+                </div>
+                <p style="font-size:13px; color:var(--text-light); margin-bottom:12px;">Add Telegram channels that users must join before accessing the app. Users will see these channels in the join modal.</p>
+                <button class="add-btn" onclick="toggleChannelForm()">
+                    <i class="fa-solid fa-plus"></i> Add Channel
+                </button>
+                <div class="hidden-form" id="channelForm">
+                    <div class="form-row">
+                        <div class="form-group-sm">
+                            <label>Channel Label *</label>
+                            <input type="text" id="channelLabel" placeholder="e.g. My Channel" value="My Channel">
+                        </div>
+                        <div class="form-group-sm">
+                            <label>Channel URL *</label>
+                            <input type="url" id="channelUrl" placeholder="https://t.me/..." value="https://t.me/nexearn2">
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Channel Username (for verification)</label>
+                            <input type="text" id="channelUsername" placeholder="e.g. nexearn2" value="nexearn2">
+                            <div style="font-size:10px; color:var(--text-light); margin-top:2px;">Username without @. Used to verify if user joined.</div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="save-btn" onclick="saveChannel()"><i class="fa-solid fa-save"></i> Save Channel</button>
+                        <button class="cancel-btn" onclick="toggleChannelForm()">Cancel</button>
+                    </div>
+                    <input type="hidden" id="editChannelIndex" value="">
+                </div>
+                <div id="channels-list"></div>
+            </div>
+        </div>
+
         <!-- Settings -->
         <div class="admin-tab-content" id="tab-settings">
             <div class="card">
@@ -910,6 +950,14 @@
                         <label>Ad Cooldown (minutes)</label>
                         <input type="number" id="setAdCooldown" value="1">
                     </div>
+                    <div class="form-group-sm">
+                        <label>Ad Watch Duration (seconds)</label>
+                        <input type="number" id="setAdDuration" value="15">
+                    </div>
+                    <div class="form-group-sm">
+                        <label>Min Ad Watch Time (seconds)</label>
+                        <input type="number" id="setMinAdWatch" value="10">
+                    </div>
                     <div class="form-group-sm full-width">
                         <label>Support Link</label>
                         <input type="url" id="setSupportLink" placeholder="https://t.me/...">
@@ -919,7 +967,7 @@
                         <textarea id="setWelcomeMessage" rows="4"></textarea>
                     </div>
                 </div>
-                <button class="action-button" onclick="saveSettings()">
+                <button class="add-btn" onclick="saveSettings()" style="border-color:var(--primary-color); color:var(--primary-color);">
                     <i class="fa-solid fa-save"></i> Save Settings
                 </button>
             </div>
@@ -931,7 +979,7 @@
                     <label style="font-weight:600; font-size:14px;">Enable Maintenance</label>
                     <input type="checkbox" id="setMaintenance" style="width:20px; height:20px; cursor:pointer;">
                     <span style="font-size:13px; color:var(--text-light);" id="maintenanceStatus">Off</span>
-                    <button class="action-button small" onclick="toggleMaintenance()" style="width:auto; padding:8px 20px;">
+                    <button class="add-btn" onclick="toggleMaintenance()" style="width:auto; padding:8px 20px; border-color:var(--danger); color:var(--danger);">
                         <i class="fa-solid fa-power-off"></i> Apply
                     </button>
                 </div>
@@ -988,16 +1036,19 @@
             jobCount: document.getElementById('job-count'),
             tierCount: document.getElementById('tier-count'),
             bonusCount: document.getElementById('bonus-count'),
+            channelCount: document.getElementById('channel-count'),
             // Lists
             usersList: document.getElementById('users-list'),
             withdrawalsList: document.getElementById('withdrawals-list'),
             jobsList: document.getElementById('jobs-list'),
             tiersList: document.getElementById('tiers-list'),
             bonusList: document.getElementById('bonus-list'),
+            channelsList: document.getElementById('channels-list'),
             // Forms
             jobForm: document.getElementById('jobForm'),
             tierForm: document.getElementById('tierForm'),
             bonusForm: document.getElementById('bonusForm'),
+            channelForm: document.getElementById('channelForm'),
             // Settings
             setAdReward: document.getElementById('setAdReward'),
             setDailyLimit: document.getElementById('setDailyLimit'),
@@ -1005,6 +1056,8 @@
             setCooldown: document.getElementById('setCooldown'),
             setReferralReward: document.getElementById('setReferralReward'),
             setAdCooldown: document.getElementById('setAdCooldown'),
+            setAdDuration: document.getElementById('setAdDuration'),
+            setMinAdWatch: document.getElementById('setMinAdWatch'),
             setSupportLink: document.getElementById('setSupportLink'),
             setWelcomeMessage: document.getElementById('setWelcomeMessage'),
             setMaintenance: document.getElementById('setMaintenance'),
@@ -1065,6 +1118,7 @@
             if (tabId === 'jobs') loadJobs();
             if (tabId === 'tiers') loadTiers();
             if (tabId === 'bonus') loadBonus();
+            if (tabId === 'channels') loadChannels();
         }
 
         // ============================================================
@@ -1484,7 +1538,7 @@
             if (!form.classList.contains('active')) {
                 document.getElementById('editTierId').value = '';
                 editingTierId = null;
-                document.getElementById('tierName').value = `Section ${(state.tiers?.length || 0) + 1}`;
+                document.getElementById('tierName').value = 'Section ' + ((state.tiers?.length || 0) + 1);
                 document.getElementById('tierPrize').value = '1.20';
                 document.getElementById('tierRequired').value = '6';
                 document.getElementById('tierStatus').value = 'active';
@@ -1709,6 +1763,125 @@
         }
 
         // ============================================================
+        // CHANNELS MANAGEMENT (Admin can add/remove channel links)
+        // ============================================================
+        let editingChannelIndex = null;
+
+        function toggleChannelForm() {
+            const form = DOM.channelForm;
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) {
+                document.getElementById('editChannelIndex').value = '';
+                editingChannelIndex = null;
+                document.getElementById('channelLabel').value = 'My Channel';
+                document.getElementById('channelUrl').value = 'https://t.me/nexearn2';
+                document.getElementById('channelUsername').value = 'nexearn2';
+                document.querySelector('#channelForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Channel';
+            }
+        }
+
+        function editChannel(index) {
+            if (!firebaseDb) return;
+            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                const links = snapshot.val() || [];
+                const channel = links[index];
+                if (!channel) { showToast('❌ Channel not found', 'error'); return; }
+
+                document.getElementById('editChannelIndex').value = index;
+                editingChannelIndex = index;
+                document.getElementById('channelLabel').value = channel.label || '';
+                document.getElementById('channelUrl').value = channel.url || '';
+                document.getElementById('channelUsername').value = channel.chatId || '';
+                document.querySelector('#channelForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Channel';
+                DOM.channelForm.classList.add('active');
+            });
+        }
+
+        function saveChannel() {
+            const label = document.getElementById('channelLabel').value.trim();
+            const url = document.getElementById('channelUrl').value.trim();
+            const username = document.getElementById('channelUsername').value.trim().replace('@', '');
+            const editIndex = document.getElementById('editChannelIndex').value;
+
+            if (!label || !url) {
+                showToast('❌ Please fill all fields correctly', 'error');
+                return;
+            }
+
+            const channelData = {
+                label: label,
+                url: url,
+                chatId: username || url.replace('https://t.me/', '')
+            };
+
+            if (editIndex !== '') {
+                // Update existing
+                firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                    const links = snapshot.val() || [];
+                    links[parseInt(editIndex)] = channelData;
+                    firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                        showToast('✅ Channel updated!', 'success');
+                        toggleChannelForm();
+                        loadChannels();
+                    });
+                });
+            } else {
+                // Add new
+                firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                    const links = snapshot.val() || [];
+                    links.push(channelData);
+                    firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                        showToast('✅ Channel added!', 'success');
+                        toggleChannelForm();
+                        loadChannels();
+                    });
+                });
+            }
+        }
+
+        function deleteChannel(index) {
+            if (!firebaseDb || !confirm('Are you sure you want to delete this channel?')) return;
+            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                const links = snapshot.val() || [];
+                links.splice(index, 1);
+                firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                    showToast('✅ Channel deleted', 'success');
+                    loadChannels();
+                });
+            });
+        }
+
+        function loadChannels() {
+            if (!firebaseDb) return;
+            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                const links = snapshot.val() || [];
+                DOM.channelCount.textContent = links.length;
+
+                if (links.length === 0) {
+                    DOM.channelsList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-telegram"></i><p>No channels added. Users will see these in the join modal.</p></div>`;
+                    return;
+                }
+
+                DOM.channelsList.innerHTML = links.map((channel, index) => {
+                    if (!channel) return '';
+                    return `
+                        <div class="admin-list-item">
+                            <div class="info">
+                                <div class="name">📢 ${escapeHTML(channel.label || 'Channel')}</div>
+                                <div class="detail">${escapeHTML(channel.url || '')}</div>
+                            </div>
+                            <div class="actions">
+                                <button class="edit-btn" onclick="editChannel(${index})"><i class="fa-solid fa-pen"></i></button>
+                                <button class="delete-btn" onclick="deleteChannel(${index})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // ============================================================
         // SETTINGS
         // ============================================================
         function loadSettings() {
@@ -1721,6 +1894,8 @@
                 DOM.setCooldown.value = data.cooldown || 30;
                 DOM.setReferralReward.value = data.referralReward || 0.01;
                 DOM.setAdCooldown.value = data.adCooldownMinutes || 1;
+                DOM.setAdDuration.value = data.adWatchDuration || 15;
+                DOM.setMinAdWatch.value = data.minAdWatchTime || 10;
                 DOM.setSupportLink.value = data.supportLink || 'https://t.me/NexEarn2Support';
                 DOM.setWelcomeMessage.value = data.welcomeMessage || '';
                 DOM.setMaintenance.checked = data.maintenance?.active || false;
@@ -1739,6 +1914,8 @@
                 cooldown: parseInt(DOM.setCooldown.value) || 30,
                 referralReward: parseFloat(DOM.setReferralReward.value) || 0.01,
                 adCooldownMinutes: parseInt(DOM.setAdCooldown.value) || 1,
+                adWatchDuration: parseInt(DOM.setAdDuration.value) || 15,
+                minAdWatchTime: parseInt(DOM.setMinAdWatch.value) || 10,
                 supportLink: DOM.setSupportLink.value.trim() || 'https://t.me/NexEarn2Support',
                 welcomeMessage: DOM.setWelcomeMessage.value.trim() || '',
                 updatedAt: Date.now()
@@ -1795,6 +1972,7 @@
 
             loadDashboardStats();
             loadSettings();
+            loadChannels();
 
             // Set maintenance checkbox listener
             DOM.setMaintenance.addEventListener('change', updateMaintenanceStatus);
@@ -1814,8 +1992,6 @@
         // ============================================================
         // AUTO LOGIN CHECK
         // ============================================================
-        // Check if already logged in from session
-        // (For security, session is not persistent in this simple version)
 
         // ============================================================
         // ENTER KEY SUPPORT FOR LOGIN
@@ -1828,6 +2004,7 @@
 
         console.log("🔐 NexEarn Admin Panel loaded");
         console.log("👤 Default Login: admin / nexearn2024");
+        console.log("📢 Channel Links: Admin can add/remove channels for users to join");
     </script>
 </body>
 </html>
