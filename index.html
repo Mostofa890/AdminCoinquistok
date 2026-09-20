@@ -4,13 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>NexEarn - Admin Panel</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js">
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -49,14 +46,9 @@
             --shadow-hover: 0 8px 30px rgba(108, 99, 255, 0.15);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html,
-        body {
+        html, body {
             overscroll-behavior-y: contain;
             font-family: 'Inter', sans-serif;
             background-color: var(--background-color);
@@ -66,549 +58,218 @@
             height: 100%;
         }
 
-        body {
-            padding: 16px 12px 20px 12px;
-            min-height: 100vh;
-        }
+        body { padding: 16px 12px 20px 12px; min-height: 100vh; }
 
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--background-color);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--background-color); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; }
 
         /* ===== ADMIN LOGIN ===== */
         #adminLogin {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 99999;
-            background: var(--background-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 99999; background: var(--background-color);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
         }
         #adminLogin .login-box {
-            background: var(--card-background);
-            max-width: 380px;
-            width: 100%;
-            padding: 40px 30px;
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-hover);
-            text-align: center;
+            background: var(--card-background); max-width: 380px; width: 100%;
+            padding: 40px 30px; border-radius: 24px; border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-hover); text-align: center;
         }
         #adminLogin .login-box .logo {
-            font-size: 32px;
-            font-weight: 900;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            font-size: 32px; font-weight: 900; background: var(--gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;
         }
-        #adminLogin .login-box .logo span {
-            -webkit-text-fill-color: var(--text-color);
-        }
-        #adminLogin .login-box .subtitle {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 24px;
-        }
-        #adminLogin .login-box .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
+        #adminLogin .login-box .logo span { -webkit-text-fill-color: var(--text-color); }
+        #adminLogin .login-box .subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 24px; }
+        #adminLogin .login-box .form-group { margin-bottom: 16px; text-align: left; }
         #adminLogin .login-box .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 4px;
+            display: block; font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 4px;
         }
         #adminLogin .login-box .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: 15px;
-            background: var(--background-color);
-            color: var(--text-color);
-            transition: var(--transition);
+            width: 100%; padding: 12px 14px; border: 1px solid var(--border-color);
+            border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 15px;
+            background: var(--background-color); color: var(--text-color); transition: var(--transition);
         }
         #adminLogin .login-box .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
+            outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
         }
         #adminLogin .login-box .login-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            background: var(--gradient);
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            background: var(--gradient); color: white; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
             box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.2);
         }
-        #adminLogin .login-box .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(var(--primary-color-rgb), 0.3);
-        }
-        #adminLogin .login-box .login-error {
-            color: var(--danger);
-            font-size: 13px;
-            margin-top: 10px;
-            display: none;
-        }
-        #adminLogin .login-box .login-error.show {
-            display: block;
-        }
-        #adminLogin.hidden {
-            display: none;
-        }
+        #adminLogin .login-box .login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(var(--primary-color-rgb), 0.3); }
+        #adminLogin .login-box .login-error { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+        #adminLogin .login-box .login-error.show { display: block; }
+        #adminLogin.hidden { display: none; }
 
         /* ===== ADMIN PANEL ===== */
-        #adminPanel {
-            display: none;
-            max-width: 480px;
-            margin: 0 auto;
-            padding-bottom: 20px;
-        }
-        #adminPanel.active {
-            display: block;
-        }
+        #adminPanel { display: none; max-width: 480px; margin: 0 auto; padding-bottom: 20px; }
+        #adminPanel.active { display: block; }
 
         .admin-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 0; margin-bottom: 16px; border-bottom: 1px solid var(--border-color);
         }
-        .admin-header .admin-title {
-            font-size: 20px;
-            font-weight: 800;
-        }
-        .admin-header .admin-title span {
-            color: var(--primary-color);
-        }
+        .admin-header .admin-title { font-size: 20px; font-weight: 800; }
+        .admin-header .admin-title span { color: var(--primary-color); }
         .admin-header .logout-btn {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 8px;
-            background: var(--danger);
-            color: white;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            font-family: inherit;
-            transition: var(--transition);
+            padding: 6px 14px; border: none; border-radius: 8px; background: var(--danger);
+            color: white; font-weight: 600; font-size: 13px; cursor: pointer;
+            font-family: inherit; transition: var(--transition);
         }
-        .admin-header .logout-btn:hover {
-            transform: scale(1.05);
-        }
+        .admin-header .logout-btn:hover { transform: scale(1.05); }
 
         .admin-tabs {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding: 4px 0;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            display: flex; gap: 6px; overflow-x: auto; padding: 4px 0;
+            margin-bottom: 16px; flex-wrap: wrap;
         }
         .admin-tabs .tab-btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 8px;
-            background: var(--background-color);
-            color: var(--text-light);
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            white-space: nowrap;
+            padding: 8px 14px; border: none; border-radius: 8px; background: var(--background-color);
+            color: var(--text-light); font-weight: 600; font-size: 12px; cursor: pointer;
+            transition: var(--transition); font-family: inherit; white-space: nowrap;
         }
-        .admin-tabs .tab-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-        .admin-tabs .tab-btn:hover:not(.active) {
-            background: var(--border-color);
-        }
+        .admin-tabs .tab-btn.active { background: var(--primary-color); color: white; }
+        .admin-tabs .tab-btn:hover:not(.active) { background: var(--border-color); }
 
-        .admin-tab-content {
-            display: none;
-        }
-        .admin-tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
+        .admin-tab-content { display: none; }
+        .admin-tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        .admin-stat-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
+        .admin-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
         .admin-stat-box {
-            background: var(--card-background);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            box-shadow: var(--shadow);
+            background: var(--card-background); padding: 14px; border-radius: 12px;
+            border: 1px solid var(--border-color); text-align: center; box-shadow: var(--shadow);
         }
-        .admin-stat-box .admin-stat-value {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary-color);
-        }
-        .admin-stat-box .admin-stat-label {
-            font-size: 11px;
-            color: var(--text-light);
-            margin-top: 2px;
-        }
+        .admin-stat-box .admin-stat-value { font-size: 24px; font-weight: 800; color: var(--primary-color); }
+        .admin-stat-box .admin-stat-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
 
         .admin-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            gap: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border-color); gap: 10px;
         }
-        .admin-list-item:last-child {
-            border-bottom: none;
-        }
-        .admin-list-item .info {
-            flex: 1;
-            min-width: 0;
-        }
-        .admin-list-item .info .name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .admin-list-item .info .detail {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-        .admin-list-item .actions {
-            display: flex;
-            gap: 4px;
-            flex-shrink: 0;
-        }
+        .admin-list-item:last-child { border-bottom: none; }
+        .admin-list-item .info { flex: 1; min-width: 0; }
+        .admin-list-item .info .name { font-weight: 600; font-size: 14px; }
+        .admin-list-item .info .detail { font-size: 12px; color: var(--text-light); word-break: break-all; }
+        .admin-list-item .actions { display: flex; gap: 4px; flex-shrink: 0; }
         .admin-list-item .actions button {
-            padding: 4px 10px;
-            border: none;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
+            padding: 4px 10px; border: none; border-radius: 6px; font-size: 11px;
+            font-weight: 600; cursor: pointer; transition: var(--transition); font-family: inherit;
         }
-        .admin-list-item .actions .approve-btn {
-            background: var(--success);
-            color: white;
-        }
-        .admin-list-item .actions .approve-btn:hover {
-            transform: scale(1.05);
-        }
-        .admin-list-item .actions .reject-btn {
-            background: var(--danger);
-            color: white;
-        }
-        .admin-list-item .actions .reject-btn:hover {
-            transform: scale(1.05);
-        }
-        .admin-list-item .actions .ban-btn {
-            background: var(--danger);
-            color: white;
-        }
-        .admin-list-item .actions .ban-btn:hover {
-            transform: scale(1.05);
-        }
-        .admin-list-item .actions .unban-btn {
-            background: var(--success);
-            color: white;
-        }
-        .admin-list-item .actions .unban-btn:hover {
-            transform: scale(1.05);
-        }
-        .admin-list-item .actions .edit-btn {
-            background: var(--warning);
-            color: white;
-        }
-        .admin-list-item .actions .edit-btn:hover {
-            transform: scale(1.05);
-        }
-        .admin-list-item .actions .delete-btn {
-            background: var(--danger);
-            color: white;
-        }
-        .admin-list-item .actions .delete-btn:hover {
-            transform: scale(1.05);
-        }
+        .admin-list-item .actions .approve-btn { background: var(--success); color: white; }
+        .admin-list-item .actions .approve-btn:hover { transform: scale(1.05); }
+        .admin-list-item .actions .reject-btn { background: var(--danger); color: white; }
+        .admin-list-item .actions .reject-btn:hover { transform: scale(1.05); }
+        .admin-list-item .actions .ban-btn { background: var(--danger); color: white; }
+        .admin-list-item .actions .ban-btn:hover { transform: scale(1.05); }
+        .admin-list-item .actions .unban-btn { background: var(--success); color: white; }
+        .admin-list-item .actions .unban-btn:hover { transform: scale(1.05); }
+        .admin-list-item .actions .edit-btn { background: var(--warning); color: white; }
+        .admin-list-item .actions .edit-btn:hover { transform: scale(1.05); }
+        .admin-list-item .actions .delete-btn { background: var(--danger); color: white; }
+        .admin-list-item .actions .delete-btn:hover { transform: scale(1.05); }
 
         .status-badge {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 12px;
-            display: inline-block;
+            font-size: 10px; font-weight: 600; padding: 2px 10px;
+            border-radius: 12px; display: inline-block;
         }
-        .status-badge.active {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-        }
-        .status-badge.inactive {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
-        .status-badge.pending {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-        }
-        .status-badge.approved {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-        }
-        .status-badge.rejected {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
-        .status-badge.banned {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-        }
+        .status-badge.active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .status-badge.inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .status-badge.pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .status-badge.approved { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .status-badge.rejected { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .status-badge.banned { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .status-badge.survey { background: rgba(108, 99, 255, 0.15); color: var(--primary-color); }
 
         .card {
-            background: var(--card-background);
-            padding: 18px 16px;
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 0.9s ease-out;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
+            background: var(--card-background); padding: 18px 16px; border-radius: var(--radius);
+            margin-bottom: 16px; border: 1px solid var(--border-color);
+            animation: fadeIn 0.9s ease-out; transition: var(--transition); box-shadow: var(--shadow);
         }
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-        }
+        .card:hover { box-shadow: var(--shadow-hover); }
         .card-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 17px; font-weight: 700; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .form-row .full-width {
-            grid-column: 1 / -1;
-        }
-        .form-group-sm {
-            margin-bottom: 10px;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-row .full-width { grid-column: 1 / -1; }
+        .form-group-sm { margin-bottom: 10px; }
         .form-group-sm label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-color);
-            display: block;
-            margin-bottom: 2px;
+            font-size: 12px; font-weight: 600; color: var(--text-color);
+            display: block; margin-bottom: 2px;
         }
-        .form-group-sm input,
-        .form-group-sm select,
-        .form-group-sm textarea {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            background: var(--card-background);
-            color: var(--text-color);
-            transition: var(--transition);
+        .form-group-sm input, .form-group-sm select, .form-group-sm textarea {
+            width: 100%; padding: 8px 10px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px;
+            background: var(--card-background); color: var(--text-color); transition: var(--transition);
         }
-        .form-group-sm input:focus,
-        .form-group-sm select:focus,
-        .form-group-sm textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        .form-group-sm input:focus, .form-group-sm select:focus, .form-group-sm textarea:focus {
+            outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
         }
-        .form-group-sm textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
+        .form-group-sm textarea { resize: vertical; min-height: 60px; }
 
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
+        .form-actions { display: flex; gap: 10px; margin-top: 12px; }
         .form-actions button {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
+            padding: 8px 20px; border: none; border-radius: 8px; font-weight: 600;
+            font-size: 13px; cursor: pointer; transition: var(--transition); font-family: inherit;
         }
-        .form-actions .save-btn {
-            background: var(--gradient);
-            color: white;
-        }
-        .form-actions .save-btn:hover {
-            transform: scale(1.03);
-        }
-        .form-actions .cancel-btn {
-            background: var(--border-color);
-            color: var(--text-color);
-        }
-        .form-actions .cancel-btn:hover {
-            background: var(--text-light);
-            color: white;
-        }
+        .form-actions .save-btn { background: var(--gradient); color: white; }
+        .form-actions .save-btn:hover { transform: scale(1.03); }
+        .form-actions .cancel-btn { background: var(--border-color); color: var(--text-color); }
+        .form-actions .cancel-btn:hover { background: var(--text-light); color: white; }
 
         .add-btn {
-            width: 100%;
-            padding: 12px;
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            background: transparent;
-            color: var(--text-light);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 12px;
+            width: 100%; padding: 12px; border: 2px dashed var(--border-color);
+            border-radius: 12px; background: transparent; color: var(--text-light);
+            font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition);
+            font-family: inherit; display: flex; align-items: center;
+            justify-content: center; gap: 8px; margin-bottom: 12px;
         }
         .add-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            border-color: var(--primary-color); color: var(--primary-color);
             background: rgba(var(--primary-color-rgb), 0.04);
         }
 
-        .hidden-form {
-            display: none;
-        }
-        .hidden-form.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
+        .hidden-form { display: none; }
+        .hidden-form.active { display: block; animation: fadeIn 0.3s ease-out; }
 
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-light);
-        }
-        .empty-state i {
-            font-size: 40px;
-            margin-bottom: 12px;
-            opacity: 0.3;
-        }
+        .empty-state { text-align: center; padding: 30px 20px; color: var(--text-light); }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
         .toast-container {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            max-width: 90%;
-            width: 100%;
-            pointer-events: none;
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; max-width: 90%; width: 100%; pointer-events: none;
         }
         .toast {
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-            animation: fadeIn 0.3s ease;
-            pointer-events: auto;
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.85); color: white; padding: 14px 20px;
+            border-radius: 12px; font-size: 14px; font-weight: 600; text-align: center;
+            animation: fadeIn 0.3s ease; pointer-events: auto; backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .toast.success {
-            border-color: var(--success);
-        }
-        .toast.error {
-            border-color: var(--danger);
-        }
-        .toast.warning {
-            border-color: var(--warning);
-        }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.warning { border-color: var(--warning); }
 
-        .chart-container {
-            position: relative;
-            height: 180px;
-            width: 100%;
-        }
+        .chart-container { position: relative; height: 180px; width: 100%; }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 400px) {
-            body {
-                padding: 12px 8px 16px 8px;
-            }
-            .admin-stat-grid {
-                gap: 8px;
-            }
-            .admin-stat-box {
-                padding: 10px;
-            }
-            .admin-stat-box .admin-stat-value {
-                font-size: 18px;
-            }
-            .admin-tabs .tab-btn {
-                font-size: 10px;
-                padding: 6px 10px;
-            }
+            body { padding: 12px 8px 16px 8px; }
+            .admin-stat-grid { gap: 8px; }
+            .admin-stat-box { padding: 10px; }
+            .admin-stat-box .admin-stat-value { font-size: 18px; }
+            .admin-tabs .tab-btn { font-size: 10px; padding: 6px 10px; }
         }
         @media (min-width: 481px) {
-            body {
-                padding: 20px 16px 30px 16px;
-            }
+            body { padding: 20px 16px 30px 16px; }
         }
     </style>
 </head>
@@ -654,8 +315,8 @@
             <button class="tab-btn" data-tab="withdrawals" onclick="switchTab('withdrawals')">
                 <i class="fa-solid fa-money-bill-transfer"></i> Withdrawals
             </button>
-            <button class="tab-btn" data-tab="jobs" onclick="switchTab('jobs')">
-                <i class="fa-solid fa-briefcase"></i> Jobs
+            <button class="tab-btn" data-tab="tasks" onclick="switchTab('tasks')">
+                <i class="fa-solid fa-tasks"></i> Tasks
             </button>
             <button class="tab-btn" data-tab="tiers" onclick="switchTab('tiers')">
                 <i class="fa-solid fa-layer-group"></i> Tiers
@@ -679,7 +340,7 @@
                     <div class="admin-stat-label">👥 Total Users</div>
                 </div>
                 <div class="admin-stat-box">
-                    <div class="admin-stat-value" id="stat-balance">$0</div>
+                    <div class="admin-stat-value" id="stat-balance">৳0</div>
                     <div class="admin-stat-label">💰 Total Balance</div>
                 </div>
                 <div class="admin-stat-box">
@@ -721,81 +382,70 @@
             </div>
         </div>
 
-        <!-- Jobs -->
-        <div class="admin-tab-content" id="tab-jobs">
+        <!-- ============ TASKS (REPLACES JOBS) ============ -->
+        <div class="admin-tab-content" id="tab-tasks">
             <div class="card">
                 <div class="card-title">
-                    📋 Jobs
-                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="job-count">0</span>
+                    📋 Survey Tasks
+                    <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="task-count">0</span>
                 </div>
-                <button class="add-btn" onclick="toggleJobForm()">
-                    <i class="fa-solid fa-plus"></i> Add New Job
+                <p style="font-size:12px; color:var(--text-light); margin-bottom:12px;">
+                    Survey টাস্ক তৈরি করুন — ইউজার সার্ভে লিংক ওপেন করবে, নির্দিষ্ট সময় অপেক্ষা করবে, তারপর রিওয়ার্ড পাবে।
+                </p>
+                <button class="add-btn" onclick="toggleTaskForm()">
+                    <i class="fa-solid fa-plus"></i> Add New Task
                 </button>
-                <div class="hidden-form" id="jobForm">
+                <div class="hidden-form" id="taskForm">
                     <div class="form-row">
                         <div class="form-group-sm full-width">
-                            <label>Job Title *</label>
-                            <input type="text" id="jobTitle" placeholder="Enter job title">
+                            <label>Task Title *</label>
+                            <input type="text" id="taskTitle" placeholder="e.g. Simple Survey Task">
+                        </div>
+                        <div class="form-group-sm full-width">
+                            <label>Description</label>
+                            <input type="text" id="taskDesc" placeholder="Short description (optional)">
                         </div>
                         <div class="form-group-sm">
-                            <label>Category *</label>
-                            <select id="jobCategory">
-                                <option value="General">General</option>
-                                <option value="YouTube Video View">YouTube Video View</option>
-                                <option value="YouTube Like">YouTube Like</option>
-                                <option value="YouTube Comment">YouTube Comment</option>
-                                <option value="App Download">App Download</option>
-                                <option value="Website Visit">Website Visit</option>
-                                <option value="Telegram Join">Telegram Join</option>
-                                <option value="Facebook Like">Facebook Like</option>
-                                <option value="Instagram Follow">Instagram Follow</option>
-                                <option value="Twitter Follow">Twitter Follow</option>
-                                <option value="Other">Other</option>
+                            <label>Task Type *</label>
+                            <select id="taskType" onchange="toggleSurveyFields()">
+                                <option value="survey">Survey</option>
+                                <option value="voice">Voice</option>
+                                <option value="image">Image</option>
+                                <option value="text">Text</option>
                             </select>
                         </div>
                         <div class="form-group-sm">
-                            <label>Sub Category</label>
-                            <input type="text" id="jobSubCategory" placeholder="Sub category">
+                            <label>Category</label>
+                            <input type="text" id="taskCategory" placeholder="Survey" value="Survey">
                         </div>
                         <div class="form-group-sm">
-                            <label>Reward ($) *</label>
-                            <input type="number" id="jobReward" step="0.0001" placeholder="0.0010" value="0.001">
+                            <label>Reward (৳) *</label>
+                            <input type="number" id="taskReward" step="0.01" placeholder="5" value="5">
                         </div>
                         <div class="form-group-sm">
-                            <label>Total Views *</label>
-                            <input type="number" id="jobTotalViews" placeholder="100" value="100">
+                            <label>Total Slots *</label>
+                            <input type="number" id="taskSlots" placeholder="100" value="100">
                         </div>
                         <div class="form-group-sm">
-                            <label>Duration (days) *</label>
-                            <input type="number" id="jobDuration" placeholder="7" value="7">
-                        </div>
-                        <div class="form-group-sm full-width">
-                            <label>Description *</label>
-                            <textarea id="jobDesc" placeholder="Describe the job" rows="2"></textarea>
-                        </div>
-                        <div class="form-group-sm full-width">
-                            <label>Instructions</label>
-                            <textarea id="jobInstructions" placeholder="Instructions for workers" rows="2"></textarea>
-                        </div>
-                        <div class="form-group-sm full-width">
-                            <label>Requirements</label>
-                            <textarea id="jobRequirements" placeholder="Requirements" rows="2"></textarea>
+                            <label>Time Limit (days)</label>
+                            <input type="number" id="taskTimeLimit" placeholder="7" value="7">
                         </div>
                         <div class="form-group-sm">
-                            <label>Status</label>
-                            <select id="jobStatus">
-                                <option value="active">Active</option>
-                                <option value="paused">Paused</option>
-                            </select>
+                            <label>Timer (seconds) *</label>
+                            <input type="number" id="taskTimer" placeholder="60" value="60" min="5">
+                        </div>
+                        <div class="form-group-sm full-width" id="taskLinkGroup">
+                            <label>Survey URL *</label>
+                            <input type="url" id="taskLink" placeholder="https://example.com/survey">
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button class="save-btn" onclick="saveJob()"><i class="fa-solid fa-save"></i> Save Job</button>
-                        <button class="cancel-btn" onclick="toggleJobForm()">Cancel</button>
+                        <button class="save-btn" onclick="saveTask()"><i class="fa-solid fa-save"></i> Save Task</button>
+                        <button class="cancel-btn" onclick="toggleTaskForm()">Cancel</button>
                     </div>
-                    <input type="hidden" id="editJobId" value="">
+                    <input type="hidden" id="editTaskId" value="">
                 </div>
-                <div id="jobs-list"></div>
+                <div id="tasks-list"></div>
             </div>
         </div>
 
@@ -816,7 +466,7 @@
                             <input type="text" id="tierName" placeholder="Section 1" value="Section 1">
                         </div>
                         <div class="form-group-sm">
-                            <label>Prize ($) *</label>
+                            <label>Prize (৳) *</label>
                             <input type="number" id="tierPrize" step="0.01" placeholder="1.20" value="1.20">
                         </div>
                         <div class="form-group-sm">
@@ -862,8 +512,8 @@
                             <input type="text" id="bonusTitle" placeholder="Enter task title">
                         </div>
                         <div class="form-group-sm">
-                            <label>Reward ($) *</label>
-                            <input type="number" id="bonusReward" step="0.0001" placeholder="0.01" value="0.01">
+                            <label>Reward (৳) *</label>
+                            <input type="number" id="bonusReward" step="0.01" placeholder="20" value="20">
                         </div>
                         <div class="form-group-sm">
                             <label>Duration (seconds) *</label>
@@ -891,7 +541,7 @@
                     📢 Channel Links
                     <span style="font-size:13px; font-weight:400; color:var(--text-light); margin-left:auto;" id="channel-count">0</span>
                 </div>
-                <p style="font-size:13px; color:var(--text-light); margin-bottom:12px;">Add Telegram channels that users must join before accessing the app. Users will see these channels in the join modal.</p>
+                <p style="font-size:13px; color:var(--text-light); margin-bottom:12px;">Add Telegram channels that users must join before accessing the app.</p>
                 <button class="add-btn" onclick="toggleChannelForm()">
                     <i class="fa-solid fa-plus"></i> Add Channel
                 </button>
@@ -927,44 +577,44 @@
                 <div class="card-title">⚙️ Settings</div>
                 <div class="form-row">
                     <div class="form-group-sm">
-                        <label>Ad Reward ($)</label>
-                        <input type="number" id="setAdReward" step="0.0001" value="0.001">
+                        <label>Ad Reward (৳)</label>
+                        <input type="number" id="setAdReward" step="0.01" value="0.5">
                     </div>
                     <div class="form-group-sm">
                         <label>Daily Ad Limit</label>
-                        <input type="number" id="setDailyLimit" value="15">
+                        <input type="number" id="setDailyLimit" value="10">
                     </div>
                     <div class="form-group-sm">
-                        <label>Min Withdrawal ($)</label>
-                        <input type="number" id="setMinWithdraw" step="0.01" value="0.10">
+                        <label>Min Withdrawal (৳)</label>
+                        <input type="number" id="setMinWithdraw" step="0.01" value="10">
                     </div>
                     <div class="form-group-sm">
                         <label>Cooldown (minutes)</label>
                         <input type="number" id="setCooldown" value="30">
                     </div>
                     <div class="form-group-sm">
-                        <label>Referral Reward ($)</label>
-                        <input type="number" id="setReferralReward" step="0.01" value="0.01">
+                        <label>Referral Reward (৳)</label>
+                        <input type="number" id="setReferralReward" step="0.01" value="5">
                     </div>
                     <div class="form-group-sm">
-                        <label>Ad Cooldown (minutes)</label>
-                        <input type="number" id="setAdCooldown" value="1">
+                        <label>Daily Bonus (৳)</label>
+                        <input type="number" id="setDailyBonus" step="0.01" value="20">
                     </div>
                     <div class="form-group-sm">
                         <label>Ad Watch Duration (seconds)</label>
                         <input type="number" id="setAdDuration" value="15">
                     </div>
                     <div class="form-group-sm">
-                        <label>Min Ad Watch Time (seconds)</label>
-                        <input type="number" id="setMinAdWatch" value="10">
+                        <label>Ref Commission Rate (%)</label>
+                        <input type="number" id="setCommRate" step="0.1" value="2">
                     </div>
                     <div class="form-group-sm full-width">
                         <label>Support Link</label>
                         <input type="url" id="setSupportLink" placeholder="https://t.me/...">
                     </div>
                     <div class="form-group-sm full-width">
-                        <label>Welcome Message</label>
-                        <textarea id="setWelcomeMessage" rows="4"></textarea>
+                        <label>Tutorial Link (YouTube)</label>
+                        <input type="url" id="setTutorialLink" placeholder="https://youtube.com/...">
                     </div>
                 </div>
                 <button class="add-btn" onclick="saveSettings()" style="border-color:var(--primary-color); color:var(--primary-color);">
@@ -988,8 +638,8 @@
                     <input type="text" id="setMaintenanceMessage" placeholder="We're currently updating our system...">
                 </div>
                 <div class="form-group-sm">
-                    <label>Estimated Time</label>
-                    <input type="text" id="setMaintenanceTime" placeholder="30 minutes">
+                    <label>Estimated Minutes</label>
+                    <input type="number" id="setMaintenanceTime" placeholder="30" value="30">
                 </div>
             </div>
         </div>
@@ -1033,19 +683,19 @@
             // Counts
             userCount: document.getElementById('user-count'),
             withdrawalCount: document.getElementById('withdrawal-count'),
-            jobCount: document.getElementById('job-count'),
+            taskCount: document.getElementById('task-count'),
             tierCount: document.getElementById('tier-count'),
             bonusCount: document.getElementById('bonus-count'),
             channelCount: document.getElementById('channel-count'),
             // Lists
             usersList: document.getElementById('users-list'),
             withdrawalsList: document.getElementById('withdrawals-list'),
-            jobsList: document.getElementById('jobs-list'),
+            tasksList: document.getElementById('tasks-list'),
             tiersList: document.getElementById('tiers-list'),
             bonusList: document.getElementById('bonus-list'),
             channelsList: document.getElementById('channels-list'),
             // Forms
-            jobForm: document.getElementById('jobForm'),
+            taskForm: document.getElementById('taskForm'),
             tierForm: document.getElementById('tierForm'),
             bonusForm: document.getElementById('bonusForm'),
             channelForm: document.getElementById('channelForm'),
@@ -1055,11 +705,11 @@
             setMinWithdraw: document.getElementById('setMinWithdraw'),
             setCooldown: document.getElementById('setCooldown'),
             setReferralReward: document.getElementById('setReferralReward'),
-            setAdCooldown: document.getElementById('setAdCooldown'),
+            setDailyBonus: document.getElementById('setDailyBonus'),
             setAdDuration: document.getElementById('setAdDuration'),
-            setMinAdWatch: document.getElementById('setMinAdWatch'),
+            setCommRate: document.getElementById('setCommRate'),
             setSupportLink: document.getElementById('setSupportLink'),
-            setWelcomeMessage: document.getElementById('setWelcomeMessage'),
+            setTutorialLink: document.getElementById('setTutorialLink'),
             setMaintenance: document.getElementById('setMaintenance'),
             setMaintenanceMessage: document.getElementById('setMaintenanceMessage'),
             setMaintenanceTime: document.getElementById('setMaintenanceTime'),
@@ -1112,10 +762,9 @@
             const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
             if (tabBtn) tabBtn.classList.add('active');
 
-            // Refresh data when switching tabs
             if (tabId === 'users') loadUsers();
             if (tabId === 'withdrawals') loadWithdrawals();
-            if (tabId === 'jobs') loadJobs();
+            if (tabId === 'tasks') loadTasks();
             if (tabId === 'tiers') loadTiers();
             if (tabId === 'bonus') loadBonus();
             if (tabId === 'channels') loadChannels();
@@ -1165,25 +814,22 @@
         function loadDashboardStats() {
             if (!firebaseDb) return;
 
-            // Total Users
             firebaseDb.ref('users').once('value').then(snapshot => {
                 const users = snapshot.val() || {};
                 const totalUsers = Object.keys(users).length;
                 DOM.statUsers.textContent = totalUsers;
                 DOM.userCount.textContent = totalUsers;
 
-                // Calculate total balance
                 let totalBalance = 0;
                 let totalAds = 0;
                 Object.values(users).forEach(user => {
                     totalBalance += user.balance || 0;
                     totalAds += user.adCount || 0;
                 });
-                DOM.statBalance.textContent = '$' + totalBalance.toFixed(4);
+                DOM.statBalance.textContent = '৳' + totalBalance.toFixed(2);
                 DOM.statAds.textContent = totalAds;
             });
 
-            // Total Withdrawals
             firebaseDb.ref('withdrawals').once('value').then(snapshot => {
                 const withdrawals = snapshot.val() || {};
                 const totalWithdrawals = Object.keys(withdrawals).length;
@@ -1191,7 +837,6 @@
                 DOM.withdrawalCount.textContent = totalWithdrawals;
             });
 
-            // Load Chart
             loadAdminChart();
         }
 
@@ -1270,7 +915,7 @@
                         <div class="admin-list-item">
                             <div class="info">
                                 <div class="name">${escapeHTML(name)}</div>
-                                <div class="detail">💵 $${balance.toFixed(4)} • 👁 ${ads} ads</div>
+                                <div class="detail">💵 ৳${balance.toFixed(2)} • 👁 ${ads} ads</div>
                             </div>
                             <span class="status-badge ${isBanned ? 'banned' : 'active'}">${isBanned ? '🚫 Banned' : '✅ Active'}</span>
                             <div class="actions">
@@ -1291,7 +936,6 @@
             firebaseDb.ref(`users/${userId}/banReason`).set('Banned by admin');
             showToast('✅ User banned successfully', 'success');
             loadUsers();
-            loadDashboardStats();
         }
 
         function unbanUser(userId) {
@@ -1300,7 +944,6 @@
             firebaseDb.ref(`users/${userId}/banReason`).remove();
             showToast('✅ User unbanned successfully', 'success');
             loadUsers();
-            loadDashboardStats();
         }
 
         // ============================================================
@@ -1319,18 +962,18 @@
                     return;
                 }
 
-                // Sort by date (newest first)
-                wIds.sort((a, b) => (withdrawals[b]?.date || 0) - (withdrawals[a]?.date || 0));
+                wIds.sort((a, b) => (withdrawals[b]?.timestamp || withdrawals[b]?.date || 0) - (withdrawals[a]?.timestamp || withdrawals[a]?.date || 0));
 
                 DOM.withdrawalsList.innerHTML = wIds.map(id => {
                     const w = withdrawals[id];
                     if (!w) return '';
                     const amount = w.amount || 0;
                     const method = w.method || 'Unknown';
-                    const status = w.status || 'Pending';
+                    let status = w.status || 'pending';
                     const userName = w.userName || 'Unknown';
-                    const account = w.accountNumber || '';
-                    const date = w.date ? new Date(w.date).toLocaleString() : 'Unknown';
+                    const account = w.account || w.accountNumber || '';
+                    const ts = w.timestamp || w.date;
+                    const date = ts ? new Date(ts).toLocaleString() : 'Unknown';
 
                     return `
                         <div class="admin-list-item">
@@ -1340,10 +983,10 @@
                                 <div class="detail" style="font-size:10px;">${date}</div>
                             </div>
                             <div style="text-align:right;">
-                                <div style="font-weight:700; font-size:16px; color:var(--success);">$${amount.toFixed(4)}</div>
+                                <div style="font-weight:700; font-size:16px; color:var(--success);">৳${amount.toFixed(2)}</div>
                                 <span class="status-badge ${status.toLowerCase()}">${status}</span>
                             </div>
-                            ${status === 'Pending' ? `
+                            ${status === 'pending' ? `
                                 <div class="actions">
                                     <button class="approve-btn" onclick="approveWithdrawal('${id}')"><i class="fa-solid fa-check"></i></button>
                                     <button class="reject-btn" onclick="rejectWithdrawal('${id}')"><i class="fa-solid fa-times"></i></button>
@@ -1357,7 +1000,7 @@
 
         function approveWithdrawal(withdrawalId) {
             if (!firebaseDb || !confirm('Approve this withdrawal request?')) return;
-            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('Approved');
+            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('approved');
             showToast('✅ Withdrawal approved', 'success');
             loadWithdrawals();
             loadDashboardStats();
@@ -1365,161 +1008,178 @@
 
         function rejectWithdrawal(withdrawalId) {
             if (!firebaseDb || !confirm('Reject this withdrawal request?')) return;
-            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('Rejected');
+            firebaseDb.ref(`withdrawals/${withdrawalId}/status`).set('rejected');
             showToast('❌ Withdrawal rejected', '');
             loadWithdrawals();
             loadDashboardStats();
         }
 
         // ============================================================
-        // JOBS MANAGEMENT
+        // ✅ TASKS MANAGEMENT (REPLACES JOBS)
+        // Firebase path: config/newTasks/{taskId}
         // ============================================================
-        let editingJobId = null;
+        let editingTaskId = null;
 
-        function toggleJobForm() {
-            const form = DOM.jobForm;
+        function toggleTaskForm() {
+            const form = DOM.taskForm;
             form.classList.toggle('active');
             if (!form.classList.contains('active')) {
-                document.getElementById('editJobId').value = '';
-                editingJobId = null;
-                // Clear form
-                document.getElementById('jobTitle').value = '';
-                document.getElementById('jobCategory').value = 'General';
-                document.getElementById('jobSubCategory').value = '';
-                document.getElementById('jobReward').value = '0.001';
-                document.getElementById('jobTotalViews').value = '100';
-                document.getElementById('jobDuration').value = '7';
-                document.getElementById('jobDesc').value = '';
-                document.getElementById('jobInstructions').value = '';
-                document.getElementById('jobRequirements').value = '';
-                document.getElementById('jobStatus').value = 'active';
-                document.querySelector('#jobForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Job';
+                document.getElementById('editTaskId').value = '';
+                editingTaskId = null;
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDesc').value = '';
+                document.getElementById('taskType').value = 'survey';
+                document.getElementById('taskCategory').value = 'Survey';
+                document.getElementById('taskReward').value = '5';
+                document.getElementById('taskSlots').value = '100';
+                document.getElementById('taskTimeLimit').value = '7';
+                document.getElementById('taskTimer').value = '60';
+                document.getElementById('taskLink').value = '';
+                document.querySelector('#taskForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Task';
+                toggleSurveyFields();
             }
         }
 
-        function editJob(jobId) {
-            if (!firebaseDb) return;
-            firebaseDb.ref(`ads/${jobId}`).once('value').then(snapshot => {
-                const job = snapshot.val();
-                if (!job) { showToast('❌ Job not found', 'error'); return; }
+        function toggleSurveyFields() {
+            const type = document.getElementById('taskType').value;
+            const linkGroup = document.getElementById('taskLinkGroup');
+            const timerInput = document.getElementById('taskTimer');
+            const isSurvey = type === 'survey';
+            linkGroup.style.display = isSurvey ? 'block' : 'block'; // show always but highlight
+            timerInput.disabled = !isSurvey;
+            if (isSurvey) {
+                linkGroup.style.opacity = '1';
+                timerInput.parentElement.style.opacity = '1';
+            } else {
+                linkGroup.style.opacity = '0.5';
+                timerInput.parentElement.style.opacity = '0.5';
+            }
+        }
 
-                document.getElementById('editJobId').value = jobId;
-                editingJobId = jobId;
-                document.getElementById('jobTitle').value = job.title || '';
-                document.getElementById('jobCategory').value = job.category || 'General';
-                document.getElementById('jobSubCategory').value = job.subCategory || '';
-                document.getElementById('jobReward').value = job.reward || 0.001;
-                document.getElementById('jobTotalViews').value = job.totalViews || 100;
-                document.getElementById('jobDuration').value = job.duration || 7;
-                document.getElementById('jobDesc').value = job.desc || '';
-                document.getElementById('jobInstructions').value = job.instructions || '';
-                document.getElementById('jobRequirements').value = job.requirements || '';
-                document.getElementById('jobStatus').value = job.status || 'active';
-                document.querySelector('#jobForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Job';
-                DOM.jobForm.classList.add('active');
+        function editTask(taskId) {
+            if (!firebaseDb) return;
+            firebaseDb.ref(`config/newTasks/${taskId}`).once('value').then(snapshot => {
+                const task = snapshot.val();
+                if (!task) { showToast('❌ Task not found', 'error'); return; }
+
+                document.getElementById('editTaskId').value = taskId;
+                editingTaskId = taskId;
+                document.getElementById('taskTitle').value = task.title || '';
+                document.getElementById('taskDesc').value = task.description || '';
+                document.getElementById('taskType').value = task.type || 'survey';
+                document.getElementById('taskCategory').value = task.category || 'Survey';
+                document.getElementById('taskReward').value = task.reward || 5;
+                document.getElementById('taskSlots').value = task.totalSlots || 100;
+                document.getElementById('taskTimeLimit').value = parseInt((task.timeLimit || '7 days').match(/\d+/)?.[0] || 7);
+                document.getElementById('taskTimer').value = task.timer || 60;
+                document.getElementById('taskLink').value = task.url || task.link || '';
+                document.querySelector('#taskForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Task';
+                toggleSurveyFields();
+                DOM.taskForm.classList.add('active');
             });
         }
 
-        function saveJob() {
-            const title = document.getElementById('jobTitle').value.trim();
-            const category = document.getElementById('jobCategory').value;
-            const subCategory = document.getElementById('jobSubCategory').value.trim();
-            const reward = parseFloat(document.getElementById('jobReward').value);
-            const totalViews = parseInt(document.getElementById('jobTotalViews').value);
-            const duration = parseInt(document.getElementById('jobDuration').value);
-            const desc = document.getElementById('jobDesc').value.trim();
-            const instructions = document.getElementById('jobInstructions').value.trim();
-            const requirements = document.getElementById('jobRequirements').value.trim();
-            const status = document.getElementById('jobStatus').value;
-            const editId = document.getElementById('editJobId').value;
+        function saveTask() {
+            if (!firebaseDb) return;
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDesc').value.trim();
+            const type = document.getElementById('taskType').value;
+            const category = document.getElementById('taskCategory').value.trim() || 'General';
+            const reward = parseFloat(document.getElementById('taskReward').value);
+            const totalSlots = parseInt(document.getElementById('taskSlots').value) || 100;
+            const timeLimitDays = parseInt(document.getElementById('taskTimeLimit').value) || 7;
+            const timer = parseInt(document.getElementById('taskTimer').value) || 60;
+            const url = document.getElementById('taskLink').value.trim();
+            const editId = document.getElementById('editTaskId').value;
 
-            if (!title || !desc || !reward || reward <= 0 || !totalViews || totalViews < 1) {
-                showToast('❌ Please fill all required fields correctly', 'error');
+            if (!title || !reward || reward <= 0) {
+                showToast('❌ Please enter title and valid reward', 'error');
+                return;
+            }
+            if (type === 'survey' && !url) {
+                showToast('❌ Survey task requires a URL', 'error');
+                return;
+            }
+            if (type === 'survey' && timer < 5) {
+                showToast('❌ Timer must be at least 5 seconds', 'error');
                 return;
             }
 
-            const jobData = {
+            const taskData = {
                 title: title,
+                description: description || '',
+                type: type,
                 category: category,
-                subCategory: subCategory,
                 reward: reward,
-                totalViews: totalViews,
-                duration: duration,
-                desc: desc,
-                instructions: instructions || 'No specific instructions',
-                requirements: requirements || 'No specific requirements',
-                status: status,
-                approved: true,
+                totalSlots: totalSlots,
+                timeLimit: timeLimitDays + ' days',
+                timer: timer,
+                url: url || '',
                 updatedAt: Date.now()
             };
 
             if (editId) {
-                // Update existing job
-                firebaseDb.ref(`ads/${editId}`).update(jobData).then(() => {
-                    showToast('✅ Job updated successfully!', 'success');
-                    toggleJobForm();
-                    loadJobs();
-                    loadDashboardStats();
-                }).catch(() => showToast('❌ Failed to update job', 'error'));
+                firebaseDb.ref(`config/newTasks/${editId}`).update(taskData).then(() => {
+                    showToast('✅ Task updated successfully!', 'success');
+                    toggleTaskForm();
+                    loadTasks();
+                }).catch(() => showToast('❌ Failed to update task', 'error'));
             } else {
-                // Create new job
-                jobData.createdAt = Date.now();
-                jobData.views = 0;
-                jobData.createdBy = 'admin';
-                jobData.creatorName = 'Admin';
-                firebaseDb.ref('ads').push(jobData).then(() => {
-                    showToast('✅ Job created successfully!', 'success');
-                    toggleJobForm();
-                    loadJobs();
-                    loadDashboardStats();
-                }).catch(() => showToast('❌ Failed to create job', 'error'));
+                taskData.createdAt = Date.now();
+                taskData.submittedCount = 0;
+                taskData.createdBy = 'admin';
+                firebaseDb.ref('config/newTasks').push(taskData).then(() => {
+                    showToast('✅ Task created successfully!', 'success');
+                    toggleTaskForm();
+                    loadTasks();
+                }).catch(() => showToast('❌ Failed to create task', 'error'));
             }
         }
 
-        function deleteJob(jobId) {
-            if (!firebaseDb || !confirm('Are you sure you want to delete this job?')) return;
-            firebaseDb.ref(`ads/${jobId}`).remove().then(() => {
-                showToast('✅ Job deleted', 'success');
-                loadJobs();
-                loadDashboardStats();
-            }).catch(() => showToast('❌ Failed to delete job', 'error'));
+        function deleteTask(taskId) {
+            if (!firebaseDb || !confirm('Are you sure you want to delete this task?')) return;
+            firebaseDb.ref(`config/newTasks/${taskId}`).remove().then(() => {
+                showToast('✅ Task deleted', 'success');
+                loadTasks();
+            }).catch(() => showToast('❌ Failed to delete task', 'error'));
         }
 
-        function loadJobs() {
+        function loadTasks() {
             if (!firebaseDb) return;
-            firebaseDb.ref('ads').once('value').then(snapshot => {
-                const jobs = snapshot.val() || {};
-                const jobIds = Object.keys(jobs);
-                DOM.jobCount.textContent = jobIds.length;
+            firebaseDb.ref('config/newTasks').once('value').then(snapshot => {
+                const tasks = snapshot.val() || {};
+                const taskIds = Object.keys(tasks);
+                DOM.taskCount.textContent = taskIds.length;
 
-                if (jobIds.length === 0) {
-                    DOM.jobsList.innerHTML =
-                        `<div class="empty-state"><i class="fa-solid fa-briefcase"></i><p>No jobs created</p></div>`;
+                if (taskIds.length === 0) {
+                    DOM.tasksList.innerHTML =
+                        `<div class="empty-state"><i class="fa-solid fa-tasks"></i><p>No tasks created yet</p></div>`;
                     return;
                 }
 
-                jobIds.sort((a, b) => (jobs[b]?.createdAt || 0) - (jobs[a]?.createdAt || 0));
+                taskIds.sort((a, b) => (tasks[b]?.createdAt || 0) - (tasks[a]?.createdAt || 0));
 
-                DOM.jobsList.innerHTML = jobIds.map(id => {
-                    const job = jobs[id];
-                    if (!job) return '';
-                    const status = job.status || 'active';
-                    const isActive = status === 'active';
-                    const views = job.views || 0;
-                    const totalViews = job.totalViews || 100;
-                    const progress = Math.min((views / totalViews) * 100, 100);
+                DOM.tasksList.innerHTML = taskIds.map(id => {
+                    const task = tasks[id];
+                    if (!task) return '';
+                    const submitted = task.submittedCount || 0;
+                    const total = task.totalSlots || 100;
+                    const progress = Math.min((submitted / total) * 100, 100);
+                    const typeBadge = task.type === 'survey' ? 'survey' : 'active';
+                    const typeIcon = task.type === 'survey' ? '📊' : task.type === 'voice' ? '🎤' : task.type === 'image' ? '🖼️' : '📝';
 
                     return `
                         <div class="admin-list-item">
                             <div class="info">
-                                <div class="name">${escapeHTML(job.title || 'Untitled')}</div>
-                                <div class="detail">💰 $${(job.reward || 0).toFixed(4)} • 👁 ${views}/${totalViews} (${progress.toFixed(0)}%)</div>
-                                <div class="detail" style="font-size:10px;">${escapeHTML(job.category || 'General')}</div>
+                                <div class="name">${typeIcon} ${escapeHTML(task.title || 'Untitled')}</div>
+                                <div class="detail">💰 ৳${(task.reward || 0).toFixed(2)} • 👥 ${submitted}/${total} (${progress.toFixed(0)}%)</div>
+                                ${task.type === 'survey' && task.timer ? `<div class="detail">⏱️ ${task.timer}s timer</div>` : ''}
+                                ${task.url ? `<div class="detail" style="font-size:10px; color:var(--primary-color);">🔗 ${escapeHTML(task.url).substring(0, 60)}${task.url.length > 60 ? '...' : ''}</div>` : ''}
                             </div>
-                            <span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? '✅ Active' : '⏸ Paused'}</span>
+                            <span class="status-badge ${typeBadge}">${escapeHTML(task.type || 'task').toUpperCase()}</span>
                             <div class="actions">
-                                <button class="edit-btn" onclick="editJob('${id}')"><i class="fa-solid fa-pen"></i></button>
-                                <button class="delete-btn" onclick="deleteJob('${id}')"><i class="fa-solid fa-trash"></i></button>
+                                <button class="edit-btn" onclick="editTask('${id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="delete-btn" onclick="deleteTask('${id}')"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     `;
@@ -1635,7 +1295,7 @@
                         <div class="admin-list-item">
                             <div class="info">
                                 <div class="name">${escapeHTML(tier.name || 'Unnamed')}</div>
-                                <div class="detail">💰 $${(tier.prize || 0).toFixed(2)} • 👁 ${tier.requiredAds || 0} ads</div>
+                                <div class="detail">💰 ৳${(tier.prize || 0).toFixed(2)} • 👁 ${tier.requiredAds || 0} ads</div>
                             </div>
                             <span class="status-badge ${isActive ? 'active' : 'inactive'}">${isActive ? '✅ Active' : '⏸ Inactive'}</span>
                             <div class="actions">
@@ -1660,7 +1320,7 @@
                 document.getElementById('editBonusId').value = '';
                 editingBonusId = null;
                 document.getElementById('bonusTitle').value = '';
-                document.getElementById('bonusReward').value = '0.01';
+                document.getElementById('bonusReward').value = '20';
                 document.getElementById('bonusDuration').value = '10';
                 document.getElementById('bonusLink').value = '';
                 document.querySelector('#bonusForm .save-btn').innerHTML = '<i class="fa-solid fa-save"></i> Save Bonus';
@@ -1676,7 +1336,7 @@
                 document.getElementById('editBonusId').value = bonusId;
                 editingBonusId = bonusId;
                 document.getElementById('bonusTitle').value = bonus.title || '';
-                document.getElementById('bonusReward').value = bonus.reward || 0.01;
+                document.getElementById('bonusReward').value = bonus.reward || 20;
                 document.getElementById('bonusDuration').value = bonus.duration || 10;
                 document.getElementById('bonusLink').value = bonus.link || '';
                 document.querySelector('#bonusForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Bonus';
@@ -1750,7 +1410,7 @@
                         <div class="admin-list-item">
                             <div class="info">
                                 <div class="name">${escapeHTML(bonus.title || 'Untitled')}</div>
-                                <div class="detail">💰 $${(bonus.reward || 0).toFixed(4)} • ⏱ ${bonus.duration || 10}s</div>
+                                <div class="detail">💰 ৳${(bonus.reward || 0).toFixed(2)} • ⏱ ${bonus.duration || 10}s</div>
                             </div>
                             <div class="actions">
                                 <button class="edit-btn" onclick="editBonus('${id}')"><i class="fa-solid fa-pen"></i></button>
@@ -1763,7 +1423,7 @@
         }
 
         // ============================================================
-        // CHANNELS MANAGEMENT (Admin can add/remove channel links)
+        // CHANNELS MANAGEMENT
         // ============================================================
         let editingChannelIndex = null;
 
@@ -1782,7 +1442,7 @@
 
         function editChannel(index) {
             if (!firebaseDb) return;
-            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+            firebaseDb.ref('config/channelLinks').once('value').then(snapshot => {
                 const links = snapshot.val() || [];
                 const channel = links[index];
                 if (!channel) { showToast('❌ Channel not found', 'error'); return; }
@@ -1790,7 +1450,7 @@
                 document.getElementById('editChannelIndex').value = index;
                 editingChannelIndex = index;
                 document.getElementById('channelLabel').value = channel.label || '';
-                document.getElementById('channelUrl').value = channel.url || '';
+                document.getElementById('channelUrl').value = channel.url || 'https://t.me/' + (channel.chatId || '');
                 document.getElementById('channelUsername').value = channel.chatId || '';
                 document.querySelector('#channelForm .save-btn').innerHTML = '<i class="fa-solid fa-pen"></i> Update Channel';
                 DOM.channelForm.classList.add('active');
@@ -1815,22 +1475,20 @@
             };
 
             if (editIndex !== '') {
-                // Update existing
-                firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                firebaseDb.ref('config/channelLinks').once('value').then(snapshot => {
                     const links = snapshot.val() || [];
                     links[parseInt(editIndex)] = channelData;
-                    firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                    firebaseDb.ref('config/channelLinks').set(links).then(() => {
                         showToast('✅ Channel updated!', 'success');
                         toggleChannelForm();
                         loadChannels();
                     });
                 });
             } else {
-                // Add new
-                firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+                firebaseDb.ref('config/channelLinks').once('value').then(snapshot => {
                     const links = snapshot.val() || [];
                     links.push(channelData);
-                    firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                    firebaseDb.ref('config/channelLinks').set(links).then(() => {
                         showToast('✅ Channel added!', 'success');
                         toggleChannelForm();
                         loadChannels();
@@ -1841,10 +1499,10 @@
 
         function deleteChannel(index) {
             if (!firebaseDb || !confirm('Are you sure you want to delete this channel?')) return;
-            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+            firebaseDb.ref('config/channelLinks').once('value').then(snapshot => {
                 const links = snapshot.val() || [];
                 links.splice(index, 1);
-                firebaseDb.ref('adminConfig/channelLinks').set(links).then(() => {
+                firebaseDb.ref('config/channelLinks').set(links).then(() => {
                     showToast('✅ Channel deleted', 'success');
                     loadChannels();
                 });
@@ -1853,7 +1511,7 @@
 
         function loadChannels() {
             if (!firebaseDb) return;
-            firebaseDb.ref('adminConfig/channelLinks').once('value').then(snapshot => {
+            firebaseDb.ref('config/channelLinks').once('value').then(snapshot => {
                 const links = snapshot.val() || [];
                 DOM.channelCount.textContent = links.length;
 
@@ -1886,21 +1544,21 @@
         // ============================================================
         function loadSettings() {
             if (!firebaseDb) return;
-            firebaseDb.ref('adminConfig').once('value').then(snapshot => {
+            firebaseDb.ref('config').once('value').then(snapshot => {
                 const data = snapshot.val() || {};
-                DOM.setAdReward.value = data.adReward || 0.001;
-                DOM.setDailyLimit.value = data.dailyLimit || 15;
-                DOM.setMinWithdraw.value = data.minWithdraw || 0.10;
+                DOM.setAdReward.value = data.adReward || 0.5;
+                DOM.setDailyLimit.value = data.dailyAdLimit || 10;
+                DOM.setMinWithdraw.value = data.minWithdraw || 10;
                 DOM.setCooldown.value = data.cooldown || 30;
-                DOM.setReferralReward.value = data.referralReward || 0.01;
-                DOM.setAdCooldown.value = data.adCooldownMinutes || 1;
+                DOM.setReferralReward.value = data.refBonus || 5;
+                DOM.setDailyBonus.value = data.dailyBonusAmount || 20;
                 DOM.setAdDuration.value = data.adWatchDuration || 15;
-                DOM.setMinAdWatch.value = data.minAdWatchTime || 10;
+                DOM.setCommRate.value = data.refCommissionRate || 2;
                 DOM.setSupportLink.value = data.supportLink || 'https://t.me/NexEarn2Support';
-                DOM.setWelcomeMessage.value = data.welcomeMessage || '';
+                DOM.setTutorialLink.value = data.tutorialLink || '';
                 DOM.setMaintenance.checked = data.maintenance?.active || false;
                 DOM.setMaintenanceMessage.value = data.maintenance?.message || "We're currently updating our system. Please check back later.";
-                DOM.setMaintenanceTime.value = data.maintenance?.estimatedTime || "30 minutes";
+                DOM.setMaintenanceTime.value = data.maintenance?.estimatedMinutes || 30;
                 updateMaintenanceStatus();
             });
         }
@@ -1908,20 +1566,21 @@
         function saveSettings() {
             if (!firebaseDb) return;
             const settings = {
-                adReward: parseFloat(DOM.setAdReward.value) || 0.001,
-                dailyLimit: parseInt(DOM.setDailyLimit.value) || 15,
-                minWithdraw: parseFloat(DOM.setMinWithdraw.value) || 0.10,
+                adReward: parseFloat(DOM.setAdReward.value) || 0.5,
+                dailyAdLimit: parseInt(DOM.setDailyLimit.value) || 10,
+                minWithdraw: parseFloat(DOM.setMinWithdraw.value) || 10,
                 cooldown: parseInt(DOM.setCooldown.value) || 30,
-                referralReward: parseFloat(DOM.setReferralReward.value) || 0.01,
-                adCooldownMinutes: parseInt(DOM.setAdCooldown.value) || 1,
+                refBonus: parseFloat(DOM.setReferralReward.value) || 5,
+                dailyBonusAmount: parseFloat(DOM.setDailyBonus.value) || 20,
                 adWatchDuration: parseInt(DOM.setAdDuration.value) || 15,
-                minAdWatchTime: parseInt(DOM.setMinAdWatch.value) || 10,
+                refCommissionRate: parseFloat(DOM.setCommRate.value) || 2,
                 supportLink: DOM.setSupportLink.value.trim() || 'https://t.me/NexEarn2Support',
-                welcomeMessage: DOM.setWelcomeMessage.value.trim() || '',
+                tutorialLink: DOM.setTutorialLink.value.trim() || '',
+                currencySymbol: '৳',
                 updatedAt: Date.now()
             };
 
-            firebaseDb.ref('adminConfig').update(settings).then(() => {
+            firebaseDb.ref('config').update(settings).then(() => {
                 showToast('✅ Settings saved successfully!', 'success');
             }).catch(() => showToast('❌ Failed to save settings', 'error'));
         }
@@ -1930,16 +1589,15 @@
             if (!firebaseDb) return;
             const active = DOM.setMaintenance.checked;
             const message = DOM.setMaintenanceMessage.value.trim() || "We're currently updating our system. Please check back later.";
-            const estimatedTime = DOM.setMaintenanceTime.value.trim() || "30 minutes";
+            const estimatedMinutes = parseInt(DOM.setMaintenanceTime.value) || 30;
 
-            firebaseDb.ref('adminConfig/maintenance').set({
+            firebaseDb.ref('config/maintenance').set({
                 active: active,
                 message: message,
-                estimatedTime: estimatedTime,
+                estimatedMinutes: estimatedMinutes,
                 updatedAt: Date.now()
             }).then(() => {
-                showToast(active ? '🔧 Maintenance mode enabled' : '✅ Maintenance mode disabled', active ? 'warning' :
-                    'success');
+                showToast(active ? '🔧 Maintenance mode enabled' : '✅ Maintenance mode disabled', active ? 'warning' : 'success');
                 updateMaintenanceStatus();
             }).catch(() => showToast('❌ Failed to update maintenance mode', 'error'));
         }
@@ -1974,10 +1632,8 @@
             loadSettings();
             loadChannels();
 
-            // Set maintenance checkbox listener
             DOM.setMaintenance.addEventListener('change', updateMaintenanceStatus);
 
-            // Set theme from system
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.documentElement.setAttribute('data-theme', 'dark');
             }
@@ -1990,10 +1646,6 @@
         }
 
         // ============================================================
-        // AUTO LOGIN CHECK
-        // ============================================================
-
-        // ============================================================
         // ENTER KEY SUPPORT FOR LOGIN
         // ============================================================
         document.addEventListener('keydown', function(e) {
@@ -2004,7 +1656,7 @@
 
         console.log("🔐 NexEarn Admin Panel loaded");
         console.log("👤 Default Login: admin / nexearn2024");
-        console.log("📢 Channel Links: Admin can add/remove channels for users to join");
+        console.log("📋 Survey Tasks: config/newTasks");
     </script>
 </body>
 </html>
